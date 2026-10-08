@@ -43,6 +43,11 @@ function report_coursemanager_get_assign_comment($courseid) {
     // Check heavy files and orphans files in assign activity.
 
     // FIRST TEST : heavy files.
+    // Totals for all assigns in course, and list of heavy assigns.
+    $assigncountfilesreturn = 0;
+    $assignfilessizereturn = 0;
+    $heavyassigns = [];
+
     // If there are assign in course, check files infos.
     foreach ($modinfo->get_instances_of('assign') as $assignid => $cminfo) {
         // Start count of total file sizes for an assign.
@@ -65,20 +70,16 @@ function report_coursemanager_get_assign_comment($courseid) {
             }
         }
 
-        // Define the return counts.
-        $assigncountfilesreturn = $totalassigncountfiles;
-        $assignfilessizereturn = $totalassignsize;
+        // Add this assign to the course totals.
+        $assigncountfilesreturn += $totalassigncountfiles;
+        $assignfilessizereturn += $totalassignsize;
         // Total files size rounded in Mo.
         $roundedassignsize = number_format(ceil($totalassignsize / 1048576));
 
-        // Create new object to stock heavy files information.
-        $heavyassigns = [];
-
         // If file crosses limit, add information.
         if ($roundedassignsize > get_config('report_coursemanager', 'unique_filesize_threshold')) {
-            $assigntoempty[] = (['weight' => $roundedassignsize, 'name' => $cm->name]);
+            $heavyassigns[] = (['weight' => $roundedassignsize, 'name' => $cm->name]);
         }
-        $heavyassigns = (array)$assigntoempty;
     }
     $comment = '';
 
