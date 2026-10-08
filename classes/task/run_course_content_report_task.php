@@ -103,6 +103,23 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         unset($dataweight);
                         unset($existsweight);
 
+                        // Size of a course backup (.mbz) without user data.
+                        $mbzsize = report_coursemanager_get_course_backup_size($course->id) ?: null;
+                        $existsmbz = $DB->get_record('report_coursemanager_reports',
+                            ['course' => $course->id, 'report' => 'mbz_weight']);
+                        $datambz = new \stdClass();
+                        $datambz->course = $course->id;
+                        $datambz->report = 'mbz_weight';
+                        $datambz->detail = $mbzsize;
+                        if (empty($existsmbz)) {
+                            $res = $DB->insert_record($table, $datambz);
+                        } else {
+                            $datambz->id = $existsmbz->id;
+                            $res = $DB->update_record($table, $datambz);
+                        }
+                        unset($datambz);
+                        unset($existsmbz);
+
                         // 1- TEST FOR TOTAL COURSE SIZE.
                         // If total_course_size exceeds limit, add warning.
                         // If total filesize is bigger than limit defined in parameters, create alert.
