@@ -672,3 +672,16 @@ function aggregation_average($course_weight, $average) {
 
     return $icon_average;
 }
+
+/**
+ * Creates a table cell with a value used by DataTables to sort the column.
+ *
+ * @param string $content Cell content.
+ * @param int $order Value used to sort the column (for example a size in bytes).
+ * @return html_table_cell
+ */
+function report_coursemanager_sortable_cell($content, $order) {
+    $cell = new html_table_cell($content);
+    $cell->attributes['data-order'] = $order;
+    return $cell;
+}

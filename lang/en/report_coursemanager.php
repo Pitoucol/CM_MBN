@@ -417,6 +417,7 @@ $string['dt_info']         = 'Showing _START_ to _END_ of _TOTAL_';
 $string['dt_infoempty']    = 'No results';
 $string['dt_infofiltered'] = '(filtered from _MAX_ total)';
 $string['dt_zerorecords']  = 'No courses found';
+$string['dt_nofilterresult'] = 'No course matches the filter "_FILTER_".';
 $string['dt_first']        = '«';
 $string['dt_last']         = '»';
 $string['dt_next']         = '›';

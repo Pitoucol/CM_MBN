@@ -52,6 +52,7 @@ $PAGE->requires->js_call_amd('report_coursemanager/coursetable', 'init', [
         'infoEmpty'    => get_string('dt_infoempty', 'report_coursemanager'),
         'infoFiltered' => get_string('dt_infofiltered', 'report_coursemanager'),
         'zeroRecords'  => get_string('dt_zerorecords', 'report_coursemanager'),
+        'noFilterResult' => get_string('dt_nofilterresult', 'report_coursemanager'),
         'first'        => get_string('dt_first', 'report_coursemanager'),
         'last'         => get_string('dt_last', 'report_coursemanager'),
         'next'         => get_string('dt_next', 'report_coursemanager'),
@@ -176,7 +177,6 @@ if (count($listusercourses) == 0) {
         $table->head[] = get_string('table_mbz_size', 'report_coursemanager') .
             $OUTPUT->help_icon('table_mbz_size', 'report_coursemanager');
     }
-    // TO DO : hide sortable icons for median and average columns.
     if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
         if (get_config('report_coursemanager', 'aggregation_choice') == 1 ||
             get_config('report_coursemanager', 'aggregation_choice') == 2) {
@@ -251,17 +251,17 @@ if (count($listusercourses) == 0) {
                 );
                 if (get_config('report_coursemanager', 'enable_column_coursesize') == 1) {
                     // Files size and MBZ size columns.
-                    $row[] = html_writer::label('', null);
-                    $row[] = html_writer::label('', null);
+                    $row[] = report_coursemanager_sortable_cell('', -1);
+                    $row[] = report_coursemanager_sortable_cell('', -1);
                 }
                 if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
                     if (get_config('report_coursemanager', 'aggregation_choice') == 1 ||
                         get_config('report_coursemanager', 'aggregation_choice') == 2) {
-                        $row[] = html_writer::label('', null);
+                        $row[] = report_coursemanager_sortable_cell('', -1);
                     }
                     if (get_config('report_coursemanager', 'aggregation_choice') == 0 ||
                         get_config('report_coursemanager', 'aggregation_choice') == 2) {
-                        $row[] = html_writer::label('', null);
+                        $row[] = report_coursemanager_sortable_cell('', -1);
                     }
                 }
                 if (get_config('report_coursemanager', 'enable_column_cohorts') == 1) {
@@ -328,33 +328,35 @@ if (count($listusercourses) == 0) {
                     $calculated  = 1;
                 }
 
+                // Raw weight in bytes, used to sort size and comparison columns.
+                $weightorder = ($calculated === 0) ? 0 : (int) $weight->detail;
+
                 if (get_config('report_coursemanager', 'enable_column_coursesize') == 1) {
                     if ($calculated === 0) {
-                        $row[] = html_writer::label(
+                        $weightcell = html_writer::label(
                             '<i class="' . $iconsize . ' fa-lg"></i>&nbsp;&nbsp;<i>' .
                             get_string('weight_not_calculated', 'report_coursemanager') . '</i>',
                             null
                         );
                     } else {
-                        $row[] = html_writer::link(
+                        $weightcell = html_writer::link(
                             'course_files.php?courseid=' . $course->id,
                             '<i class="' . $iconsize . ' fa-lg"></i>&nbsp;&nbsp;' .
                             (!$weight ? '' : display_size($weight->detail, 0, 'MB')) . ' ',
                             ['class' => $weightclass]
                         );
                     }
+                    $row[] = report_coursemanager_sortable_cell($weightcell, $weightorder);
 
-                    // Size of a course backup (.mbz) without user data.
+                    // Size of a course backup (.mbz) without user data, sorted on the size in bytes.
                     $mbzsize = $DB->get_field('report_coursemanager_reports', 'detail',
                         ['course' => $course->id, 'report' => 'mbz_weight']);
                     if ($mbzsize === false) {
-                        $mbzcell = new html_table_cell('<i>' . get_string('weight_not_calculated', 'report_coursemanager') . '</i>');
+                        $mbzcontent = '<i>' . get_string('weight_not_calculated', 'report_coursemanager') . '</i>';
                     } else {
-                        $mbzcell = new html_table_cell(display_size((int) $mbzsize, 0, 'MB'));
+                        $mbzcontent = display_size((int) $mbzsize, 0, 'MB');
                     }
-                    // Raw size in bytes, so that the column is sorted numerically.
-                    $mbzcell->attributes['data-order'] = (int) $mbzsize;
-                    $row[] = $mbzcell;
+                    $row[] = report_coursemanager_sortable_cell($mbzcontent, (int) $mbzsize);
                 }
 
                 if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
@@ -364,15 +366,15 @@ if (count($listusercourses) == 0) {
                     if (get_config('report_coursemanager', 'aggregation_choice') == 1 ||
                         get_config('report_coursemanager', 'aggregation_choice') == 2) {
                         $median = (!empty($aggregations) && isset($aggregations->median)) ? intval($aggregations->median) : 0;
-                        $row[] = html_writer::div(
-                            aggregation_median($weightdetail, $median), null
+                        $row[] = report_coursemanager_sortable_cell(
+                            html_writer::div(aggregation_median($weightdetail, $median), null), $weightorder
                         );
                     }
                     if (get_config('report_coursemanager', 'aggregation_choice') == 0 ||
                         get_config('report_coursemanager', 'aggregation_choice') == 2) {
                         $average = (!empty($aggregations) && isset($aggregations->average)) ? intval($aggregations->average) : 0;
-                        $row[] = html_writer::div(
-                            aggregation_average($weightdetail, $average), null
+                        $row[] = report_coursemanager_sortable_cell(
+                            html_writer::div(aggregation_average($weightdetail, $average), null), $weightorder
                         );
                     }
                 }
@@ -387,16 +389,20 @@ if (count($listusercourses) == 0) {
                     $row[] = html_writer::label(count($allteachers + $otherteachers), null);
                 }
 
+                // Heavy course : same rule as the weight column colour, with the current threshold,
+                // so that the "heavy course" filter shows exactly the courses displayed in red.
+                if ($calculated === 1 && $weight->detail > $threshold) {
+                    $info = new stdClass();
+                    $info->courseid = $course->id;
+                    $sumup         .= '<li>' . get_string('total_filesize_alert', 'report_coursemanager', $info) . '</li><br />';
+                    $iconssumup    .= "<i class='fa fa-lg fa-thermometer-three-quarters text-danger'></i>&nbsp;";
+                    $allrowclasses .= ' heavy-course';
+                }
+
                 $reports = $DB->get_records('report_coursemanager_reports', ['course' => $course->id]);
                 foreach ($reports as $report) {
                     $info = new stdClass();
                     switch ($report->report) {
-                        case 'heavy':
-                            $info->courseid = $course->id;
-                            $sumup         .= '<li>' . get_string('total_filesize_alert', 'report_coursemanager', $info) . '</li><br />';
-                            $iconssumup    .= "<i class='fa fa-lg fa-thermometer-three-quarters text-danger'></i>&nbsp;";
-                            $allrowclasses .= ' heavy-course';
-                            break;
                         case 'no_visit_teacher':
                             $info->limit_visit = floor(get_config('report_coursemanager', 'last_access_teacher') / 30);
                             if (count($allteachers + $otherteachers) > 1) {

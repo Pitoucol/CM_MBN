@@ -99,7 +99,8 @@ define([
 
         // Initialise DataTables.
         var dt = $(tableEl).DataTable({
-            // No ordering on recommendations and actions columns (last two).
+            // All columns can be sorted, except recommendations and actions (last two).
+            // Size and comparison columns are sorted on the size in bytes (data-order attribute).
             columnDefs: [
                 {orderable: false, targets: -1},
                 {orderable: false, targets: -2},
@@ -148,6 +149,29 @@ define([
             },
         });
 
+        // Message shown above the table when the active filter matches no course.
+        var filterMessage = document.createElement('div');
+        filterMessage.className = 'alert alert-warning';
+        filterMessage.setAttribute('role', 'alert');
+        filterMessage.hidden = true;
+        var wrapper = tableEl.closest('.dataTables_wrapper') || tableEl;
+        wrapper.parentNode.insertBefore(filterMessage, wrapper);
+
+        /**
+         * Show or hide the "no course for this filter" message.
+         *
+         * @param {HTMLElement} btn The active filter button.
+         */
+        var updateFilterMessage = function(btn) {
+            var count = dt.rows({search: 'applied'}).count();
+            if (activeFilter !== 'filterrow' && count === 0) {
+                filterMessage.textContent = lang.noFilterResult.replace('_FILTER_', btn.textContent.trim());
+                filterMessage.hidden = false;
+            } else {
+                filterMessage.hidden = true;
+            }
+        };
+
         // Filter buttons.
         document.querySelectorAll('.coursemanager-filter-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -156,6 +180,7 @@ define([
                 btn.classList.add('active');
                 activeFilter = btn.dataset.filter || 'filterrow';
                 dt.draw();
+                updateFilterMessage(btn);
             });
         });
 
@@ -164,6 +189,7 @@ define([
         if (searchInput) {
             searchInput.addEventListener('keyup', function() {
                 dt.search(searchInput.value).draw();
+                updateFilterMessage(document.querySelector('.coursemanager-filter-btn.active'));
             });
         }
     };
