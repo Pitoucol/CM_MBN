@@ -50,6 +50,7 @@ class run_course_content_report_task extends \core\task\scheduled_task {
         // If empty and heavy courses report is enabled in settings, start process.
         if (get_config('report_coursemanager', 'enable_course_content_task') == 1) {
             global $CFG, $DB, $USER;
+            require_once($CFG->dirroot . '/report/coursemanager/lib.php');
             $table = 'report_coursemanager_reports';
             $now = time();
 
@@ -80,15 +81,9 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         // Start reports calculation.
 
                         // 0 CALCULATE TOTAL COURSE SIZE.
-                        // Query for total files size in course.
-                        $sql = 'SELECT SUM(filesize)
-                            FROM {files}
-                            WHERE contextid
-                            IN (SELECT id FROM {context} WHERE contextlevel = 70 AND instanceid IN
-                            (SELECT id FROM {course_modules} WHERE course = ?)) ';
-                        $paramsdb = [$course->id];
-                        $dbresult = $DB->get_field_sql($sql, $paramsdb);
-                        $filesize = $dbresult;
+                        // Size of course files, as in a backup without user data.
+                        // Courses without files keep an empty weight, excluded from median and average.
+                        $filesize = report_coursemanager_get_course_size($course->id) ?: null;
 
                         // Check if course weight information exist in database.
                         $existsweight = $DB->get_record('report_coursemanager_reports',

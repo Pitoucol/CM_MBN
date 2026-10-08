@@ -72,16 +72,8 @@ $sizesql = "SELECT a.component, SUM(a.filesize) as filesize, COUNT(a.contenthash
 
 $cxsizes = $DB->get_recordset_sql($sizesql, [$contextcheck]);
 
-// Query for total files size in course.
-$sql = 'SELECT SUM(filesize)
-    FROM {files}
-    WHERE contextid
-    IN (SELECT id FROM {context} WHERE contextlevel = 70 AND instanceid IN
-        (SELECT id FROM {course_modules} WHERE course = ?)) ';
-$paramsdb = [$course->id];
-$dbresult = $DB->get_field_sql($sql, $paramsdb);
-// Rounded files size in Mo.
-$filesize = (int) ceil($dbresult / 1048576);
+// Total files size in course, as in a backup without user data, rounded in Mo.
+$filesize = (int) ceil(report_coursemanager_get_course_size($course->id) / 1048576);
 
 // Initialize table to show results.
 $coursetable = new html_table();
