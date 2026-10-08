@@ -161,17 +161,16 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
     $course = $DB->get_record('course', ['id' => $courseid]);
     $modinfo = get_fast_modinfo($course);
 
+    // Heavy files and videos found in all instances of the component.
+    $heavyfiles = [];
+    $videos = [];
+
     // For each component, check files.
     foreach ($modinfo->get_instances_of($component) as $resourceid => $cminfo) {
         $cm = get_coursemodule_from_instance($component, $resourceid);
         $contextres = context_module::instance($cm->id);
         $fsres = get_file_storage();
         $filesrev = $fsres->get_area_files($contextres->id, 'mod_'.$component, $filearea);
-
-        $heavyfiles = [];
-        $videos = [];
-        $heavyfile = [];
-        $video = [];
 
         // For each file, check MIME type and size.
         foreach ($filesrev as $f) {
@@ -184,13 +183,11 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
                 if (strpos($f->get_mimetype(), 'video') !== false && $weight >=
                 get_config('report_coursemanager', 'unique_filesize_threshold')) {
                     // If file is a video AND exceeds file limit, add warning about Web TV.
-                    $video[] = (['weight' => $weight, 'name' => $f->get_filename()]);
+                    $videos[] = (['weight' => $weight, 'name' => $f->get_filename()]);
                 } else if ($weight > get_config('report_coursemanager', 'unique_filesize_threshold')) {
                     // If file is no video, just add warning about size.
-                    $heavyfile[] = (['weight' => $weight, 'name' => $f->get_filename()]);
+                    $heavyfiles[] = (['weight' => $weight, 'name' => $f->get_filename()]);
                 }
-                $videos = (array)$video;
-                $heavyfiles = (array)$heavyfile;
             }
         }
     }
