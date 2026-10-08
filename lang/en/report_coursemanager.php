@@ -202,7 +202,7 @@ $string['select_restore_category'] = 'Choose category to move course';
 
 // Page - Files information.
 $string['coursesize'] = 'Course size';
-$string['totalsize'] = 'Total files size (as a backup without user data) : ';
+$string['totalsize'] = 'Total files size (on disk, user data included) : ';
 $string['watchedfilessize'] = 'Total size for most watched files : ';
 $string['watchedfilessizedetails'] = 'These files come from most used activities : Assign, Resource, Forum, Folder and Label.';
 $string['plugin'] = 'Activity type';

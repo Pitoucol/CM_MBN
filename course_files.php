@@ -72,7 +72,7 @@ $sizesql = "SELECT a.component, SUM(a.filesize) as filesize, COUNT(a.contenthash
 
 $cxsizes = $DB->get_recordset_sql($sizesql, [$contextcheck]);
 
-// Total files size in course, as in a backup without user data, rounded in Mo.
+// Total files size of course on disk, rounded in Mo.
 $filesize = (int) ceil(report_coursemanager_get_course_size($course->id) / 1048576);
 
 // Initialize table to show results.

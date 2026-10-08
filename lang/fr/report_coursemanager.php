@@ -207,7 +207,7 @@ $string['select_restore_category'] = 'Choisissez la catégorie de restauration d
 // Page - Files information.
 $string['coursesize'] = 'Taille du cours';
 $string['coursereport'] = 'EXPLICATIONS - A venir !';
-$string['totalsize'] = 'Poids total des fichiers du cours (comme une sauvegarde sans données utilisateurs) : ';
+$string['totalsize'] = 'Poids total des fichiers du cours (sur le disque, données utilisateurs comprises) : ';
 $string['watchedfilessize'] = 'Poids des fichiers les plus surveillés : ';
 $string['watchedfilessizedetails'] = 'Ces fichiers les plus surveillés proviennent des activités les plus utilisées : Dossier, Fichier, Forum, Devoir et Étiquette.';
 $string['plugin'] = 'Type d\'activité';

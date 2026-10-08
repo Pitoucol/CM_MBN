@@ -81,7 +81,7 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         // Start reports calculation.
 
                         // 0 CALCULATE TOTAL COURSE SIZE.
-                        // Size of course files, as in a backup without user data.
+                        // Size of course files on disk, user data included.
                         // Courses without files keep an empty weight, excluded from median and average.
                         $filesize = report_coursemanager_get_course_size($course->id) ?: null;
 
