@@ -434,6 +434,7 @@ $string['dt_info'] = 'Résultats _START_ à _END_ sur _TOTAL_';
 $string['dt_infoempty'] = 'Aucun résultat';
 $string['dt_infofiltered'] = '(filtré sur _MAX_ au total)';
 $string['dt_zerorecords']  = 'Aucun cours trouvé';
+$string['dt_nofilterresult'] = 'Aucun cours ne correspond au filtre « _FILTER_ ».';
 $string['dt_first'] = '«';
 $string['dt_last'] = '»';
 $string['dt_next'] = '›';

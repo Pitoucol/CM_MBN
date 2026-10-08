@@ -28,14 +28,6 @@ tr.dt-odd td {
 tr.dt-even td {
     background-color: #ffffff !important;
 }
-#courses thead th.sorting:before,
-#courses thead th.sorting:after,
-#courses thead th.sorting_asc:before,
-#courses thead th.sorting_asc:after,
-#courses thead th.sorting_desc:before,
-#courses thead th.sorting_desc:after {
-    display: none;
-}
 
 /* =============================================================================
    DataTables Bootstrap 5 integration — v1.13.6
