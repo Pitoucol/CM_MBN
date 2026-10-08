@@ -173,6 +173,8 @@ if (count($listusercourses) == 0) {
     $table->head[] = get_string('table_course_state', 'report_coursemanager');
     if (get_config('report_coursemanager', 'enable_column_coursesize') == 1) {
         $table->head[] = get_string('table_files_weight', 'report_coursemanager');
+        $table->head[] = get_string('table_mbz_size', 'report_coursemanager') .
+            $OUTPUT->help_icon('table_mbz_size', 'report_coursemanager');
     }
     // TO DO : hide sortable icons for median and average columns.
     if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
@@ -248,6 +250,8 @@ if (count($listusercourses) == 0) {
                     'course_trash'
                 );
                 if (get_config('report_coursemanager', 'enable_column_coursesize') == 1) {
+                    // Files size and MBZ size columns.
+                    $row[] = html_writer::label('', null);
                     $row[] = html_writer::label('', null);
                 }
                 if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
@@ -339,6 +343,18 @@ if (count($listusercourses) == 0) {
                             ['class' => $weightclass]
                         );
                     }
+
+                    // Size of a course backup (.mbz) without user data.
+                    $mbzsize = $DB->get_field('report_coursemanager_reports', 'detail',
+                        ['course' => $course->id, 'report' => 'mbz_weight']);
+                    if ($mbzsize === false) {
+                        $mbzcell = new html_table_cell('<i>' . get_string('weight_not_calculated', 'report_coursemanager') . '</i>');
+                    } else {
+                        $mbzcell = new html_table_cell(display_size((int) $mbzsize, 0, 'MB'));
+                    }
+                    // Raw size in bytes, so that the column is sorted numerically.
+                    $mbzcell->attributes['data-order'] = (int) $mbzsize;
+                    $row[] = $mbzcell;
                 }
 
                 if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {

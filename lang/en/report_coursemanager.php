@@ -113,6 +113,8 @@ $string['trash'] = 'This course is in the category for deleted courses.';
 $string['table_course_name'] = 'Course name';
 $string['table_course_state'] = 'Visibility';
 $string['table_files_weight'] = 'Total files size';
+$string['table_mbz_size'] = 'MBZ size';
+$string['table_mbz_size_help'] = 'Approximate size of a backup of this course (.mbz file) <b>without user data</b>, before compression. Assign submissions, forum posts and other participants data are not counted, nor course backups and recycle bin.';
 $string['table_size_comparison_median'] = 'Comparison - Median course size';
 $string['table_size_comparison_average'] = 'Comparison - Average course size';
 $string['table_enrolled_cohorts'] = 'Cohorts';
@@ -202,7 +204,7 @@ $string['select_restore_category'] = 'Choose category to move course';
 
 // Page - Files information.
 $string['coursesize'] = 'Course size';
-$string['totalsize'] = 'Total files size : ';
+$string['totalsize'] = 'Total files size (on disk, user data included) : ';
 $string['watchedfilessize'] = 'Total size for most watched files : ';
 $string['watchedfilessizedetails'] = 'These files come from most used activities : Assign, Resource, Forum, Folder and Label.';
 $string['plugin'] = 'Activity type';

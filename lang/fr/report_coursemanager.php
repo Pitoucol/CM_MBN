@@ -113,6 +113,8 @@ $string['trash'] = 'Ce cours est dans la catégorie à supprimer.';
 $string['table_course_name'] = 'Nom du cours';
 $string['table_course_state'] = 'État';
 $string['table_files_weight'] = 'Poids des fichiers';
+$string['table_mbz_size'] = 'Poids MBZ';
+$string['table_mbz_size_help'] = 'Poids approximatif d\'une sauvegarde de ce cours (fichier .mbz) <b>sans données utilisateurs</b>, avant compression. Les rendus de devoirs, messages de forums et autres données des participants ne sont pas comptés, ni les sauvegardes et la corbeille du cours.';
 $string['table_size_comparison_median'] = 'Comparaison<br />Poids médian';
 $string['table_size_comparison_average'] = 'Comparaison<br />Poids moyen';
 $string['table_enrolled_cohorts'] = 'Cohortes';
@@ -207,7 +209,7 @@ $string['select_restore_category'] = 'Choisissez la catégorie de restauration d
 // Page - Files information.
 $string['coursesize'] = 'Taille du cours';
 $string['coursereport'] = 'EXPLICATIONS - A venir !';
-$string['totalsize'] = 'Poids total des fichiers du cours : ';
+$string['totalsize'] = 'Poids total des fichiers du cours (sur le disque, données utilisateurs comprises) : ';
 $string['watchedfilessize'] = 'Poids des fichiers les plus surveillés : ';
 $string['watchedfilessizedetails'] = 'Ces fichiers les plus surveillés proviennent des activités les plus utilisées : Dossier, Fichier, Forum, Devoir et Étiquette.';
 $string['plugin'] = 'Type d\'activité';

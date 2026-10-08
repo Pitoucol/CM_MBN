@@ -74,7 +74,7 @@ function report_coursemanager_get_assign_comment($courseid) {
         $assigncountfilesreturn += $totalassigncountfiles;
         $assignfilessizereturn += $totalassignsize;
         // Total files size rounded in Mo.
-        $roundedassignsize = number_format(ceil($totalassignsize / 1048576));
+        $roundedassignsize = (int) ceil($totalassignsize / 1048576);
 
         // If file crosses limit, add information.
         if ($roundedassignsize > get_config('report_coursemanager', 'unique_filesize_threshold')) {
@@ -179,7 +179,7 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
             // We remove files starting by "_s" and files with no size.
             if (substr($f->get_filename(), 0, 2) !== "s_" && $f->get_filesize() > 0) {
                 // Size is rounded in Mo.
-                $weight = number_format(ceil($f->get_filesize() / 1048576));
+                $weight = (int) ceil($f->get_filesize() / 1048576);
 
                 if (strpos($f->get_mimetype(), 'video') !== false && $weight >=
                 get_config('report_coursemanager', 'unique_filesize_threshold')) {
@@ -481,6 +481,94 @@ function report_coursemanager_render_navbar_output() {
     
         return $OUTPUT->render_from_template('report_coursemanager/navbar_link', $content);
     }
+}
+
+/**
+ * Calculates course size on disk, user data included.
+ *
+ * All files of the course context and of its children (activities, blocks...) are
+ * taken into account, including course backups and recycle bin. As Moodle stores
+ * identical files only once on disk, each file content is counted once.
+ *
+ * @param int $courseid Course ID.
+ * @return int Course size in bytes.
+ */
+function report_coursemanager_get_course_size($courseid) {
+    global $DB;
+
+    $context = context_course::instance($courseid);
+
+    $sql = "SELECT SUM(content.filesize)
+              FROM (SELECT DISTINCT f.contenthash, f.filesize
+                      FROM {files} f
+                      JOIN {context} ctx ON ctx.id = f.contextid
+                     WHERE (f.contextid = :contextid OR ctx.path LIKE :path)
+                       AND f.filename <> '.') content";
+    $params = ['contextid' => $context->id, 'path' => $context->path . '/%'];
+
+    return (int) $DB->get_field_sql($sql, $params);
+}
+
+/**
+ * Calculates the size of a course backup (.mbz) without user data.
+ *
+ * Each file content is counted once (files with the same content are stored once
+ * in a backup), and files that are not part of such a backup are excluded:
+ * course backups, recycle bin and user data (submissions, feedbacks, forum posts...).
+ *
+ * @param int $courseid Course ID.
+ * @return int Size of the course backup in bytes, before compression.
+ */
+function report_coursemanager_get_course_backup_size($courseid) {
+    global $DB;
+
+    $context = context_course::instance($courseid);
+
+    // Components that are never in a backup without user data.
+    $excludedcomponents = ['backup', 'tool_recyclebin', 'grade'];
+    // File areas containing user data, by component.
+    $excludedfileareas = [
+        'mod_data' => ['content'],
+        'mod_forum' => ['post', 'attachment'],
+        'mod_glossary' => ['entry', 'attachment'],
+        'mod_lesson' => ['essay_responses', 'essay_answers'],
+        'mod_wiki' => ['attachments'],
+        'mod_workshop' => ['submission_content', 'submission_attachment',
+            'overallfeedback_content', 'overallfeedback_attachment'],
+    ];
+
+    // Files of the course context and of all its children (activities, blocks...).
+    $where = ['(f.contextid = :contextid OR ctx.path LIKE :path)', "f.filename <> '.'"];
+    $params = ['contextid' => $context->id, 'path' => $context->path . '/%'];
+
+    [$insql, $inparams] = $DB->get_in_or_equal($excludedcomponents, SQL_PARAMS_NAMED, 'comp', false);
+    $where[] = 'f.component ' . $insql;
+    $params += $inparams;
+
+    // Assign submissions and feedbacks, and question attempts responses.
+    $where[] = $DB->sql_like('f.component', ':assignsub', true, true, true);
+    $params['assignsub'] = 'assignsubmission\_%';
+    $where[] = $DB->sql_like('f.component', ':assignfeed', true, true, true);
+    $params['assignfeed'] = 'assignfeedback\_%';
+    $where[] = '(f.component <> :question OR ' . $DB->sql_like('f.filearea', ':response', true, true, true) . ')';
+    $params['question'] = 'question';
+    $params['response'] = 'response\_%';
+
+    foreach ($excludedfileareas as $component => $fileareas) {
+        [$insql, $inparams] = $DB->get_in_or_equal($fileareas, SQL_PARAMS_NAMED, 'area', false);
+        $key = 'excl' . count($params);
+        $where[] = "(f.component <> :{$key} OR f.filearea {$insql})";
+        $params[$key] = $component;
+        $params += $inparams;
+    }
+
+    $sql = 'SELECT SUM(content.filesize)
+              FROM (SELECT DISTINCT f.contenthash, f.filesize
+                      FROM {files} f
+                      JOIN {context} ctx ON ctx.id = f.contextid
+                     WHERE ' . implode(' AND ', $where) . ') content';
+
+    return (int) $DB->get_field_sql($sql, $params);
 }
 
 /**

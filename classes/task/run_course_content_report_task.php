@@ -50,6 +50,7 @@ class run_course_content_report_task extends \core\task\scheduled_task {
         // If empty and heavy courses report is enabled in settings, start process.
         if (get_config('report_coursemanager', 'enable_course_content_task') == 1) {
             global $CFG, $DB, $USER;
+            require_once($CFG->dirroot . '/report/coursemanager/lib.php');
             $table = 'report_coursemanager_reports';
             $now = time();
 
@@ -80,15 +81,9 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         // Start reports calculation.
 
                         // 0 CALCULATE TOTAL COURSE SIZE.
-                        // Query for total files size in course.
-                        $sql = 'SELECT SUM(filesize)
-                            FROM {files}
-                            WHERE contextid
-                            IN (SELECT id FROM {context} WHERE contextlevel = 70 AND instanceid IN
-                            (SELECT id FROM {course_modules} WHERE course = ?)) ';
-                        $paramsdb = [$course->id];
-                        $dbresult = $DB->get_field_sql($sql, $paramsdb);
-                        $filesize = $dbresult;
+                        // Size of course files on disk, user data included.
+                        // Courses without files keep an empty weight, excluded from median and average.
+                        $filesize = report_coursemanager_get_course_size($course->id) ?: null;
 
                         // Check if course weight information exist in database.
                         $existsweight = $DB->get_record('report_coursemanager_reports',
@@ -107,6 +102,23 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         }
                         unset($dataweight);
                         unset($existsweight);
+
+                        // Size of a course backup (.mbz) without user data.
+                        $mbzsize = report_coursemanager_get_course_backup_size($course->id) ?: null;
+                        $existsmbz = $DB->get_record('report_coursemanager_reports',
+                            ['course' => $course->id, 'report' => 'mbz_weight']);
+                        $datambz = new \stdClass();
+                        $datambz->course = $course->id;
+                        $datambz->report = 'mbz_weight';
+                        $datambz->detail = $mbzsize;
+                        if (empty($existsmbz)) {
+                            $res = $DB->insert_record($table, $datambz);
+                        } else {
+                            $datambz->id = $existsmbz->id;
+                            $res = $DB->update_record($table, $datambz);
+                        }
+                        unset($datambz);
+                        unset($existsmbz);
 
                         // 1- TEST FOR TOTAL COURSE SIZE.
                         // If total_course_size exceeds limit, add warning.
