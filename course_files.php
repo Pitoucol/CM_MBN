@@ -81,7 +81,7 @@ $sql = 'SELECT SUM(filesize)
 $paramsdb = [$course->id];
 $dbresult = $DB->get_field_sql($sql, $paramsdb);
 // Rounded files size in Mo.
-$filesize = number_format(ceil($dbresult / 1048576));
+$filesize = (int) ceil($dbresult / 1048576);
 
 // Initialize table to show results.
 $coursetable = new html_table();
@@ -104,7 +104,7 @@ foreach ($cxsizes as $cxdata) {
     // If component is not course, retrive file sizes and component for global chart.
     if ($cxdata->component != 'course' && $cxdata->component != 'contentbank') {
         $chartlabels[] = get_string('pluginname', $cxdata->component);
-        $chartsizes[] = number_format(ceil($cxdata->filesize / 1048576));
+        $chartsizes[] = (int) ceil($cxdata->filesize / 1048576);
     }
     // Retrieve details for every file.
     // According to component, we check special elements.
@@ -114,7 +114,7 @@ foreach ($cxsizes as $cxdata) {
         // Function to retrieve details for submissions.
         $details = (report_coursemanager_get_assign_comment($courseid));
         // Calculate total files size.
-        $size = number_format(ceil($details[1] / 1048576));
+        $size = (int) ceil($details[1] / 1048576);
         $row[] = (get_string('pluginname', 'mod_assign'));
         $row[] = $size . "Mo";
         // Number of files.
@@ -140,7 +140,7 @@ foreach ($cxsizes as $cxdata) {
         }
         // Now that we have component and filearea, we can use function to retrieve comments.
         $details = (report_coursemanager_get_files_comment($component, $courseid, $filearea));
-        $size = number_format(ceil($cxdata->filesize / 1048576));
+        $size = (int) ceil($cxdata->filesize / 1048576);
         $row[] = get_string('pluginname', $cxdata->component);
         $row[] = $size . " Mo";
         $row[] = $cxdata->countfiles;

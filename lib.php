@@ -69,7 +69,7 @@ function report_coursemanager_get_assign_comment($courseid) {
         $assigncountfilesreturn = $totalassigncountfiles;
         $assignfilessizereturn = $totalassignsize;
         // Total files size rounded in Mo.
-        $roundedassignsize = number_format(ceil($totalassignsize / 1048576));
+        $roundedassignsize = (int) ceil($totalassignsize / 1048576);
 
         // Create new object to stock heavy files information.
         $heavyassigns = [];
@@ -179,7 +179,7 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
             // We remove files starting by "_s" and files with no size.
             if (substr($f->get_filename(), 0, 2) !== "s_" && $f->get_filesize() > 0) {
                 // Size is rounded in Mo.
-                $weight = number_format(ceil($f->get_filesize() / 1048576));
+                $weight = (int) ceil($f->get_filesize() / 1048576);
 
                 if (strpos($f->get_mimetype(), 'video') !== false && $weight >=
                 get_config('report_coursemanager', 'unique_filesize_threshold')) {
