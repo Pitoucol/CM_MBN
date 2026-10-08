@@ -57,12 +57,12 @@ class run_course_content_report_task extends \core\task\scheduled_task {
             if (!get_config('report_coursemanager', 'total_filesize_threshold') || get_config('report_coursemanager', 'total_filesize_threshold') == '')
                 {
                     mtrace("... ERROR - Filesize threshold is not set in params.");
-                    exit();
+                    return;
                 }
             if (!get_config('report_coursemanager', 'category_bin') || get_config('report_coursemanager', 'category_bin') == '')
                 {
                     mtrace("... ERROR - Category for deleted courses is not set in params.");
-                    exit();
+                    return;
                 }
 
             $listcourses = get_courses();
