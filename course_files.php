@@ -99,6 +99,9 @@ foreach ($cxsizes as $cxdata) {
         $stringmanager = get_string_manager();
         if ($stringmanager->string_exists('pluginname', $cxdata->component)) {
             $chartlabels[] = get_string('pluginname', $cxdata->component);
+        } else if ($cxdata->component == 'grade') {
+            // Grade feedback files : no core string named "grade" exists, "grades" is used instead.
+            $chartlabels[] = get_string('grades');
         } else if ($stringmanager->string_exists($cxdata->component, 'moodle')) {
             $chartlabels[] = get_string($cxdata->component);
         } else {
