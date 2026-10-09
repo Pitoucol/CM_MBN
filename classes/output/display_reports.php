@@ -156,33 +156,25 @@ class display_reports {
                         }
 
                         // Generate HTML for collapse button and create.
+                        // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set : the collapse is handled
+                        // by Bootstrap itself, which also works for this button added after page load.
                         $button = '<button id=\"coursemanager_collapse_report\" class=\"btn btn-primary\" '
+                            .'data-toggle=\"collapse\" data-target=\"#coursemanager_reports_zone\" '
                             .'data-bs-toggle=\"collapse\" data-bs-target=\"#coursemanager_reports_zone\" '
                             .'aria-expanded=\"false\" aria-controls=\"coursemanager_reports_zone\">'
                             .get_string('collapse_show_report', 'report_coursemanager')
                             .'</button><div id=\"coursemanager_reports_zone\" class=\"collapse alert alert-warning\"><ul>'
                             .$final.'</ul></div>';
 
-                            $js = 'require(["theme_boost/bootstrap/collapse"], function(Collapse) {
-                                setTimeout(function() {
-                                    var container = document.getElementById("user-notifications");
-                                    if (!container) return;
+                            $js = 'setTimeout(function() {
+                                var container = document.getElementById("user-notifications");
+                                if (!container) return;
 
-                                    var wrapper = document.createElement("div");
-                                    wrapper.id = "coursemanager_collapse";
-                                    wrapper.innerHTML = "' . $button . '";
-                                    container.appendChild(wrapper);
-
-                                    var collapseEl = document.querySelector("#coursemanager_reports_zone");
-                                    var bouton = document.querySelector("#coursemanager_collapse_report");
-
-                                    var collapse = new Collapse(collapseEl, { toggle: false });
-
-                                    bouton.addEventListener("click", function() {
-                                        collapse.toggle();
-                                    });
-                                }, 20);
-                            });
+                                var wrapper = document.createElement("div");
+                                wrapper.id = "coursemanager_collapse";
+                                wrapper.innerHTML = "' . $button . '";
+                                container.appendChild(wrapper);
+                            }, 20);
                             ';
                         $output .= $PAGE->requires->js_amd_inline($js);
                     } else if (get_config('report_coursemanager', 'show_report_in_course') == 2) {
@@ -271,7 +263,8 @@ class display_reports {
 
                                 var popoverTriggers = button.querySelectorAll(\'[data-bs-toggle="popover"]\');
                                 popoverTriggers.forEach(function(el) {
-                                    var existing = Popover.getInstance(el);
+                                    // getInstance() only exists in Bootstrap 5 (Moodle 5.x), not in Bootstrap 4 (Moodle 4.5).
+                                    var existing = Popover.getInstance ? Popover.getInstance(el) : null;
                                     if (existing) existing.dispose();
 
                                     var rawContent = el.getAttribute("data-bs-content");

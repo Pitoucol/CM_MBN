@@ -21,6 +21,11 @@ ul#coursemanagerbuttons li {
     margin-bottom: 12px;
 }
 
+/* Space between toolbar elements : gap-* classes only exist in Bootstrap 5 (Moodle 5.x). */
+.coursemanager-toolbar {
+    gap: 0.5rem;
+}
+
 /* Styles for DataTable striped lines. */
 tr.dt-odd td {
     background-color: #f5f5f5 !important;

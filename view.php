@@ -82,12 +82,13 @@ if ($done != '0') {
         default:
             break;
     }
-    // BS5 : btn-close and data-bs-dismiss replace close button.
+    // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set, and the close button
+    // is an icon, as .close (Bootstrap 4) and .btn-close (Bootstrap 5) classes are not compatible.
     echo html_writer::div('
         <div class="alert alert-success alert-dismissible fade show" role="alert">
         <h4 class="alert-heading">' . $titledone . '</h4>
         <p>' . $textdone . '</p>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn btn-link p-0 float-right float-end ml-auto ms-auto" data-dismiss="alert" data-bs-dismiss="alert" aria-label="' . get_string('closebuttontitle') . '"><i class="fa fa-times" aria-hidden="true"></i></button>
         </div>
     ');
 }
@@ -275,14 +276,14 @@ if (count($listusercourses) == 0) {
                 }
                 $row[] = html_writer::label('', null);
 
-                // BS5 : data-bs-toggle replaces data-toggle.
+                // Actions menu : Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
                 $menu  = '
                     <div class="dropdown">
                         <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                        data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="icon fa fa-ellipsis-v fa-fw"></i>
                         </a>
-                        <div class="dropdown-menu">
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
                             <a class="dropdown-item" href="restore_course.php?courseid=' . $course->id . '">' .
                             get_string('menurestorecourse', 'report_coursemanager') . '</a>
                         </div>
@@ -455,16 +456,17 @@ if (count($listusercourses) == 0) {
                     $allrowclasses .= ' ok';
                 }
 
-                // BS5 update on old badge-pill badge-light and data-toggle/data-target.
+                // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) classes and attributes are both set.
                 $row[] = html_writer::label(
-                    $iconssumup . "<br /><a class='badge rounded-pill bg-light text-dark' href='#'
+                    $iconssumup . "<br /><a class='badge badge-pill badge-light rounded-pill bg-light text-dark' href='#'
+                    data-toggle='modal' data-target='#exampleModal" . $course->id . "'
                     data-bs-toggle='modal' data-bs-target='#exampleModal" . $course->id . "'>" .
                     get_string('see_advices', 'report_coursemanager') . '</a>',
                     null
                 );
 
                 // Modal recommandations.
-                // BS5 update : data-dismiss replaces data-bs-dismiss.
+                // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
                 echo html_writer::div('
                 <div class="modal fade" id="exampleModal' . $course->id . '" tabindex="-1" role="dialog"
                 aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -473,13 +475,13 @@ if (count($listusercourses) == 0) {
                       <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">' .
                             get_string('advices_for_course', 'report_coursemanager') . $course->fullname . '</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn btn-link p-0 float-right float-end ml-auto ms-auto" data-dismiss="modal" data-bs-dismiss="modal" aria-label="' . get_string('closebuttontitle') . '"><i class="fa fa-times" aria-hidden="true"></i></button>
                       </div>
                       <div class="modal-body">
                           <ul>' . $sumup . '</ul>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">' .
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal">' .
                             get_string('closereportmodal', 'report_coursemanager') . '</button>
                       </div>
                     </div>
@@ -514,14 +516,14 @@ if (count($listusercourses) == 0) {
                         get_string('menucourseparameters', 'report_coursemanager') . '</a>';
                 }
 
-                // BS5 update : delete "show" on .dropdown, data-bs-toggle replaces data-toggle.
+                // Actions menu : Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
                 $menu  = '
                     <div class="dropdown">
                         <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                        data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="icon fa fa-ellipsis-v fa-fw"></i>
                         </a>
-                        <div class="dropdown-menu">
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
                             ' . $listactions . '
                         </div>
                     </div>
