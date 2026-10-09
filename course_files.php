@@ -95,7 +95,15 @@ foreach ($cxsizes as $cxdata) {
     $row = [];
     // If component is not course, retrive file sizes and component for global chart.
     if ($cxdata->component != 'course' && $cxdata->component != 'contentbank') {
-        $chartlabels[] = get_string('pluginname', $cxdata->component);
+        // Plugins have a "pluginname" string, core subsystems (question, backup, user, grade...) do not.
+        $stringmanager = get_string_manager();
+        if ($stringmanager->string_exists('pluginname', $cxdata->component)) {
+            $chartlabels[] = get_string('pluginname', $cxdata->component);
+        } else if ($stringmanager->string_exists($cxdata->component, 'moodle')) {
+            $chartlabels[] = get_string($cxdata->component);
+        } else {
+            $chartlabels[] = $cxdata->component;
+        }
         $chartsizes[] = (int) ceil($cxdata->filesize / 1048576);
     }
     // Retrieve details for every file.
