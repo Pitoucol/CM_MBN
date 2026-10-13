@@ -181,8 +181,10 @@ class mailing_task extends \core\task\scheduled_task {
                     $finalcontent .= '<br />';
                     $finalcontent .= get_config('report_coursemanager', 'mailing_outro');
 
+                    // Content is HTML : it is given as HTML message, with a plain text version
+                    // for users who chose plain text mails in their profile.
                     $send = email_to_user($teacheruserinfo, $from,
-                    get_config('report_coursemanager', 'mailing_title'), $finalcontent);
+                    get_config('report_coursemanager', 'mailing_title'), html_to_text($finalcontent), $finalcontent);
 
                     // Log the real result : email_to_user() returns false when mail is not sent
                     // (invalid address, user over bounce threshold, deleted user, mail error...).
