@@ -510,19 +510,17 @@ function report_coursemanager_get_course_size($courseid) {
 }
 
 /**
- * Calculates the size of a course backup (.mbz) without user data.
+ * SQL conditions selecting the files of a course backup (.mbz) without user data.
  *
- * Each file content is counted once (files with the same content are stored once
- * in a backup), and files that are not part of such a backup are excluded:
- * course backups, recycle bin and user data (submissions, feedbacks, forum posts...).
+ * Files of the course context and of all its children (activities, blocks...), except
+ * files that are not part of such a backup: course backups, recycle bin and user data
+ * (submissions, feedbacks, forum posts...). To be used with "{files} f JOIN {context} ctx".
  *
- * @param int $courseid Course ID.
- * @return int Size of the course backup in bytes, before compression.
+ * @param context_course $context Course context.
+ * @return array SQL conditions and their parameters.
  */
-function report_coursemanager_get_course_backup_size($courseid) {
+function report_coursemanager_get_backup_files_where($context) {
     global $DB;
-
-    $context = context_course::instance($courseid);
 
     // Components that are never in a backup without user data.
     $excludedcomponents = ['backup', 'tool_recyclebin', 'grade'];
@@ -562,11 +560,29 @@ function report_coursemanager_get_course_backup_size($courseid) {
         $params += $inparams;
     }
 
+    return [implode(' AND ', $where), $params];
+}
+
+/**
+ * Calculates the size of a course backup (.mbz) without user data.
+ *
+ * Each file content is counted once (files with the same content are stored once
+ * in a backup), and files that are not part of such a backup are excluded:
+ * course backups, recycle bin and user data (submissions, feedbacks, forum posts...).
+ *
+ * @param int $courseid Course ID.
+ * @return int Size of the course backup in bytes, before compression.
+ */
+function report_coursemanager_get_course_backup_size($courseid) {
+    global $DB;
+
+    [$where, $params] = report_coursemanager_get_backup_files_where(context_course::instance($courseid));
+
     $sql = 'SELECT SUM(content.filesize)
               FROM (SELECT DISTINCT f.contenthash, f.filesize
                       FROM {files} f
                       JOIN {context} ctx ON ctx.id = f.contextid
-                     WHERE ' . implode(' AND ', $where) . ') content';
+                     WHERE ' . $where . ') content';
 
     return (int) $DB->get_field_sql($sql, $params);
 }
@@ -710,9 +726,21 @@ function report_coursemanager_is_enabled($name) {
  * @return string HTML.
  */
 function report_coursemanager_render_exports_tab($userid) {
-    global $OUTPUT;
+    global $OUTPUT, $PAGE, $SESSION;
 
     $output = '';
+
+    // Steps of the backup just launched, shown once in a popup that the user can close.
+    if (!empty($SESSION->report_coursemanager_backupreport)) {
+        $report = $SESSION->report_coursemanager_backupreport;
+        unset($SESSION->report_coursemanager_backupreport);
+        $output .= html_writer::div(html_writer::alist($report['steps'], ['class' => 'coursemanager-backup-steps']), '', [
+            'id' => 'coursemanager-backupreport',
+            'data-title' => $report['title'],
+            'hidden' => 'hidden',
+        ]);
+        $PAGE->requires->js_call_amd('report_coursemanager/backupreport', 'init', ['coursemanager-backupreport']);
+    }
 
     // Text search, as in the reports tab.
     $output .= html_writer::start_div('coursemanager-toolbar mb-3 d-flex flex-wrap gap-2 align-items-center');
@@ -754,7 +782,9 @@ function report_coursemanager_render_exports_tab($userid) {
 
     foreach ($courses as $course) {
         $context = context_course::instance($course->id);
-        $file = $manager->get_last_backup_file($course->id);
+        // Most recent backup : one file, or all the parts of a split backup.
+        $files = $manager->get_last_backup_files($course->id);
+        $file = $files ? reset($files) : null;
         $row = [];
 
         $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
@@ -771,15 +801,22 @@ function report_coursemanager_render_exports_tab($userid) {
             }
         }
 
-        $failed = $manager->is_backup_failed($course->id, $file);
+        $failed = $manager->is_backup_failed($course->id);
         if ($failed) {
             // The last backup launched has failed or is blocked : shown instead of the download link.
             $row[] = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
                 . get_string('backup_potential_error', 'report_coursemanager'), 'text-danger');
-        } else if ($file && has_capability('moodle/backup:downloadfile', $context)) {
-            $row[] = html_writer::link(\report_coursemanager\local\backup\manager::get_download_url($file),
-                '<i class="fa fa-download" aria-hidden="true"></i> ' . get_string('download_backup', 'report_coursemanager'),
-                ['class' => 'btn btn-outline-primary btn-sm', 'title' => $file->get_filename()]);
+        } else if ($files && has_capability('moodle/backup:downloadfile', $context)) {
+            // One link, or one link per part of a split backup.
+            $links = [];
+            foreach ($files as $index => $partfile) {
+                $label = (count($files) > 1) ? get_string('download_part', 'report_coursemanager', $index + 1)
+                    : get_string('download_backup', 'report_coursemanager');
+                $links[] = html_writer::link(\report_coursemanager\local\backup\manager::get_download_url($partfile),
+                    '<i class="fa fa-download" aria-hidden="true"></i> ' . $label,
+                    ['class' => 'btn btn-outline-primary btn-sm mb-1', 'title' => $partfile->get_filename()]);
+            }
+            $row[] = implode(' ', $links);
         } else {
             $row[] = '';
         }

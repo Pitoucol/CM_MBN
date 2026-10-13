@@ -41,7 +41,7 @@ $manager = new \report_coursemanager\local\backup\manager($USER->id);
 
 // After a potential error : release the blocked backup, so that a new backup can be done.
 if (($action === 'relaunch' || $action === 'manual')
-        && $manager->is_backup_failed($course->id, $manager->get_last_backup_file($course->id))) {
+        && $manager->is_backup_failed($course->id)) {
     $manager->release_blocked_backups($course->id);
 }
 
@@ -57,7 +57,18 @@ if ($manager->is_backup_pending($course->id)) {
 }
 
 $strategy = $manager->get_strategy($course->id);
-$inbackground = $strategy->launch($course->id, $USER->id);
+$result = $strategy->launch($course->id, $USER->id);
+
+// Steps of the backup, shown once in a popup of the "Downloads and exports" tab.
+$SESSION->report_coursemanager_backupreport = [
+    'title' => get_string('backup_popup_title', 'report_coursemanager', format_string($course->fullname)),
+    'steps' => $result->steps,
+];
+
+if (!$result->launched) {
+    redirect($returnurl, get_string('backup_not_created', 'report_coursemanager', format_string($course->fullname)),
+        null, \core\output\notification::NOTIFY_ERROR);
+}
 
 $event = \report_coursemanager\event\course_backup_launched::create([
     'context' => $context,
@@ -66,6 +77,6 @@ $event = \report_coursemanager\event\course_backup_launched::create([
 ]);
 $event->trigger();
 
-$message = $inbackground ? 'backup_launched' : 'backup_done';
+$message = $result->inbackground ? 'backup_launched' : 'backup_done';
 redirect($returnurl, get_string($message, 'report_coursemanager', format_string($course->fullname)),
     null, \core\output\notification::NOTIFY_SUCCESS);

@@ -149,6 +149,13 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext($name, $title, $description, 60, PARAM_INT, '5'));
     $settings->hide_if('report_coursemanager/backup_error_delay', 'report_coursemanager/enable_tab_exports');
 
+    // Size threshold of a backup archive : over it, the backup is split in several archives.
+    $name = 'report_coursemanager/backup_split_threshold';
+    $title = get_string('backupsplitthreshold', 'report_coursemanager');
+    $description = get_string('backupsplitthreshold_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configtext($name, $title, $description, 250, PARAM_INT, '5'));
+    $settings->hide_if('report_coursemanager/backup_split_threshold', 'report_coursemanager/enable_tab_exports');
+
     // Define agregation for course size comparison.
     $aggregationchoices = [
         get_string('aggregationaverage', 'report_coursemanager'),

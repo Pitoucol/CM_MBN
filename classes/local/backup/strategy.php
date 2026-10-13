@@ -19,9 +19,8 @@ namespace report_coursemanager\local\backup;
 /**
  * Way of creating a course backup (.mbz) from the teachers dashboard.
  *
- * Only the standard strategy exists for now. Other strategies can be added later
- * (for example a backup deferred to the night cron for heavy courses, or a backup
- * split by sections) and chosen by manager::get_strategy().
+ * Strategies : "standard" (one archive) and "split" (several archives under the size threshold).
+ * Other strategies can be added later and chosen by manager::get_strategy().
  *
  * @package    report_coursemanager
  * @copyright  2022 Olivier VALENTIN
@@ -40,7 +39,7 @@ interface strategy {
      *
      * @param int $courseid Course ID.
      * @param int $userid User who launches the backup.
-     * @return bool True if the backup is running in background, false if it is already finished.
+     * @return launch_result What was done, and the steps to show to the user.
      */
-    public function launch(int $courseid, int $userid): bool;
+    public function launch(int $courseid, int $userid): launch_result;
 }

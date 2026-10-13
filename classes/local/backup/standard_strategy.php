@@ -16,23 +16,16 @@
 
 namespace report_coursemanager\local\backup;
 
-use backup;
-use backup_controller;
-
 /**
- * Standard course backup, as done by Moodle when the user clicks "Jump to final step" on the backup page.
+ * Standard course backup : one archive, as done by Moodle when the user clicks "Jump to final step".
  *
- * The site default backup settings are used, with their locks and the user capabilities
- * (for example, user data are not included if the user cannot back them up).
- * When asynchronous backups are enabled on the site (Moodle default), the backup is queued
- * as an adhoc task, as Moodle does. Else, it is done immediately.
- * The backup file is stored in the native backup areas, as any manual backup.
+ * Used when the estimated size of the course backup is under the size threshold.
  *
  * @package    report_coursemanager
  * @copyright  2022 Olivier VALENTIN
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class standard_strategy implements strategy {
+class standard_strategy extends base_strategy {
     /**
      * Short name of the strategy, used in logs.
      *
@@ -47,31 +40,22 @@ class standard_strategy implements strategy {
      *
      * @param int $courseid Course ID.
      * @param int $userid User who launches the backup.
-     * @return bool True if the backup is running in background, false if it is already finished.
+     * @return launch_result
      */
-    public function launch(int $courseid, int $userid): bool {
-        global $CFG;
-        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+    public function launch(int $courseid, int $userid): launch_result {
+        $result = new launch_result();
+        $result->add_step($this->get_size_step());
+        $result->add_step(get_string('backup_step_onearchive', 'report_coursemanager'));
 
-        $async = \async_helper::is_async_enabled();
-        $mode = $async ? backup::MODE_ASYNC : backup::MODE_GENERAL;
+        $bc = $this->create_controller($courseid, $userid);
+        $filename = $this->get_default_filename($bc);
+        $this->set_setting($bc, 'filename', $filename);
+        $result->inbackground = $this->launch_controller($bc, $userid);
+        $result->launched = true;
 
-        // Non interactive controller : site defaults are applied, and the controller
-        // is saved in database with the "awaiting" status, ready to be executed.
-        $bc = new backup_controller(backup::TYPE_1COURSE, $courseid, backup::FORMAT_MOODLE,
-            backup::INTERACTIVE_NO, $mode, $userid, backup::RELEASESESSION_YES);
-
-        if ($async) {
-            // Same adhoc task as the Moodle backup page.
-            $asynctask = new \core\task\asynchronous_backup_task();
-            $asynctask->set_custom_data(['backupid' => $bc->get_backupid()]);
-            $asynctask->set_userid($userid);
-            \core\task\manager::queue_adhoc_task($asynctask);
-        } else {
-            $bc->execute_plan();
-        }
-        $bc->destroy();
-
-        return $async;
+        $result->add_step(get_string('backup_step_file', 'report_coursemanager', s($filename)));
+        $result->add_step(get_string($result->inbackground ? 'backup_step_background' : 'backup_step_done',
+            'report_coursemanager'));
+        return $result;
     }
 }

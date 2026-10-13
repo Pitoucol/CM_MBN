@@ -51,17 +51,36 @@ class manager {
     }
 
     /**
-     * Strategy used to back up a course.
+     * Strategy used to back up a course, according to its estimated backup size.
      *
-     * Only the standard strategy exists for now. Other strategies (deferred backup
-     * for heavy courses, backup split by sections...) can be chosen here later,
-     * for example according to the MBZ size of the course.
+     * Sizes are estimated when the user launches the backup (see size_estimator) :
+     * - under the size threshold (or no threshold) : one archive (standard strategy) ;
+     * - over the size threshold : several archives under the threshold (split strategy).
+     * Other strategies (deferred backup for heavy courses...) can be chosen here later.
      *
      * @param int $courseid Course ID.
      * @return strategy
      */
     public function get_strategy(int $courseid): strategy {
-        return new standard_strategy();
+        $sizes = size_estimator::get_sizes($courseid);
+        $threshold = self::get_split_threshold();
+        if ($threshold > 0 && $sizes->total > $threshold) {
+            return new split_strategy($sizes, $threshold);
+        }
+        return new standard_strategy($sizes, $threshold);
+    }
+
+    /**
+     * Size threshold of a backup archive, from plugin settings (250 MB by default, 0 : no split).
+     *
+     * @return int Size in bytes.
+     */
+    public static function get_split_threshold(): int {
+        $threshold = get_config('report_coursemanager', 'backup_split_threshold');
+        if ($threshold === false || $threshold === '') {
+            $threshold = 250;
+        }
+        return max(0, (int)$threshold) * 1024 * 1024;
     }
 
     /**
@@ -90,17 +109,16 @@ class manager {
     /**
      * Check if the last backup of the course launched by the user has potentially failed.
      *
-     * The last backup launched by the user (Moodle backup controller, ready to run or more)
-     * is considered as failed when no backup file of the course is more recent than its launch, and :
-     * - Moodle marked it as failed ;
-     * - or it is still waiting or running after the delay defined in plugin settings
+     * The last launch may contain several backups (one per part of a split backup). It is considered
+     * as failed when one of its backups (Moodle backup controller, ready to run or more) :
+     * - has been marked as failed by Moodle ;
+     * - or is still waiting or running after the delay defined in plugin settings
      *   (blocked task, cron not running, or very long backup).
      *
      * @param int $courseid Course ID.
-     * @param stored_file|null $lastfile Most recent backup file of the course, if any.
      * @return bool
      */
-    public function is_backup_failed(int $courseid, ?stored_file $lastfile): bool {
+    public function is_backup_failed(int $courseid): bool {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
@@ -113,26 +131,31 @@ class manager {
             'operation' => backup::OPERATION_BACKUP,
             'statusmin' => backup::STATUS_AWAITING,
         ];
-        $records = $DB->get_records_select('backup_controllers', $select, $params, 'timecreated DESC', 'id, status, timecreated', 0, 1);
+        $records = $DB->get_records_select('backup_controllers', $select, $params, 'timecreated DESC, id DESC',
+            'id, status, timecreated', 0, 50);
         if (empty($records)) {
             return false;
-        }
-        $last = reset($records);
-
-        // A backup file more recent than the last launch : the backup has been done.
-        if ($lastfile && $lastfile->get_timecreated() >= $last->timecreated) {
-            return false;
-        }
-
-        if ($last->status == backup::STATUS_FINISHED_ERR) {
-            return true;
         }
 
         $delay = (int)get_config('report_coursemanager', 'backup_error_delay');
         if ($delay <= 0) {
             $delay = 60;
         }
-        return ($last->status < backup::STATUS_FINISHED_ERR) && (time() - $last->timecreated > $delay * MINSECS);
+
+        // Backups of the last launch : created within a few minutes before the most recent one.
+        $lastlaunch = reset($records)->timecreated;
+        foreach ($records as $record) {
+            if ($record->timecreated < $lastlaunch - 5 * MINSECS) {
+                break;
+            }
+            if ($record->status == backup::STATUS_FINISHED_ERR) {
+                return true;
+            }
+            if ($record->status < backup::STATUS_FINISHED_ERR && time() - $record->timecreated > $delay * MINSECS) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -200,6 +223,39 @@ class manager {
             }
         }
         return $last;
+    }
+
+    /**
+     * Files of the most recent backup of the course : one file, or all the parts of a split backup.
+     *
+     * Parts of a split backup share the same Moodle file name, with a "part<number>_" prefix
+     * (translated in the site language).
+     *
+     * @param int $courseid Course ID.
+     * @return stored_file[] Files, in part order. Empty if no backup.
+     */
+    public function get_last_backup_files(int $courseid): array {
+        $last = $this->get_last_backup_file($courseid);
+        if ($last === null) {
+            return [];
+        }
+        if (!preg_match('/^([^\W\d_]+)(\d+)_(.+)$/u', $last->get_filename(), $matches)) {
+            return [$last];
+        }
+        $basename = $matches[3];
+
+        $fs = get_file_storage();
+        $candidates = array_merge($this->userbackupfiles,
+            $fs->get_area_files(context_course::instance($courseid)->id, 'backup', 'course', 0, 'timecreated DESC', false));
+        $parts = [];
+        foreach ($candidates as $file) {
+            if (preg_match('/^([^\W\d_]+)(\d+)_(.+)$/u', $file->get_filename(), $partmatches)
+                    && $partmatches[3] === $basename && $file->get_contextid() == $last->get_contextid()) {
+                $parts[(int)$partmatches[2]] = $file;
+            }
+        }
+        ksort($parts);
+        return array_values($parts);
     }
 
     /**

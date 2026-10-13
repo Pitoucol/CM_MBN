@@ -466,3 +466,23 @@ $string['backup_potential_error'] = 'Erreur potentielle dans le processus';
 $string['backup_error_actions'] = 'Que faire ?';
 $string['relaunch_backup'] = 'Relancer la sauvegarde';
 $string['manual_backup'] = 'Passer en sauvegarde manuelle';
+
+// Backup split and backup popup.
+$string['backupsplitthreshold'] = 'Poids maximal d\'une archive de sauvegarde (Mo)';
+$string['backupsplitthreshold_desc'] = 'Dans l\'onglet « Téléchargements et exports », quand le poids estimé de la sauvegarde d\'un cours sans données utilisateurs dépasse ce poids, la sauvegarde est découpée par sections en plusieurs archives (partie1_, partie2_…) sous ce poids. Toute la banque de questions est dans la partie 1. 0 : pas de découpage.';
+$string['backup_part_prefix'] = 'partie{$a}_';
+$string['download_part'] = 'Partie {$a}';
+$string['backup_popup_title'] = 'Sauvegarde de « {$a} »';
+$string['backup_not_created'] = 'Aucune sauvegarde du cours « {$a} » n\'a été créée : voir le détail dans la fenêtre.';
+$string['backup_step_size'] = 'Poids estimé de la sauvegarde (sans données utilisateurs) : <b>{$a->size}</b>. Poids maximal d\'une archive : {$a->threshold}.';
+$string['backup_step_onearchive'] = 'Le cours est sauvegardé en une seule archive.';
+$string['backup_step_parts'] = 'Le cours est sauvegardé en <b>{$a} archives</b>, découpées par sections :';
+$string['backup_step_part'] = '<b>Partie {$a->number}</b> (environ {$a->size}) :';
+$string['backup_step_questionbank'] = 'Banque de questions ({$a})';
+$string['backup_step_section'] = '{$a->name} ({$a->size})';
+$string['backup_step_file'] = 'Fichier : {$a}';
+$string['backup_step_background'] = 'La sauvegarde s\'effectue en arrière-plan avec les réglages de sauvegarde par défaut du site. Le lien de téléchargement apparaîtra dans le tableau une fois terminée.';
+$string['backup_step_done'] = 'La sauvegarde est terminée. Vous pouvez la télécharger dans le tableau.';
+$string['backup_step_restore'] = 'Pour restaurer le cours : restaurez la partie 1 dans un nouveau cours, puis les autres parties dans ce cours avec « Fusionner la sauvegarde avec ce cours ».';
+$string['backup_error_questionbank'] = 'La banque de questions seule (avec le contenu commun à toutes les parties) pèse {$a->size}, au-delà du poids maximal d\'une archive ({$a->threshold}). Aucune sauvegarde n\'a été créée. Utilisez la <a href="{$a->link}">sauvegarde manuelle de tout le cours</a>.';
+$string['backup_error_section'] = 'La section « {$a->name} » pèse à elle seule {$a->size}, au-delà du poids maximal d\'une archive ({$a->threshold}). Aucune sauvegarde n\'a été créée. Utilisez la <a href="{$a->link}">sauvegarde manuelle de tout le cours</a>.';
