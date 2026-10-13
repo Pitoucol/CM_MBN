@@ -136,6 +136,34 @@ class manager {
     }
 
     /**
+     * Mark the backups of the course launched by the user and still waiting or running as failed.
+     *
+     * Moodle refuses a new backup of a course (from this plugin or from the Moodle backup page)
+     * while a backup of this course by the same user is waiting or running. This is used, after
+     * the delay defined in plugin settings, to release a blocked backup before a new one.
+     * If the blocked backup task runs later, Moodle stops it as its status is not "awaiting" anymore.
+     *
+     * @param int $courseid Course ID.
+     * @return void
+     */
+    public function release_blocked_backups(int $courseid): void {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
+        $select = 'userid = :userid AND itemid = :itemid AND type = :type AND operation = :operation
+            AND status > :statusmin AND status < :statusmax';
+        $params = [
+            'userid' => $this->userid,
+            'itemid' => $courseid,
+            'type' => backup::TYPE_1COURSE,
+            'operation' => backup::OPERATION_BACKUP,
+            'statusmin' => backup::STATUS_NEED_PRECHECK,
+            'statusmax' => backup::STATUS_FINISHED_ERR,
+        ];
+        $DB->set_field_select('backup_controllers', 'status', backup::STATUS_FINISHED_ERR, $select, $params);
+    }
+
+    /**
      * Most recent backup file of the course, made by the user (private area) or stored in the course backup area.
      *
      * In the user private area, the course is found from the default backup file name

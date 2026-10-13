@@ -25,6 +25,8 @@
 require_once(__DIR__ . '/../../config.php');
 
 $courseid = required_param('courseid', PARAM_INT);
+// Action : "backup" (start a backup), "relaunch" or "manual" (after a potential error).
+$action = optional_param('action', 'backup', PARAM_ALPHA);
 
 $course = get_course($courseid);
 require_login();
@@ -36,6 +38,17 @@ require_capability('moodle/backup:backupcourse', $context);
 $returnurl = new moodle_url('/report/coursemanager/view.php', ['tab' => 'exports']);
 
 $manager = new \report_coursemanager\local\backup\manager($USER->id);
+
+// After a potential error : release the blocked backup, so that a new backup can be done.
+if (($action === 'relaunch' || $action === 'manual')
+        && $manager->is_backup_failed($course->id, $manager->get_last_backup_file($course->id))) {
+    $manager->release_blocked_backups($course->id);
+}
+
+// Manual backup : Moodle backup page, where the user chooses the backup settings.
+if ($action === 'manual') {
+    redirect(new moodle_url('/backup/backup.php', ['id' => $course->id]));
+}
 
 // Only one backup at a time for a course and a user, as on the Moodle backup page.
 if ($manager->is_backup_pending($course->id)) {

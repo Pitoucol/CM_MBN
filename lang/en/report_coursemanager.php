@@ -444,3 +444,6 @@ $string['course_backup_launched'] = 'Course backup launched';
 $string['backuperrordelay'] = 'Delay before backup error (minutes)';
 $string['backuperrordelay_desc'] = 'In the "Downloads and exports" tab, a backup started and still not done after this delay is shown as a potential error in the backup process, instead of the download link.';
 $string['backup_potential_error'] = 'Potential error in the backup process';
+$string['backup_error_actions'] = 'What to do?';
+$string['relaunch_backup'] = 'Relaunch the backup';
+$string['manual_backup'] = 'Switch to manual backup';

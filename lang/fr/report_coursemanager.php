@@ -463,3 +463,6 @@ $string['course_backup_launched'] = 'Sauvegarde de cours lancée';
 $string['backuperrordelay'] = 'Délai avant erreur de sauvegarde (minutes)';
 $string['backuperrordelay_desc'] = 'Dans l\'onglet « Téléchargements et exports », une sauvegarde lancée et toujours pas terminée après ce délai est signalée comme une erreur potentielle dans le processus, à la place du lien de téléchargement.';
 $string['backup_potential_error'] = 'Erreur potentielle dans le processus';
+$string['backup_error_actions'] = 'Que faire ?';
+$string['relaunch_backup'] = 'Relancer la sauvegarde';
+$string['manual_backup'] = 'Passer en sauvegarde manuelle';

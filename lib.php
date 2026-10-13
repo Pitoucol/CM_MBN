@@ -771,7 +771,8 @@ function report_coursemanager_render_exports_tab($userid) {
             }
         }
 
-        if ($manager->is_backup_failed($course->id, $file)) {
+        $failed = $manager->is_backup_failed($course->id, $file);
+        if ($failed) {
             // The last backup launched has failed or is blocked : shown instead of the download link.
             $row[] = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
                 . get_string('backup_potential_error', 'report_coursemanager'), 'text-danger');
@@ -785,6 +786,27 @@ function report_coursemanager_render_exports_tab($userid) {
 
         if (!has_capability('moodle/backup:backupcourse', $context)) {
             $row[] = '';
+        } else if ($failed) {
+            // After a potential error : relaunch the backup, or go to the Moodle backup page.
+            // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
+            $backupurl = new moodle_url('/report/coursemanager/backup_course.php',
+                ['courseid' => $course->id, 'sesskey' => sesskey()]);
+            $relaunchurl = new moodle_url($backupurl, ['action' => 'relaunch']);
+            $manualurl = new moodle_url($backupurl, ['action' => 'manual']);
+            $row[] = '
+                <div class="dropdown">
+                    <a class="btn btn-outline-danger dropdown-toggle" href="#" role="button"
+                    data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    ' . get_string('backup_error_actions', 'report_coursemanager') . '
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
+                        <a class="dropdown-item" href="' . $relaunchurl->out() . '">'
+                            . get_string('relaunch_backup', 'report_coursemanager') . '</a>
+                        <a class="dropdown-item" href="' . $manualurl->out() . '">'
+                            . get_string('manual_backup', 'report_coursemanager') . '</a>
+                    </div>
+                </div>
+            ';
         } else if ($manager->is_backup_pending($course->id)) {
             $row[] = html_writer::span('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> '
                 . get_string('backup_in_progress', 'report_coursemanager'), 'text-info');
