@@ -483,6 +483,25 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^=col-]:last-
     font-weight: 600;
     margin: 1rem 0 0.5rem;
 }
+.coursemanager-backup-steps .coursemanager-step-separator {
+    margin: 1.25rem 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+.coursemanager-backup-steps .coursemanager-step-separator + .coursemanager-step-title {
+    margin-top: 0;
+}
+.coursemanager-backup-steps .coursemanager-step-archive {
+    padding: 0.75rem 1rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-left: 4px solid var(--bs-primary, var(--primary, #0f6cbf));
+    border-radius: 0.25rem;
+}
+.coursemanager-backup-steps .coursemanager-step-archive .coursemanager-step-part {
+    margin-top: 0;
+}
+.coursemanager-backup-steps .coursemanager-step-archive .coursemanager-step-group:last-child {
+    margin-bottom: 0;
+}
 .coursemanager-backup-steps .coursemanager-step-title:first-child {
     margin-top: 0;
 }

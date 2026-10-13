@@ -175,9 +175,9 @@ class split_strategy extends base_strategy {
         }
 
         // Parts : title with the file name, then question bank and sections, with their sizes.
-        $html = '';
+        $archives = [];
         foreach ($parts as $part) {
-            $html .= \html_writer::tag('h4', get_string('backup_step_part', 'report_coursemanager', (object) [
+            $html = \html_writer::tag('h4', get_string('backup_step_part', 'report_coursemanager', (object) [
                 'number' => $part->number,
                 'size' => display_size($part->size),
                 'file' => s($part->filename),
@@ -192,8 +192,11 @@ class split_strategy extends base_strategy {
                 $lines .= $this->format_content_line($section->name, $section->size);
             }
             $html .= \html_writer::div($lines, 'coursemanager-step-group');
+            $archives[] = \html_writer::div($html, 'coursemanager-step-archive');
         }
-        $result->add_step(get_string('backup_title_split', 'report_coursemanager', count($parts)), $html);
+        // Archives separated by a horizontal line.
+        $result->add_step(get_string('backup_title_split', 'report_coursemanager', count($parts)),
+            implode(\html_writer::empty_tag('hr', ['class' => 'coursemanager-step-separator']), $archives));
 
         $this->add_launch_steps($result, true);
         return $result;
