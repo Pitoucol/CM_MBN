@@ -422,3 +422,22 @@ $string['dt_first']        = '«';
 $string['dt_last']         = '»';
 $string['dt_next']         = '›';
 $string['dt_previous']     = '‹';
+
+// Tab - Downloads and exports.
+$string['enabletabexports'] = '"Downloads and exports" tab';
+$string['enabletabexports_desc'] = 'Displays a second tab on the teachers dashboard, to launch course backups (.mbz) with the site default backup settings and download them.';
+$string['enablecolumnlastbackup'] = 'Last backup column';
+$string['enablecolumnlastbackup_desc'] = 'Displays the date of the most recent backup of each course in the "Downloads and exports" tab.';
+$string['tab_reports'] = 'Course reports';
+$string['tab_exports'] = 'Downloads and exports';
+$string['table_last_backup'] = 'Last backup';
+$string['table_download'] = 'Download';
+$string['table_backup_action'] = 'Action';
+$string['no_backup'] = 'No backup';
+$string['download_backup'] = 'Download';
+$string['launch_backup'] = 'Start backup';
+$string['backup_in_progress'] = 'Backup in progress…';
+$string['backup_launched'] = 'The backup of the course "{$a}" has been started. It runs in background with the site default backup settings: the download link will appear here once the backup is done.';
+$string['backup_done'] = 'The backup of the course "{$a}" is done. You can download it from the table below.';
+$string['backup_already_pending'] = 'A backup of the course "{$a}" is already in progress.';
+$string['course_backup_launched'] = 'Course backup launched';

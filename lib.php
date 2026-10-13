@@ -685,3 +685,114 @@ function report_coursemanager_sortable_cell($content, $order) {
     $cell->attributes['data-order'] = $order;
     return $cell;
 }
+
+/**
+ * Check if an optional feature is enabled in plugin settings.
+ *
+ * A setting that has never been saved (for example a new setting before the admin
+ * visits the plugin settings) is considered as enabled, as its default value.
+ *
+ * @param string $name Setting name.
+ * @return bool
+ */
+function report_coursemanager_is_enabled($name) {
+    $value = get_config('report_coursemanager', $name);
+    return ($value === false) || ($value == 1);
+}
+
+/**
+ * Generates the "Downloads and exports" tab of the teachers dashboard.
+ *
+ * For each course of the teacher : last backup date, download link of this backup,
+ * and a button to launch a new backup with the site default settings.
+ *
+ * @param int $userid User ID.
+ * @return string HTML.
+ */
+function report_coursemanager_render_exports_tab($userid) {
+    global $OUTPUT;
+
+    $output = '';
+
+    // Text search, as in the reports tab.
+    $output .= html_writer::start_div('coursemanager-toolbar mb-3 d-flex flex-wrap gap-2 align-items-center');
+    $output .= html_writer::tag('label', get_string('search') . ' : ', ['for' => 'coursemanager-search', 'class' => 'h5']);
+    $output .= html_writer::tag('input', '', [
+        'type'        => 'text',
+        'id'          => 'coursemanager-search',
+        'class'       => 'form-control w-50',
+        'placeholder' => get_string('text_filter', 'report_coursemanager'),
+    ]);
+    $output .= html_writer::end_div();
+
+    // Same courses as in the reports tab : courses where the user has the dashboard teacher role.
+    $teacherrole = get_config('report_coursemanager', 'teacher_role_dashboard');
+    $courses = [];
+    foreach (enrol_get_users_courses($userid, false, '', 'fullname ASC') as $course) {
+        $roles = get_user_roles(context_course::instance($course->id), $userid, false);
+        if (!empty($roles) && reset($roles)->roleid == $teacherrole) {
+            $courses[] = $course;
+        }
+    }
+    if (empty($courses)) {
+        return $output . html_writer::div(get_string('no_course_to_show', 'report_coursemanager'), 'alert alert-primary');
+    }
+
+    $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
+    $manager = new \report_coursemanager\local\backup\manager($userid);
+
+    $table = new html_table();
+    $table->id = 'courseexports';
+    $table->attributes['class'] = 'admintable generaltable browse_courses w-100';
+    $table->head = [get_string('table_course_name', 'report_coursemanager')];
+    if ($showlastbackup) {
+        $table->head[] = get_string('table_last_backup', 'report_coursemanager');
+    }
+    // Download and action columns are the last two : they are not sortable (coursetable.js).
+    $table->head[] = get_string('table_download', 'report_coursemanager');
+    $table->head[] = get_string('table_backup_action', 'report_coursemanager');
+
+    foreach ($courses as $course) {
+        $context = context_course::instance($course->id);
+        $file = $manager->get_last_backup_file($course->id);
+        $row = [];
+
+        $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
+            format_string($course->fullname, true, ['context' => $context]));
+
+        if ($showlastbackup) {
+            if ($file) {
+                $row[] = report_coursemanager_sortable_cell(
+                    userdate($file->get_timecreated(), get_string('strftimedatetimeshort', 'langconfig')),
+                    $file->get_timecreated());
+            } else {
+                $row[] = report_coursemanager_sortable_cell(
+                    html_writer::tag('i', get_string('no_backup', 'report_coursemanager')), 0);
+            }
+        }
+
+        if ($file && has_capability('moodle/backup:downloadfile', $context)) {
+            $row[] = html_writer::link(\report_coursemanager\local\backup\manager::get_download_url($file),
+                '<i class="fa fa-download" aria-hidden="true"></i> ' . get_string('download_backup', 'report_coursemanager'),
+                ['class' => 'btn btn-outline-primary btn-sm', 'title' => $file->get_filename()]);
+        } else {
+            $row[] = '';
+        }
+
+        if (!has_capability('moodle/backup:backupcourse', $context)) {
+            $row[] = '';
+        } else if ($manager->is_backup_pending($course->id)) {
+            $row[] = html_writer::span('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> '
+                . get_string('backup_in_progress', 'report_coursemanager'), 'text-info');
+        } else {
+            $row[] = $OUTPUT->single_button(
+                new moodle_url('/report/coursemanager/backup_course.php', ['courseid' => $course->id]),
+                get_string('launch_backup', 'report_coursemanager'), 'post');
+        }
+
+        $table->rowclasses[] = 'filterrow';
+        $table->data[] = $row;
+    }
+
+    return $output . html_writer::table($table);
+}

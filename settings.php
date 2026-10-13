@@ -129,6 +129,19 @@ if ($ADMIN->fulltree) {
     $description = get_string('enablecolumncomparison_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
+    // Checkbox for "Downloads and exports" tab.
+    $name = 'report_coursemanager/enable_tab_exports';
+    $title = get_string('enabletabexports', 'report_coursemanager');
+    $description = get_string('enabletabexports_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+
+    // Checkbox for last backup column, in "Downloads and exports" tab.
+    $name = 'report_coursemanager/enable_column_lastbackup';
+    $title = get_string('enablecolumnlastbackup', 'report_coursemanager');
+    $description = get_string('enablecolumnlastbackup_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+    $settings->hide_if('report_coursemanager/enable_column_lastbackup', 'report_coursemanager/enable_tab_exports');
+
     // Define agregation for course size comparison.
     $aggregationchoices = [
         get_string('aggregationaverage', 'report_coursemanager'),

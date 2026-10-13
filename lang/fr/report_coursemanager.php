@@ -441,3 +441,22 @@ $string['dt_first'] = '«';
 $string['dt_last'] = '»';
 $string['dt_next'] = '›';
 $string['dt_previous'] = '‹';
+
+// Tab - Downloads and exports.
+$string['enabletabexports'] = 'Onglet « Téléchargements et exports »';
+$string['enabletabexports_desc'] = 'Affiche un second onglet dans le tableau de bord enseignant, pour lancer des sauvegardes de cours (.mbz) avec les réglages de sauvegarde par défaut du site et les télécharger.';
+$string['enablecolumnlastbackup'] = 'Colonne « Dernière sauvegarde »';
+$string['enablecolumnlastbackup_desc'] = 'Affiche la date de la sauvegarde la plus récente de chaque cours dans l\'onglet « Téléchargements et exports ».';
+$string['tab_reports'] = 'Rapports sur les cours';
+$string['tab_exports'] = 'Téléchargements et exports';
+$string['table_last_backup'] = 'Dernière sauvegarde';
+$string['table_download'] = 'Téléchargement';
+$string['table_backup_action'] = 'Action';
+$string['no_backup'] = 'Aucune sauvegarde';
+$string['download_backup'] = 'Télécharger';
+$string['launch_backup'] = 'Lancer la sauvegarde';
+$string['backup_in_progress'] = 'Sauvegarde en cours…';
+$string['backup_launched'] = 'La sauvegarde du cours « {$a} » est lancée. Elle s\'effectue en arrière-plan avec les réglages de sauvegarde par défaut du site : le lien de téléchargement apparaîtra ici une fois la sauvegarde terminée.';
+$string['backup_done'] = 'La sauvegarde du cours « {$a} » est terminée. Vous pouvez la télécharger dans le tableau ci-dessous.';
+$string['backup_already_pending'] = 'Une sauvegarde du cours « {$a} » est déjà en cours.';
+$string['course_backup_launched'] = 'Sauvegarde de cours lancée';
