@@ -134,6 +134,14 @@ class mailing_task extends \core\task\scheduled_task {
                         if ($report['report'] == 'orphan_submissions') {
                             $checkreport = $DB->get_records('report_coursemanager_orphans',
                             ['course' => $listcourse->courseid]);
+                        } else if ($report['report'] == 'heavy') {
+                            // Heavy course : same rule as the teachers dashboard, with the course weight
+                            // and the current threshold, instead of the report calculated with the threshold
+                            // of the last task run.
+                            $weight = $DB->get_field('report_coursemanager_reports', 'detail',
+                            ['course' => $listcourse->courseid, 'report' => 'weight']);
+                            $threshold = get_config('report_coursemanager', 'total_filesize_threshold') * 1024 * 1024;
+                            $checkreport = (!empty($weight) && $weight > $threshold);
                         } else {
                             $checkreport = $DB->get_record('report_coursemanager_reports',
                             ['course' => $listcourse->courseid, 'report' => $report['report']]);
