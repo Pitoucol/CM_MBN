@@ -476,3 +476,25 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^=col-]:last-
   --dt-row-stripe: 255, 255, 255;
   --dt-column-ordering: 255, 255, 255;
 }
+
+/* Backup popup of the "Downloads and exports" tab. */
+.coursemanager-backup-steps .coursemanager-step-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 1rem 0 0.5rem;
+}
+.coursemanager-backup-steps .coursemanager-step-title:first-child {
+    margin-top: 0;
+}
+.coursemanager-backup-steps .coursemanager-step-part {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 1rem 0 0.75rem;
+    overflow-wrap: anywhere;
+}
+.coursemanager-backup-steps .coursemanager-step-group {
+    margin-bottom: 0.75rem;
+}
+.coursemanager-backup-steps .coursemanager-step-line {
+    margin-bottom: 0.25rem;
+}

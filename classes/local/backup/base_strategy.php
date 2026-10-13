@@ -134,13 +134,46 @@ abstract class base_strategy implements strategy {
     /**
      * First step of the backup popup : estimated size and threshold.
      *
-     * @return string HTML.
+     * @param launch_result $result Result, to add the step.
+     * @return void
      */
-    protected function get_size_step(): string {
+    protected function add_size_step(launch_result $result): void {
         $a = (object) [
             'size' => display_size($this->sizes->total),
             'threshold' => $this->threshold ? display_size($this->threshold) : '-',
         ];
-        return get_string('backup_step_size', 'report_coursemanager', $a);
+        $result->add_step(get_string('backup_title_estimate', 'report_coursemanager'),
+            \html_writer::tag('p', get_string('backup_step_size', 'report_coursemanager', $a)));
+    }
+
+    /**
+     * Last steps of the backup popup : launch and, for split backups, restore.
+     *
+     * @param launch_result $result Result, to add the steps.
+     * @param bool $split True for a split backup.
+     * @return void
+     */
+    protected function add_launch_steps(launch_result $result, bool $split): void {
+        $result->add_step(get_string('backup_title_launch', 'report_coursemanager'),
+            \html_writer::tag('p', get_string($result->inbackground ? 'backup_step_background' : 'backup_step_done',
+                'report_coursemanager')));
+        if ($split) {
+            $result->add_step(get_string('backup_title_restore', 'report_coursemanager'),
+                \html_writer::tag('p', get_string('backup_step_restore', 'report_coursemanager')));
+        }
+    }
+
+    /**
+     * Line of the backup popup : name (dark blue) and size (light orange), with the Moodle theme colours.
+     *
+     * @param string $name Name (question bank, section...).
+     * @param int $size Size in bytes.
+     * @return string HTML.
+     */
+    protected function format_content_line(string $name, int $size): string {
+        return \html_writer::div(
+            \html_writer::span(s($name), 'text-primary font-weight-bold fw-bold') . ' '
+            . \html_writer::span('(' . display_size($size) . ')', 'text-warning'),
+            'coursemanager-step-line');
     }
 }

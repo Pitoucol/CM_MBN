@@ -33,16 +33,17 @@ class launch_result {
     /** @var bool True if no backup was created because of an error (for example a section over the threshold). */
     public $error = false;
 
-    /** @var string[] Steps shown in the backup popup, as HTML. */
+    /** @var array[] Steps shown in the backup popup : title and content (HTML). */
     public $steps = [];
 
     /**
      * Add a step to show in the backup popup.
      *
-     * @param string $html Step, as HTML.
+     * @param string $title Step title.
+     * @param string $html Step content, as HTML.
      * @return void
      */
-    public function add_step(string $html): void {
-        $this->steps[] = $html;
+    public function add_step(string $title, string $html): void {
+        $this->steps[] = ['title' => $title, 'html' => $html];
     }
 }
