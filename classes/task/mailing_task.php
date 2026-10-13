@@ -184,7 +184,13 @@ class mailing_task extends \core\task\scheduled_task {
                     $send = email_to_user($teacheruserinfo, $from,
                     get_config('report_coursemanager', 'mailing_title'), $finalcontent);
 
-                    mtrace('Mail sent to user '.$teacher->idteacher);
+                    // Log the real result : email_to_user() returns false when mail is not sent
+                    // (invalid address, user over bounce threshold, deleted user, mail error...).
+                    if ($send) {
+                        mtrace('Mail sent to user '.$teacher->idteacher);
+                    } else {
+                        mtrace('ERROR - Mail not sent to user '.$teacher->idteacher);
+                    }
                 }
                 // Unset mail content for next teacher.
                 unset($finalcontent);
