@@ -67,30 +67,33 @@ class mailing_task extends \core\task\scheduled_task {
             $teacherrole = get_config('report_coursemanager', 'teacher_role_dashboard');
 
             // List all users that have a teacher role (as defined in params) in at least one course.
-            $sqllistteacher = 'SELECT DISTINCT(tra.userid) AS idteacher
-                FROM {course} c
-                LEFT JOIN {context} ctx ON c.id = ctx.instanceid
-                JOIN {role_assignments} lra ON lra.contextid = ctx.id
-                JOIN {role_assignments} tra ON tra.contextid = ctx.id
-                JOIN {user} u ON u.id=tra.userid
-                WHERE tra.roleid= ?';
+            // Only course contexts are used : a role given in another context (category, activity...)
+            // with the same instance id as a course must not be taken into account.
+            $sqllistteacher = 'SELECT DISTINCT ra.userid AS idteacher
+                FROM {role_assignments} ra
+                JOIN {context} ctx ON ctx.id = ra.contextid AND ctx.contextlevel = :courselevel
+                JOIN {course} c ON c.id = ctx.instanceid
+                WHERE ra.roleid = :roleid';
 
-            $paramsdblistteacher = [$teacherrole];
+            $paramsdblistteacher = ['courselevel' => CONTEXT_COURSE, 'roleid' => $teacherrole];
             $dbresultlistteacher = $DB->get_records_sql($sqllistteacher, $paramsdblistteacher);
 
             foreach ($dbresultlistteacher as $teacher) {
                 // We have list of teacher. Now retrieve all courses for each one.
 
-                $sqllistcoursesforteacher = 'SELECT DISTINCT(c.id) AS courseid, c.fullname AS coursename
+                $sqllistcoursesforteacher = 'SELECT DISTINCT c.id AS courseid, c.fullname AS coursename
                 FROM {course} c
-                LEFT JOIN {context} ctx ON c.id = ctx.instanceid
-                JOIN {role_assignments} lra ON lra.contextid = ctx.id
-                JOIN {role_assignments} tra ON tra.contextid = ctx.id
-                JOIN {user} u ON u.id=tra.userid
-                WHERE tra.roleid = '.$teacherrole .'
-                AND u.id = '.$teacher->idteacher.'
-                ';
-                $dbresultlistcoursesforteacher = $DB->get_records_sql($sqllistcoursesforteacher);
+                JOIN {context} ctx ON ctx.instanceid = c.id AND ctx.contextlevel = :courselevel
+                JOIN {role_assignments} ra ON ra.contextid = ctx.id
+                WHERE ra.roleid = :roleid
+                AND ra.userid = :userid';
+                $paramsdblistcoursesforteacher = [
+                    'courselevel' => CONTEXT_COURSE,
+                    'roleid' => $teacherrole,
+                    'userid' => $teacher->idteacher,
+                ];
+                $dbresultlistcoursesforteacher = $DB->get_records_sql($sqllistcoursesforteacher,
+                    $paramsdblistcoursesforteacher);
 
                 $mailcontent = '';
 
@@ -131,6 +134,14 @@ class mailing_task extends \core\task\scheduled_task {
                         if ($report['report'] == 'orphan_submissions') {
                             $checkreport = $DB->get_records('report_coursemanager_orphans',
                             ['course' => $listcourse->courseid]);
+                        } else if ($report['report'] == 'heavy') {
+                            // Heavy course : same rule as the teachers dashboard, with the course weight
+                            // and the current threshold, instead of the report calculated with the threshold
+                            // of the last task run.
+                            $weight = $DB->get_field('report_coursemanager_reports', 'detail',
+                            ['course' => $listcourse->courseid, 'report' => 'weight']);
+                            $threshold = get_config('report_coursemanager', 'total_filesize_threshold') * 1024 * 1024;
+                            $checkreport = (!empty($weight) && $weight > $threshold);
                         } else {
                             $checkreport = $DB->get_record('report_coursemanager_reports',
                             ['course' => $listcourse->courseid, 'report' => $report['report']]);
@@ -178,10 +189,18 @@ class mailing_task extends \core\task\scheduled_task {
                     $finalcontent .= '<br />';
                     $finalcontent .= get_config('report_coursemanager', 'mailing_outro');
 
+                    // Content is HTML : it is given as HTML message, with a plain text version
+                    // for users who chose plain text mails in their profile.
                     $send = email_to_user($teacheruserinfo, $from,
-                    get_config('report_coursemanager', 'mailing_title'), $finalcontent);
+                    get_config('report_coursemanager', 'mailing_title'), html_to_text($finalcontent), $finalcontent);
 
-                    mtrace('Mail sent to user '.$teacher->idteacher);
+                    // Log the real result : email_to_user() returns false when mail is not sent
+                    // (invalid address, user over bounce threshold, deleted user, mail error...).
+                    if ($send) {
+                        mtrace('Mail sent to user '.$teacher->idteacher);
+                    } else {
+                        mtrace('ERROR - Mail not sent to user '.$teacher->idteacher);
+                    }
                 }
                 // Unset mail content for next teacher.
                 unset($finalcontent);
