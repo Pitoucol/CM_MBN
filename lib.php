@@ -771,7 +771,11 @@ function report_coursemanager_render_exports_tab($userid) {
             }
         }
 
-        if ($file && has_capability('moodle/backup:downloadfile', $context)) {
+        if ($manager->is_backup_failed($course->id, $file)) {
+            // The last backup launched has failed or is blocked : shown instead of the download link.
+            $row[] = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
+                . get_string('backup_potential_error', 'report_coursemanager'), 'text-danger');
+        } else if ($file && has_capability('moodle/backup:downloadfile', $context)) {
             $row[] = html_writer::link(\report_coursemanager\local\backup\manager::get_download_url($file),
                 '<i class="fa fa-download" aria-hidden="true"></i> ' . get_string('download_backup', 'report_coursemanager'),
                 ['class' => 'btn btn-outline-primary btn-sm', 'title' => $file->get_filename()]);

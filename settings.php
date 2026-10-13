@@ -142,6 +142,13 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
     $settings->hide_if('report_coursemanager/enable_column_lastbackup', 'report_coursemanager/enable_tab_exports');
 
+    // Delay after which a backup launched and not done is shown as a potential error.
+    $name = 'report_coursemanager/backup_error_delay';
+    $title = get_string('backuperrordelay', 'report_coursemanager');
+    $description = get_string('backuperrordelay_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configtext($name, $title, $description, 60, PARAM_INT, '5'));
+    $settings->hide_if('report_coursemanager/backup_error_delay', 'report_coursemanager/enable_tab_exports');
+
     // Define agregation for course size comparison.
     $aggregationchoices = [
         get_string('aggregationaverage', 'report_coursemanager'),

@@ -441,3 +441,6 @@ $string['backup_launched'] = 'The backup of the course "{$a}" has been started. 
 $string['backup_done'] = 'The backup of the course "{$a}" is done. You can download it from the table below.';
 $string['backup_already_pending'] = 'A backup of the course "{$a}" is already in progress.';
 $string['course_backup_launched'] = 'Course backup launched';
+$string['backuperrordelay'] = 'Delay before backup error (minutes)';
+$string['backuperrordelay_desc'] = 'In the "Downloads and exports" tab, a backup started and still not done after this delay is shown as a potential error in the backup process, instead of the download link.';
+$string['backup_potential_error'] = 'Potential error in the backup process';

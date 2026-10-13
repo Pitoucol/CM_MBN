@@ -88,6 +88,54 @@ class manager {
     }
 
     /**
+     * Check if the last backup of the course launched by the user has potentially failed.
+     *
+     * The last backup launched by the user (Moodle backup controller, ready to run or more)
+     * is considered as failed when no backup file of the course is more recent than its launch, and :
+     * - Moodle marked it as failed ;
+     * - or it is still waiting or running after the delay defined in plugin settings
+     *   (blocked task, cron not running, or very long backup).
+     *
+     * @param int $courseid Course ID.
+     * @param stored_file|null $lastfile Most recent backup file of the course, if any.
+     * @return bool
+     */
+    public function is_backup_failed(int $courseid, ?stored_file $lastfile): bool {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
+        $select = 'userid = :userid AND itemid = :itemid AND type = :type AND operation = :operation
+            AND status >= :statusmin';
+        $params = [
+            'userid' => $this->userid,
+            'itemid' => $courseid,
+            'type' => backup::TYPE_1COURSE,
+            'operation' => backup::OPERATION_BACKUP,
+            'statusmin' => backup::STATUS_AWAITING,
+        ];
+        $records = $DB->get_records_select('backup_controllers', $select, $params, 'timecreated DESC', 'id, status, timecreated', 0, 1);
+        if (empty($records)) {
+            return false;
+        }
+        $last = reset($records);
+
+        // A backup file more recent than the last launch : the backup has been done.
+        if ($lastfile && $lastfile->get_timecreated() >= $last->timecreated) {
+            return false;
+        }
+
+        if ($last->status == backup::STATUS_FINISHED_ERR) {
+            return true;
+        }
+
+        $delay = (int)get_config('report_coursemanager', 'backup_error_delay');
+        if ($delay <= 0) {
+            $delay = 60;
+        }
+        return ($last->status < backup::STATUS_FINISHED_ERR) && (time() - $last->timecreated > $delay * MINSECS);
+    }
+
+    /**
      * Most recent backup file of the course, made by the user (private area) or stored in the course backup area.
      *
      * In the user private area, the course is found from the default backup file name
