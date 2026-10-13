@@ -33,6 +33,9 @@ require_login();
 require_sesskey();
 
 $context = context_course::instance($course->id);
+// Page context and URL, needed by format_string() and by the redirect page.
+$PAGE->set_context($context);
+$PAGE->set_url(new moodle_url('/report/coursemanager/backup_course.php', ['courseid' => $course->id]));
 require_capability('moodle/backup:backupcourse', $context);
 
 $returnurl = new moodle_url('/report/coursemanager/view.php', ['tab' => 'exports']);

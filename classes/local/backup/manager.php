@@ -107,6 +107,30 @@ class manager {
     }
 
     /**
+     * Backups of the course launched by the user and still waiting or running.
+     *
+     * @param int $courseid Course ID.
+     * @return \stdClass[] Records with backupid and progress (from 0 to 1).
+     */
+    public function get_pending_backups(int $courseid): array {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
+        $select = 'userid = :userid AND itemid = :itemid AND type = :type AND operation = :operation
+            AND status > :statusmin AND status < :statusmax';
+        $params = [
+            'userid' => $this->userid,
+            'itemid' => $courseid,
+            'type' => backup::TYPE_1COURSE,
+            'operation' => backup::OPERATION_BACKUP,
+            'statusmin' => backup::STATUS_NEED_PRECHECK,
+            'statusmax' => backup::STATUS_FINISHED_ERR,
+        ];
+        return array_values($DB->get_records_select('backup_controllers', $select, $params, 'timecreated ASC, id ASC',
+            'id, backupid, progress'));
+    }
+
+    /**
      * Check if the last backup of the course launched by the user has potentially failed.
      *
      * The last launch may contain several backups (one per part of a split backup). It is considered
