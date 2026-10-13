@@ -129,6 +129,33 @@ if ($ADMIN->fulltree) {
     $description = get_string('enablecolumncomparison_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
+    // Checkbox for "Downloads and exports" tab.
+    $name = 'report_coursemanager/enable_tab_exports';
+    $title = get_string('enabletabexports', 'report_coursemanager');
+    $description = get_string('enabletabexports_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+
+    // Checkbox for last backup column, in "Downloads and exports" tab.
+    $name = 'report_coursemanager/enable_column_lastbackup';
+    $title = get_string('enablecolumnlastbackup', 'report_coursemanager');
+    $description = get_string('enablecolumnlastbackup_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+    $settings->hide_if('report_coursemanager/enable_column_lastbackup', 'report_coursemanager/enable_tab_exports');
+
+    // Delay after which a backup launched and not done is shown as a potential error.
+    $name = 'report_coursemanager/backup_error_delay';
+    $title = get_string('backuperrordelay', 'report_coursemanager');
+    $description = get_string('backuperrordelay_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configtext($name, $title, $description, 60, PARAM_INT, '5'));
+    $settings->hide_if('report_coursemanager/backup_error_delay', 'report_coursemanager/enable_tab_exports');
+
+    // Size threshold of a backup archive : over it, the backup is split in several archives.
+    $name = 'report_coursemanager/backup_split_threshold';
+    $title = get_string('backupsplitthreshold', 'report_coursemanager');
+    $description = get_string('backupsplitthreshold_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configtext($name, $title, $description, 250, PARAM_INT, '5'));
+    $settings->hide_if('report_coursemanager/backup_split_threshold', 'report_coursemanager/enable_tab_exports');
+
     // Define agregation for course size comparison.
     $aggregationchoices = [
         get_string('aggregationaverage', 'report_coursemanager'),

@@ -23,6 +23,7 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
 global $DB, $USER;
 
@@ -32,12 +33,19 @@ require_login();
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $done     = optional_param('done', 0, PARAM_TEXT);
 
+// Tabs : "Course reports" (default) and "Downloads and exports" (optional, enabled by default).
+$exportsenabled = report_coursemanager_is_enabled('enable_tab_exports');
+$tab = optional_param('tab', 'reports', PARAM_ALPHA);
+if ($tab !== 'exports' || !$exportsenabled) {
+    $tab = 'reports';
+}
+
 $site = get_site();
 
 $PAGE = new moodle_page();
 $PAGE->set_context(context_system::instance());
 $PAGE->set_heading(get_string('title', 'report_coursemanager'));
-$PAGE->set_url('/report/coursemanager/view.php');
+$PAGE->set_url('/report/coursemanager/view.php', ['tab' => $tab]);
 $PAGE->set_pagelayout('mycourses');
 $PAGE->set_pagetype('report-coursemanager');
 $PAGE->blocks->add_region('content');
@@ -45,7 +53,7 @@ $PAGE->set_title($site->fullname);
 
 // Load AMD module that initialises DataTables and filters.
 $PAGE->requires->js_call_amd('report_coursemanager/coursetable', 'init', [
-    'courses',
+    ($tab === 'exports') ? 'courseexports' : 'courses',
     [
         'lengthMenu'   => get_string('dt_lengthmenu', 'report_coursemanager'),
         'info'         => get_string('dt_info', 'report_coursemanager'),
@@ -100,6 +108,23 @@ if (!get_config('report_coursemanager', 'last_access_student') ||
     !get_config('report_coursemanager', 'unique_filesize_threshold')
 ) {
     echo html_writer::div(get_string('empty_settings', 'report_coursemanager'), 'alert alert-primary');
+    echo $OUTPUT->footer();
+    exit();
+}
+
+// Tabs.
+if ($exportsenabled) {
+    $tabs = [
+        new tabobject('reports', new moodle_url('/report/coursemanager/view.php', ['tab' => 'reports']),
+            get_string('tab_reports', 'report_coursemanager')),
+        new tabobject('exports', new moodle_url('/report/coursemanager/view.php', ['tab' => 'exports']),
+            get_string('tab_exports', 'report_coursemanager')),
+    ];
+    echo $OUTPUT->tabtree($tabs, $tab);
+}
+
+if ($tab === 'exports') {
+    echo report_coursemanager_render_exports_tab($USER->id);
     echo $OUTPUT->footer();
     exit();
 }

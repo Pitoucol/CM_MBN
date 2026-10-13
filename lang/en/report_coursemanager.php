@@ -422,3 +422,48 @@ $string['dt_first']        = '«';
 $string['dt_last']         = '»';
 $string['dt_next']         = '›';
 $string['dt_previous']     = '‹';
+
+// Tab - Downloads and exports.
+$string['enabletabexports'] = '"Downloads and exports" tab';
+$string['enabletabexports_desc'] = 'Displays a second tab on the teachers dashboard, to launch course backups (.mbz) with the site default backup settings and download them.';
+$string['enablecolumnlastbackup'] = 'Last backup column';
+$string['enablecolumnlastbackup_desc'] = 'Displays the date of the most recent backup of each course in the "Downloads and exports" tab.';
+$string['tab_reports'] = 'Course reports';
+$string['tab_exports'] = 'Downloads and exports';
+$string['table_last_backup'] = 'Last backup';
+$string['table_download'] = 'Download';
+$string['table_backup_action'] = 'Action';
+$string['no_backup'] = 'No backup';
+$string['download_backup'] = 'Download';
+$string['launch_backup'] = 'Start backup';
+$string['backup_in_progress'] = 'Backup in progress…';
+$string['backup_launched'] = 'The backup of the course "{$a}" has been started. It runs in background with the site default backup settings: the download link will appear here once the backup is done.';
+$string['backup_done'] = 'The backup of the course "{$a}" is done. You can download it from the table below.';
+$string['backup_already_pending'] = 'A backup of the course "{$a}" is already in progress.';
+$string['course_backup_launched'] = 'Course backup launched';
+$string['backuperrordelay'] = 'Delay before backup error (minutes)';
+$string['backuperrordelay_desc'] = 'In the "Downloads and exports" tab, a backup started and still not done after this delay is shown as a potential error in the backup process, instead of the download link.';
+$string['backup_potential_error'] = 'Potential error in the backup process';
+$string['backup_error_actions'] = 'What to do?';
+$string['relaunch_backup'] = 'Relaunch the backup';
+$string['manual_backup'] = 'Switch to manual backup';
+
+// Backup split and backup popup.
+$string['backupsplitthreshold'] = 'Maximum size of a backup archive (MB)';
+$string['backupsplitthreshold_desc'] = 'In the "Downloads and exports" tab, when the estimated size of a course backup without user data exceeds this size, the backup is split by sections in several archives (part1_, part2_...) under this size. The whole question bank is in part 1. 0: no split.';
+$string['backup_part_prefix'] = 'part{$a}_';
+$string['download_part'] = 'Part {$a}';
+$string['backup_popup_title'] = 'Backup of "{$a}"';
+$string['backup_not_created'] = 'No backup of the course "{$a}" was created: see the details in the window.';
+$string['backup_step_size'] = 'Estimated size of the backup (without user data): <b>{$a->size}</b>. Maximum size of an archive: {$a->threshold}.';
+$string['backup_step_onearchive'] = 'The course is backed up in one archive.';
+$string['backup_step_parts'] = 'The course is backed up in <b>{$a} archives</b>, split by sections:';
+$string['backup_step_part'] = '<b>Part {$a->number}</b> (about {$a->size}):';
+$string['backup_step_questionbank'] = 'Question bank ({$a})';
+$string['backup_step_section'] = '{$a->name} ({$a->size})';
+$string['backup_step_file'] = 'File: {$a}';
+$string['backup_step_background'] = 'The backup runs in background with the site default backup settings. The download link will appear in the table once it is done.';
+$string['backup_step_done'] = 'The backup is done. You can download it from the table.';
+$string['backup_step_restore'] = 'To restore the course: restore part 1 in a new course, then restore the other parts in this course with "Merge the backup into this course".';
+$string['backup_error_questionbank'] = 'The question bank alone (with the content common to all parts) is {$a->size}, over the maximum size of an archive ({$a->threshold}). No backup was created. Please use the <a href="{$a->link}">manual backup of the whole course</a>.';
+$string['backup_error_section'] = 'The section "{$a->name}" alone is {$a->size}, over the maximum size of an archive ({$a->threshold}). No backup was created. Please use the <a href="{$a->link}">manual backup of the whole course</a>.';

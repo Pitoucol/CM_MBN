@@ -510,19 +510,17 @@ function report_coursemanager_get_course_size($courseid) {
 }
 
 /**
- * Calculates the size of a course backup (.mbz) without user data.
+ * SQL conditions selecting the files of a course backup (.mbz) without user data.
  *
- * Each file content is counted once (files with the same content are stored once
- * in a backup), and files that are not part of such a backup are excluded:
- * course backups, recycle bin and user data (submissions, feedbacks, forum posts...).
+ * Files of the course context and of all its children (activities, blocks...), except
+ * files that are not part of such a backup: course backups, recycle bin and user data
+ * (submissions, feedbacks, forum posts...). To be used with "{files} f JOIN {context} ctx".
  *
- * @param int $courseid Course ID.
- * @return int Size of the course backup in bytes, before compression.
+ * @param context_course $context Course context.
+ * @return array SQL conditions and their parameters.
  */
-function report_coursemanager_get_course_backup_size($courseid) {
+function report_coursemanager_get_backup_files_where($context) {
     global $DB;
-
-    $context = context_course::instance($courseid);
 
     // Components that are never in a backup without user data.
     $excludedcomponents = ['backup', 'tool_recyclebin', 'grade'];
@@ -562,11 +560,29 @@ function report_coursemanager_get_course_backup_size($courseid) {
         $params += $inparams;
     }
 
+    return [implode(' AND ', $where), $params];
+}
+
+/**
+ * Calculates the size of a course backup (.mbz) without user data.
+ *
+ * Each file content is counted once (files with the same content are stored once
+ * in a backup), and files that are not part of such a backup are excluded:
+ * course backups, recycle bin and user data (submissions, feedbacks, forum posts...).
+ *
+ * @param int $courseid Course ID.
+ * @return int Size of the course backup in bytes, before compression.
+ */
+function report_coursemanager_get_course_backup_size($courseid) {
+    global $DB;
+
+    [$where, $params] = report_coursemanager_get_backup_files_where(context_course::instance($courseid));
+
     $sql = 'SELECT SUM(content.filesize)
               FROM (SELECT DISTINCT f.contenthash, f.filesize
                       FROM {files} f
                       JOIN {context} ctx ON ctx.id = f.contextid
-                     WHERE ' . implode(' AND ', $where) . ') content';
+                     WHERE ' . $where . ') content';
 
     return (int) $DB->get_field_sql($sql, $params);
 }
@@ -684,4 +700,162 @@ function report_coursemanager_sortable_cell($content, $order) {
     $cell = new html_table_cell($content);
     $cell->attributes['data-order'] = $order;
     return $cell;
+}
+
+/**
+ * Check if an optional feature is enabled in plugin settings.
+ *
+ * A setting that has never been saved (for example a new setting before the admin
+ * visits the plugin settings) is considered as enabled, as its default value.
+ *
+ * @param string $name Setting name.
+ * @return bool
+ */
+function report_coursemanager_is_enabled($name) {
+    $value = get_config('report_coursemanager', $name);
+    return ($value === false) || ($value == 1);
+}
+
+/**
+ * Generates the "Downloads and exports" tab of the teachers dashboard.
+ *
+ * For each course of the teacher : last backup date, download link of this backup,
+ * and a button to launch a new backup with the site default settings.
+ *
+ * @param int $userid User ID.
+ * @return string HTML.
+ */
+function report_coursemanager_render_exports_tab($userid) {
+    global $OUTPUT, $PAGE, $SESSION;
+
+    $output = '';
+
+    // Steps of the backup just launched, shown once in a popup that the user can close.
+    if (!empty($SESSION->report_coursemanager_backupreport)) {
+        $report = $SESSION->report_coursemanager_backupreport;
+        unset($SESSION->report_coursemanager_backupreport);
+        $output .= html_writer::div(html_writer::alist($report['steps'], ['class' => 'coursemanager-backup-steps']), '', [
+            'id' => 'coursemanager-backupreport',
+            'data-title' => $report['title'],
+            'hidden' => 'hidden',
+        ]);
+        $PAGE->requires->js_call_amd('report_coursemanager/backupreport', 'init', ['coursemanager-backupreport']);
+    }
+
+    // Text search, as in the reports tab.
+    $output .= html_writer::start_div('coursemanager-toolbar mb-3 d-flex flex-wrap gap-2 align-items-center');
+    $output .= html_writer::tag('label', get_string('search') . ' : ', ['for' => 'coursemanager-search', 'class' => 'h5']);
+    $output .= html_writer::tag('input', '', [
+        'type'        => 'text',
+        'id'          => 'coursemanager-search',
+        'class'       => 'form-control w-50',
+        'placeholder' => get_string('text_filter', 'report_coursemanager'),
+    ]);
+    $output .= html_writer::end_div();
+
+    // Same courses as in the reports tab : courses where the user has the dashboard teacher role.
+    $teacherrole = get_config('report_coursemanager', 'teacher_role_dashboard');
+    $courses = [];
+    foreach (enrol_get_users_courses($userid, false, '', 'fullname ASC') as $course) {
+        $roles = get_user_roles(context_course::instance($course->id), $userid, false);
+        if (!empty($roles) && reset($roles)->roleid == $teacherrole) {
+            $courses[] = $course;
+        }
+    }
+    if (empty($courses)) {
+        return $output . html_writer::div(get_string('no_course_to_show', 'report_coursemanager'), 'alert alert-primary');
+    }
+
+    $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
+    $manager = new \report_coursemanager\local\backup\manager($userid);
+
+    $table = new html_table();
+    $table->id = 'courseexports';
+    $table->attributes['class'] = 'admintable generaltable browse_courses w-100';
+    $table->head = [get_string('table_course_name', 'report_coursemanager')];
+    if ($showlastbackup) {
+        $table->head[] = get_string('table_last_backup', 'report_coursemanager');
+    }
+    // Download and action columns are the last two : they are not sortable (coursetable.js).
+    $table->head[] = get_string('table_download', 'report_coursemanager');
+    $table->head[] = get_string('table_backup_action', 'report_coursemanager');
+
+    foreach ($courses as $course) {
+        $context = context_course::instance($course->id);
+        // Most recent backup : one file, or all the parts of a split backup.
+        $files = $manager->get_last_backup_files($course->id);
+        $file = $files ? reset($files) : null;
+        $row = [];
+
+        $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
+            format_string($course->fullname, true, ['context' => $context]));
+
+        if ($showlastbackup) {
+            if ($file) {
+                $row[] = report_coursemanager_sortable_cell(
+                    userdate($file->get_timecreated(), get_string('strftimedatetimeshort', 'langconfig')),
+                    $file->get_timecreated());
+            } else {
+                $row[] = report_coursemanager_sortable_cell(
+                    html_writer::tag('i', get_string('no_backup', 'report_coursemanager')), 0);
+            }
+        }
+
+        $failed = $manager->is_backup_failed($course->id);
+        if ($failed) {
+            // The last backup launched has failed or is blocked : shown instead of the download link.
+            $row[] = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
+                . get_string('backup_potential_error', 'report_coursemanager'), 'text-danger');
+        } else if ($files && has_capability('moodle/backup:downloadfile', $context)) {
+            // One link, or one link per part of a split backup.
+            $links = [];
+            foreach ($files as $index => $partfile) {
+                $label = (count($files) > 1) ? get_string('download_part', 'report_coursemanager', $index + 1)
+                    : get_string('download_backup', 'report_coursemanager');
+                $links[] = html_writer::link(\report_coursemanager\local\backup\manager::get_download_url($partfile),
+                    '<i class="fa fa-download" aria-hidden="true"></i> ' . $label,
+                    ['class' => 'btn btn-outline-primary btn-sm mb-1', 'title' => $partfile->get_filename()]);
+            }
+            $row[] = implode(' ', $links);
+        } else {
+            $row[] = '';
+        }
+
+        if (!has_capability('moodle/backup:backupcourse', $context)) {
+            $row[] = '';
+        } else if ($failed) {
+            // After a potential error : relaunch the backup, or go to the Moodle backup page.
+            // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
+            $backupurl = new moodle_url('/report/coursemanager/backup_course.php',
+                ['courseid' => $course->id, 'sesskey' => sesskey()]);
+            $relaunchurl = new moodle_url($backupurl, ['action' => 'relaunch']);
+            $manualurl = new moodle_url($backupurl, ['action' => 'manual']);
+            $row[] = '
+                <div class="dropdown">
+                    <a class="btn btn-outline-danger dropdown-toggle" href="#" role="button"
+                    data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    ' . get_string('backup_error_actions', 'report_coursemanager') . '
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
+                        <a class="dropdown-item" href="' . $relaunchurl->out() . '">'
+                            . get_string('relaunch_backup', 'report_coursemanager') . '</a>
+                        <a class="dropdown-item" href="' . $manualurl->out() . '">'
+                            . get_string('manual_backup', 'report_coursemanager') . '</a>
+                    </div>
+                </div>
+            ';
+        } else if ($manager->is_backup_pending($course->id)) {
+            $row[] = html_writer::span('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> '
+                . get_string('backup_in_progress', 'report_coursemanager'), 'text-info');
+        } else {
+            $row[] = $OUTPUT->single_button(
+                new moodle_url('/report/coursemanager/backup_course.php', ['courseid' => $course->id]),
+                get_string('launch_backup', 'report_coursemanager'), 'post');
+        }
+
+        $table->rowclasses[] = 'filterrow';
+        $table->data[] = $row;
+    }
+
+    return $output . html_writer::table($table);
 }
