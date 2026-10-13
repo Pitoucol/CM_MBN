@@ -44,8 +44,7 @@ class standard_strategy extends base_strategy {
      */
     public function launch(int $courseid, int $userid): launch_result {
         $result = new launch_result();
-        $result->add_step($this->get_size_step());
-        $result->add_step(get_string('backup_step_onearchive', 'report_coursemanager'));
+        $this->add_size_step($result);
 
         $bc = $this->create_controller($courseid, $userid);
         $filename = $this->get_default_filename($bc);
@@ -53,9 +52,11 @@ class standard_strategy extends base_strategy {
         $result->inbackground = $this->launch_controller($bc, $userid);
         $result->launched = true;
 
-        $result->add_step(get_string('backup_step_file', 'report_coursemanager', s($filename)));
-        $result->add_step(get_string($result->inbackground ? 'backup_step_background' : 'backup_step_done',
-            'report_coursemanager'));
+        $result->add_step(get_string('backup_title_archive', 'report_coursemanager'),
+            \html_writer::tag('p', get_string('backup_step_onearchive', 'report_coursemanager')) .
+            \html_writer::tag('h4', get_string('backup_step_file', 'report_coursemanager', s($filename)),
+                ['class' => 'coursemanager-step-part']));
+        $this->add_launch_steps($result, false);
         return $result;
     }
 }

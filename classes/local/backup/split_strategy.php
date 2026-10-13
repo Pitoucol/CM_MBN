@@ -68,23 +68,25 @@ class split_strategy extends base_strategy {
             }
         }
         if ($part1size > $target) {
-            $result->add_step(get_string('backup_error_questionbank', 'report_coursemanager', (object) [
+            $result->add_step(get_string('backup_title_error', 'report_coursemanager'),
+                \html_writer::tag('p', get_string('backup_error_questionbank', 'report_coursemanager', (object) [
                 'size' => display_size($part1size),
                 'threshold' => display_size($this->threshold),
                 'link' => $manuallink,
-            ]));
+            ]), ['class' => 'text-danger']));
             return null;
         }
 
         // Each section, with common content, must fit in a part.
         foreach ($this->sizes->sections as $section) {
             if ($common + $section->size > $target) {
-                $result->add_step(get_string('backup_error_section', 'report_coursemanager', (object) [
+                $result->add_step(get_string('backup_title_error', 'report_coursemanager'),
+                    \html_writer::tag('p', get_string('backup_error_section', 'report_coursemanager', (object) [
                     'name' => s($section->name),
                     'size' => display_size($section->size),
                     'threshold' => display_size($this->threshold),
                     'link' => $manuallink,
-                ]));
+                ]), ['class' => 'text-danger']));
                 return null;
             }
         }
@@ -131,29 +133,12 @@ class split_strategy extends base_strategy {
         global $CFG;
 
         $result = new launch_result();
-        $result->add_step($this->get_size_step());
+        $this->add_size_step($result);
 
         $parts = $this->plan_parts($result, $courseid);
         if ($parts === null) {
             $result->error = true;
             return $result;
-        }
-        $result->add_step(get_string('backup_step_parts', 'report_coursemanager', count($parts)));
-
-        // Content of each part.
-        foreach ($parts as $part) {
-            $content = [];
-            if ($part->questionbank && $this->sizes->questionbank > 0) {
-                $content[] = get_string('backup_step_questionbank', 'report_coursemanager',
-                    display_size($this->sizes->questionbank));
-            }
-            foreach ($part->sections as $section) {
-                $content[] = get_string('backup_step_section', 'report_coursemanager',
-                    (object) ['name' => s($section->name), 'size' => display_size($section->size)]);
-            }
-            $result->add_step(get_string('backup_step_part', 'report_coursemanager',
-                (object) ['number' => $part->number, 'size' => display_size($part->size)])
-                . \html_writer::alist($content));
         }
 
         // One native backup per part, with only its sections. All parts share the same Moodle file name,
@@ -183,15 +168,37 @@ class split_strategy extends base_strategy {
 
             $prefix = get_string_manager()->get_string('backup_part_prefix', 'report_coursemanager', $part->number,
                 $CFG->lang);
-            $this->set_setting($bc, 'filename', $prefix . $basename);
+            $part->filename = $prefix . $basename;
+            $this->set_setting($bc, 'filename', $part->filename);
             $result->inbackground = $this->launch_controller($bc, $userid);
             $result->launched = true;
-            $result->add_step(get_string('backup_step_file', 'report_coursemanager', s($prefix . $basename)));
         }
 
-        $result->add_step(get_string($result->inbackground ? 'backup_step_background' : 'backup_step_done',
-            'report_coursemanager'));
-        $result->add_step(get_string('backup_step_restore', 'report_coursemanager'));
+        // Parts : title with the file name, then question bank and sections, with their sizes.
+        $archives = [];
+        foreach ($parts as $part) {
+            $html = \html_writer::tag('h4', get_string('backup_step_part', 'report_coursemanager', (object) [
+                'number' => $part->number,
+                'size' => display_size($part->size),
+                'file' => s($part->filename),
+            ]), ['class' => 'coursemanager-step-part']);
+            if ($part->questionbank && $this->sizes->questionbank > 0) {
+                $html .= \html_writer::div($this->format_content_line(
+                    get_string('backup_step_questionbank', 'report_coursemanager'), $this->sizes->questionbank),
+                    'coursemanager-step-group');
+            }
+            $lines = '';
+            foreach ($part->sections as $section) {
+                $lines .= $this->format_content_line($section->name, $section->size);
+            }
+            $html .= \html_writer::div($lines, 'coursemanager-step-group');
+            $archives[] = \html_writer::div($html, 'coursemanager-step-archive');
+        }
+        // Archives separated by a horizontal line.
+        $result->add_step(get_string('backup_title_split', 'report_coursemanager', count($parts)),
+            implode(\html_writer::empty_tag('hr', ['class' => 'coursemanager-step-separator']), $archives));
+
+        $this->add_launch_steps($result, true);
         return $result;
     }
 }

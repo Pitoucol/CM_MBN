@@ -734,7 +734,14 @@ function report_coursemanager_render_exports_tab($userid) {
     if (!empty($SESSION->report_coursemanager_backupreport)) {
         $report = $SESSION->report_coursemanager_backupreport;
         unset($SESSION->report_coursemanager_backupreport);
-        $output .= html_writer::div(html_writer::alist($report['steps'], ['class' => 'coursemanager-backup-steps']), '', [
+        // Steps separated by a horizontal line.
+        $steps = [];
+        foreach ($report['steps'] as $step) {
+            $steps[] = html_writer::tag('h3', $step['title'], ['class' => 'coursemanager-step-title'])
+                . html_writer::div($step['html'], 'coursemanager-step');
+        }
+        $stepshtml = implode(html_writer::empty_tag('hr', ['class' => 'coursemanager-step-separator']), $steps);
+        $output .= html_writer::div(html_writer::div($stepshtml, 'coursemanager-backup-steps'), '', [
             'id' => 'coursemanager-backupreport',
             'data-title' => $report['title'],
             'hidden' => 'hidden',
