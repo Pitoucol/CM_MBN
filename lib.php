@@ -742,6 +742,7 @@ function report_coursemanager_render_exports_tab($userid) {
         $PAGE->requires->js_call_amd('report_coursemanager/backupreport', 'init', ['coursemanager-backupreport']);
     }
 
+
     // Text search, as in the reports tab.
     $output .= html_writer::start_div('coursemanager-toolbar mb-3 d-flex flex-wrap gap-2 align-items-center');
     $output .= html_writer::tag('label', get_string('search') . ' : ', ['for' => 'coursemanager-search', 'class' => 'h5']);
@@ -767,6 +768,7 @@ function report_coursemanager_render_exports_tab($userid) {
     }
 
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
+    $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
 
     $table = new html_table();
@@ -776,6 +778,7 @@ function report_coursemanager_render_exports_tab($userid) {
     if ($showlastbackup) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
     }
+    $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
     // Download and action columns are the last two : they are not sortable (coursetable.js).
     $table->head[] = get_string('table_download', 'report_coursemanager');
     $table->head[] = get_string('table_backup_action', 'report_coursemanager');
@@ -802,6 +805,32 @@ function report_coursemanager_render_exports_tab($userid) {
         }
 
         $failed = $manager->is_backup_failed($course->id);
+
+        // Progress of the backups in progress, updated in the page by backupprogress.js
+        // with the Moodle asynchronous backup progress web service.
+        $pending = $failed ? [] : $manager->get_pending_backups($course->id);
+        if ($pending) {
+            $progress = 0;
+            foreach ($pending as $backup) {
+                $progress += (float)$backup->progress;
+            }
+            $percent = (int)round(100 * $progress / count($pending));
+            $progresscell = new html_table_cell($percent . ' %');
+            $progresscell->id = 'coursemanager-progress-' . $course->id;
+            $progresscell->attributes['data-order'] = $percent;
+            $row[] = $progresscell;
+            // Backups to follow, given to backupprogress.js outside the table (rows of other table pages
+            // are not in the page).
+            $pendingbackups[] = [
+                'cellid' => $progresscell->id,
+                'contextid' => $context->id,
+                'backupids' => array_map(function($backup) {
+                    return $backup->backupid;
+                }, $pending),
+            ];
+        } else {
+            $row[] = report_coursemanager_sortable_cell('', -1);
+        }
         if ($failed) {
             // The last backup launched has failed or is blocked : shown instead of the download link.
             $row[] = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
@@ -857,5 +886,14 @@ function report_coursemanager_render_exports_tab($userid) {
         $table->data[] = $row;
     }
 
-    return $output . html_writer::table($table);
+    $output .= html_writer::table($table);
+
+    // Progress of the backups in progress, and page reload when they are all finished.
+    if ($pendingbackups) {
+        $output .= html_writer::div('', '', ['id' => 'coursemanager-pendingbackups', 'hidden' => 'hidden',
+            'data-pending' => json_encode($pendingbackups)]);
+        $PAGE->requires->js_call_amd('report_coursemanager/backupprogress', 'init', ['coursemanager-pendingbackups']);
+    }
+
+    return $output;
 }
