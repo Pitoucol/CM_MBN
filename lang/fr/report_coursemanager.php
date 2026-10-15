@@ -104,7 +104,8 @@ $string['reportssettingsheading'] = 'Paramètres pour le calcul des rapports';
 $string['trashsettingsheading'] = 'Paramètres de la catégorie Corbeille et la suppression des cours';
 $string['reportsheading'] = 'Rapports';
 $string['mailingheading'] = 'Mailing aux enseignants';
-$string['dashboardsettingsheading'] = 'Tableau de bord';
+$string['dashboardsettingsheading'] = 'Tableau de bord : onglet « Rapports sur les cours »';
+$string['exportssettingsheading'] = 'Tableau de bord : onglet « Téléchargements et exports »';
 
 // Banner for courses in categorby bin.
 $string['trash'] = 'Ce cours est dans la catégorie à supprimer.';
@@ -447,9 +448,12 @@ $string['enabletabexports'] = 'Onglet « Téléchargements et exports »';
 $string['enabletabexports_desc'] = 'Affiche un second onglet dans le tableau de bord enseignant, pour lancer des sauvegardes de cours (.mbz) avec les réglages de sauvegarde par défaut du site et les télécharger.';
 $string['enablecolumnlastbackup'] = 'Colonne « Dernière sauvegarde »';
 $string['enablecolumnlastbackup_desc'] = 'Affiche la date de la sauvegarde la plus récente de chaque cours dans l\'onglet « Téléchargements et exports ».';
+$string['enablecolumnbackupsize'] = 'Colonne « Poids de la sauvegarde »';
+$string['enablecolumnbackupsize_desc'] = 'Affiche le poids de la sauvegarde la plus récente de chaque cours (toutes ses parties pour une sauvegarde découpée), à droite de la colonne de téléchargement.';
 $string['tab_reports'] = 'Rapports sur les cours';
 $string['tab_exports'] = 'Téléchargements et exports';
 $string['table_last_backup'] = 'Dernière sauvegarde';
+$string['table_backup_size'] = 'Poids de la sauvegarde';
 $string['table_download'] = 'Téléchargement';
 $string['table_backup_action'] = 'Action';
 $string['no_backup'] = 'Aucune sauvegarde';

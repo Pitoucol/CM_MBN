@@ -97,13 +97,16 @@ define([
             return tr.classList.contains(activeFilter);
         });
 
+        // Columns that cannot be sorted : headers with the class coursemanager-nosort when the table
+        // sets it, otherwise the last two (recommendations and actions).
+        var noSortTargets = $(tableEl).find('thead th.coursemanager-nosort').length
+            ? ['coursemanager-nosort'] : [-1, -2];
+
         // Initialise DataTables.
         var dt = $(tableEl).DataTable({
-            // All columns can be sorted, except recommendations and actions (last two).
             // Size and comparison columns are sorted on the size in bytes (data-order attribute).
             columnDefs: [
-                {orderable: false, targets: -1},
-                {orderable: false, targets: -2},
+                {orderable: false, targets: noSortTargets},
             ],
             stripeClasses: ['dt-odd', 'dt-even'],
             order: [[0, 'asc']],
