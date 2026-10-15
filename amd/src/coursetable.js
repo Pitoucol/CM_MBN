@@ -101,6 +101,9 @@ define([
         // sets it, otherwise the last two (recommendations and actions).
         var noSortTargets = $(tableEl).find('thead th.coursemanager-nosort').length
             ? ['coursemanager-nosort'] : [-1, -2];
+        // Column sorted when the page opens : header with the class coursemanager-defaultorder, otherwise the first.
+        var headers = $(tableEl).find('thead th');
+        var defaultOrder = Math.max(0, headers.index(headers.filter('.coursemanager-defaultorder')));
 
         // Initialise DataTables.
         var dt = $(tableEl).DataTable({
@@ -109,7 +112,7 @@ define([
                 {orderable: false, targets: noSortTargets},
             ],
             stripeClasses: ['dt-odd', 'dt-even'],
-            order: [[0, 'asc']],
+            order: [[defaultOrder, 'asc']],
             pageLength: 25,
             lengthMenu: [10, 25, 50, 100],
             dom:

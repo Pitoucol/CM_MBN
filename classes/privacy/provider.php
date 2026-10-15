@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for report_benchmark.
+ * Privacy Subsystem implementation for report_coursemanager.
  *
  * @package     report_coursemanager
  * @copyright   2022 Olivier VALENTIN
@@ -24,20 +24,139 @@
 
 namespace report_coursemanager\privacy;
 
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\contextlist;
+use core_privacy\local\request\userlist;
+use core_privacy\local\request\writer;
+
 /**
- * Privacy Subsystem for report_coursemanager implementing null_provider.
+ * Privacy provider: the plugin records which user converted the file aliases of a course.
  *
- * This plugin does not store any personal user data.
+ * The reports of the plugin (report_coursemanager_reports, report_coursemanager_orphans) store no personal data.
+ *
+ * @package    report_coursemanager
+ * @copyright  2026
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements
+        \core_privacy\local\metadata\provider,
+        \core_privacy\local\request\plugin\provider,
+        \core_privacy\local\request\core_userlist_provider {
 
     /**
-     * Get the language string identifier with the component's language
-     * file to explain why this plugin stores no data.
+     * Describes the stored data.
      *
-     * @return  String
+     * @param collection $collection
+     * @return collection
      */
-    public static function get_reason(): string {
-        return 'privacy:no_data_reason';
+    public static function get_metadata(collection $collection): collection {
+        $collection->add_database_table('report_coursemanager_arun', [
+            'userid' => 'privacy:metadata:arun:userid',
+            'courseid' => 'privacy:metadata:arun:courseid',
+            'timecreated' => 'privacy:metadata:arun:timecreated',
+        ], 'privacy:metadata:arun');
+        return $collection;
+    }
+
+    /**
+     * Contexts with data of a user.
+     *
+     * @param int $userid
+     * @return contextlist
+     */
+    public static function get_contexts_for_userid(int $userid): contextlist {
+        $contextlist = new contextlist();
+        $contextlist->add_from_sql("SELECT ctx.id FROM {context} ctx
+                                      JOIN {report_coursemanager_arun} r ON r.courseid = ctx.instanceid
+                                     WHERE ctx.contextlevel = :level AND r.userid = :userid",
+            ['level' => CONTEXT_COURSE, 'userid' => $userid]);
+        return $contextlist;
+    }
+
+    /**
+     * Users with data in a context.
+     *
+     * @param userlist $userlist
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+        if ($context->contextlevel == CONTEXT_COURSE) {
+            $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_arun} WHERE courseid = :courseid',
+                ['courseid' => $context->instanceid]);
+        }
+    }
+
+    /**
+     * Exports the data of a user.
+     *
+     * @param approved_contextlist $contextlist
+     */
+    public static function export_user_data(approved_contextlist $contextlist) {
+        global $DB;
+        $userid = $contextlist->get_user()->id;
+        foreach ($contextlist->get_contexts() as $context) {
+            if ($context->contextlevel != CONTEXT_COURSE) {
+                continue;
+            }
+            $runs = $DB->get_records('report_coursemanager_arun', ['userid' => $userid, 'courseid' => $context->instanceid],
+                'id', 'id, timecreated, aliases, timereverted');
+            if (!$runs) {
+                continue;
+            }
+            $data = array_map(function($r) {
+                return [
+                    'timecreated' => \core_privacy\local\request\transform::datetime($r->timecreated),
+                    'aliases' => $r->aliases,
+                    'reverted' => $r->timereverted ? \core_privacy\local\request\transform::datetime($r->timereverted) : '',
+                ];
+            }, array_values($runs));
+            writer::with_context($context)->export_data([get_string('alias_privacy_path', 'report_coursemanager')],
+                (object)['runs' => $data]);
+        }
+    }
+
+    /**
+     * Deletes (anonymises) the data of all users in a context. The history is kept for undo.
+     *
+     * @param \context $context
+     */
+    public static function delete_data_for_all_users_in_context(\context $context) {
+        global $DB;
+        if ($context->contextlevel == CONTEXT_COURSE) {
+            $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $context->instanceid]);
+        }
+    }
+
+    /**
+     * Deletes (anonymises) the data of a user.
+     *
+     * @param approved_contextlist $contextlist
+     */
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
+        global $DB;
+        $userid = $contextlist->get_user()->id;
+        foreach ($contextlist->get_contexts() as $context) {
+            if ($context->contextlevel == CONTEXT_COURSE) {
+                $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $context->instanceid, 'userid' => $userid]);
+            }
+        }
+    }
+
+    /**
+     * Deletes (anonymises) the data of several users.
+     *
+     * @param approved_userlist $userlist
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+        $context = $userlist->get_context();
+        if ($context->contextlevel != CONTEXT_COURSE) {
+            return;
+        }
+        foreach ($userlist->get_userids() as $userid) {
+            $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $context->instanceid, 'userid' => $userid]);
+        }
     }
 }

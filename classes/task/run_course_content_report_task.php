@@ -120,6 +120,10 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         unset($datambz);
                         unset($existsmbz);
 
+                        // File aliases that a backup without user data would lose, for the
+                        // "Downloads and exports" tab.
+                        \report_coursemanager\local\alias\scanner::save_report($course->id);
+
                         // 1- TEST FOR TOTAL COURSE SIZE.
                         // If total_course_size exceeds limit, add warning.
                         // If total filesize is bigger than limit defined in parameters, create alert.
