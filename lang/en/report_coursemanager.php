@@ -104,7 +104,8 @@ $string['reportssettingsheading'] = 'Settings for reports calculation';
 $string['trashsettingsheading'] = 'Settings for trash category and courses deletion';
 $string['reportsheading'] = 'Reports';
 $string['mailingheading'] = 'Teachers mailing';
-$string['dashboardsettingsheading'] = 'Dashboard settings';
+$string['dashboardsettingsheading'] = 'Dashboard settings: "Course reports" tab';
+$string['exportssettingsheading'] = 'Dashboard settings: "Downloads and exports" tab';
 
 // Banner for courses in category bin.
 $string['trash'] = 'This course is in the category for deleted courses.';
@@ -428,9 +429,12 @@ $string['enabletabexports'] = '"Downloads and exports" tab';
 $string['enabletabexports_desc'] = 'Displays a second tab on the teachers dashboard, to launch course backups (.mbz) with the site default backup settings and download them.';
 $string['enablecolumnlastbackup'] = 'Last backup column';
 $string['enablecolumnlastbackup_desc'] = 'Displays the date of the most recent backup of each course in the "Downloads and exports" tab.';
+$string['enablecolumnbackupsize'] = 'Backup size column';
+$string['enablecolumnbackupsize_desc'] = 'Displays the size of the most recent backup of each course (all its parts for a split backup), to the right of the download column.';
 $string['tab_reports'] = 'Course reports';
 $string['tab_exports'] = 'Downloads and exports';
 $string['table_last_backup'] = 'Last backup';
+$string['table_backup_size'] = 'Backup size';
 $string['table_download'] = 'Download';
 $string['table_backup_action'] = 'Action';
 $string['no_backup'] = 'No backup';

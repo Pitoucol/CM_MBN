@@ -775,6 +775,7 @@ function report_coursemanager_render_exports_tab($userid) {
     }
 
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
+    $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
 
@@ -786,9 +787,17 @@ function report_coursemanager_render_exports_tab($userid) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
     }
     $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
-    // Download and action columns are the last two : they are not sortable (coursetable.js).
-    $table->head[] = get_string('table_download', 'report_coursemanager');
-    $table->head[] = get_string('table_backup_action', 'report_coursemanager');
+    // Download and action columns are not sortable (class read by coursetable.js).
+    $nosort = function($text) {
+        $cell = new html_table_cell($text);
+        $cell->attributes['class'] = 'coursemanager-nosort';
+        return $cell;
+    };
+    $table->head[] = $nosort(get_string('table_download', 'report_coursemanager'));
+    if ($showbackupsize) {
+        $table->head[] = get_string('table_backup_size', 'report_coursemanager');
+    }
+    $table->head[] = $nosort(get_string('table_backup_action', 'report_coursemanager'));
 
     foreach ($courses as $course) {
         $context = context_course::instance($course->id);
@@ -855,6 +864,19 @@ function report_coursemanager_render_exports_tab($userid) {
             $row[] = implode(' ', $links);
         } else {
             $row[] = '';
+        }
+
+        if ($showbackupsize) {
+            // Size of the most recent backup : all the parts of a split backup.
+            $backupsize = 0;
+            foreach ($files as $partfile) {
+                $backupsize += $partfile->get_filesize();
+            }
+            if ($files && !$failed) {
+                $row[] = report_coursemanager_sortable_cell(display_size($backupsize), $backupsize);
+            } else {
+                $row[] = report_coursemanager_sortable_cell('', -1);
+            }
         }
 
         if (!has_capability('moodle/backup:backupcourse', $context)) {
