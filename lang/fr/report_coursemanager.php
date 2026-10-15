@@ -38,7 +38,7 @@ $string['studentrolereport'] = 'Rôle étudiant dans les cours';
 $string['studentrolereport_desc'] = 'Définit le rôle étudiant dans les cours pour le calcul des rapports. Par défaut, il s\'agit du rôle Étudiant de Moodle.';
 $string['category_bin_desc'] = 'Si un enseignant demande la suppression de son cours, le cours sera déplacé dans cette catégorie avant suppression définitive par les gestionnaires de la plateforme.';
 $string['total_filesize_threshold'] = 'Poids maximum d\'un cours';
-$string['total_filesize_threshold_desc'] = 'Poids en Mo à partir duquel on souhaite afficher une alerte à l\'enseignant si le <b>total des fichiers du cours</b> dépasse ce seuil.';
+$string['total_filesize_threshold_desc'] = 'Poids en Mo à partir duquel on souhaite afficher une alerte à l\'enseignant si le <b>poids du cours</b> (fichiers du cours sans ses sauvegardes) dépasse ce seuil.';
 $string['unique_filesize_threshold'] = 'Poids maximum d\'un fichier';
 $string['unique_filesize_threshold_desc'] = 'Poids en Mo à partir duquel on souhaite afficher une alerte à l\'enseignant si <b>un fichier dans une activité</b> dépasse ce seuil..';
 $string['last_access_teacher'] = 'Seuil dernière visite enseignant';
@@ -398,7 +398,7 @@ $string['runteachervisitreporttask'] = 'Calcul des rapports Course Manager des c
 $string['runcleanreportstask'] = 'Nettoyage des rapports Course Manager';
 
 // Warning displays in courses.
-$string['course_alert_heavy'] = 'Le <b>poids des fichiers</b> rattachés à ce cours est actuellement de <b>{$a->size}</b>. Pensez à faire du tri vos documents, à réinitialiser les activités ou à déplacer les fichiers volumineux.<br /><b>{$a->heavy_link}</b>';
+$string['course_alert_heavy'] = 'Le <b>poids de ce cours</b> (sans ses sauvegardes) est actuellement de <b>{$a->size}</b>. Pensez à faire du tri vos documents, à réinitialiser les activités ou à déplacer les fichiers volumineux.<br /><b>{$a->heavy_link}</b>';
 $string['course_alert_no_visit_teacher'] = 'Aucun <b>enseignant</b> n\'a visité ce cours <b>depuis plus de {$a->no_teacher_time} jours</b>. Pensez à supprimer ce cours si vous ne l\'utilisez plus.<br /><b>{$a->delete_link}</b>';
 $string['course_alert_no_visit_student'] = 'Aucun <b>étudiant</b> n\'a visité ce cours <b>depuis plus de {$a->no_student_time} jours</b>. S\'il n\'a pas vocation à être conserver, pensez à le supprimer ou à le réinitialiser.<br /><b>{$a->delete_link} | {$a->reset_link}</b>';
 $string['course_alert_no_student'] = '<b>Aucun étudiant n\'est actuellement inscrit dans ce cours</b>. Si ce cours n\'a plus vocation à accueillir des utilisateurs, pensez à le supprimer !<br /><b>{$a->delete_link}</b>';

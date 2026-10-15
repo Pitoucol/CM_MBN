@@ -120,7 +120,7 @@ class display_reports {
                     if (get_config('report_coursemanager', 'show_report_in_course') == 1) {
                         // For each report, create <li> with text and links.
                         foreach ($allreports as $report) {
-                            if ($report->report === "weight") {
+                            if ($report->report === "course_weight") {
                                 $courseweight = $report->detail;
                                 //break; // On sort de la boucle dès qu'on trouve la valeur
                             }
@@ -188,7 +188,7 @@ class display_reports {
                     } else if (get_config('report_coursemanager', 'show_report_in_course') == 2) {
                         // If reports are shown with popover icons next to course title.
                         foreach ($allreports as $report) {
-                            if ($report->report === "weight") {
+                            if ($report->report === "course_weight") {
                                 $courseweight = $report->detail;
                             }
                             switch($report->report) {

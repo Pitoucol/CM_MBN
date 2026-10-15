@@ -38,7 +38,7 @@ $string['studentrolereport'] = 'Student role in courses';
 $string['studentrolereport_desc'] = 'Defines student role for reports calculation. Default role is Moodle student.';
 $string['category_bin_desc'] = 'If teacher deletes a course through dashboard, it is moved in this category before real deletion by admin.';
 $string['total_filesize_threshold'] = 'Max course size (MB)';
-$string['total_filesize_threshold_desc'] = 'If total files size exceeds this limit, a report will be calculated for concerned courses.';
+$string['total_filesize_threshold_desc'] = 'If the course size (files of the course without the course backups) exceeds this limit, a report will be calculated for concerned courses.';
 $string['unique_filesize_threshold'] = 'Max file size (MB)';
 $string['unique_filesize_threshold_desc'] = 'If a file size exceeds this limit, it will be displayed in the list of heavy files in total course files report.';
 $string['last_access_teacher'] = 'Limit for last teacher access (in days)';
@@ -379,7 +379,7 @@ $string['runteachervisitreporttask'] = 'Course Manager report for teachers visit
 $string['runcleanreportstask'] = 'Course manager reports cleaner';
 
 // Warning displays in courses.
-$string['course_alert_heavy'] = 'Total files size in this course is actually <b>{$a->size}</b>. Consider sorting files or reseting this course.<br /><b>{$a->heavy_link}</b>';
+$string['course_alert_heavy'] = 'The size of this course (without its backups) is actually <b>{$a->size}</b>. Consider sorting files or reseting this course.<br /><b>{$a->heavy_link}</b>';
 $string['course_alert_no_visit_teacher'] = 'No teacher has visited this course since more than {$a->no_teacher_time} days</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link}</b>';
 $string['course_alert_no_visit_student'] = 'No student has visited this course since more than {$a->no_teacher_time} days</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link} | {$a->reset_link}</b>';
 $string['course_alert_no_student'] = '<b>No student enrolled in this course</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link}</b>';
