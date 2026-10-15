@@ -54,6 +54,7 @@ class run_clean_reports_task extends \core\task\scheduled_task {
         if (get_config('report_coursemanager', 'enable_course_content_task') == 0) {
             $purgereports = $DB->delete_records('report_coursemanager_reports', ['report' => 'weight']);
             $purgereports = $DB->delete_records('report_coursemanager_reports', ['report' => 'mbz_weight']);
+            $purgereports = $DB->delete_records('report_coursemanager_reports', ['report' => 'course_weight']);
             $purgereports = $DB->delete_records('report_coursemanager_reports', ['report' => 'empty']);
             $purgereports = $DB->delete_records('report_coursemanager_reports', ['report' => 'heavy']);
         }
