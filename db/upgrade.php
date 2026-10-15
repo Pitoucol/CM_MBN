@@ -122,7 +122,7 @@ function xmldb_report_coursemanager_upgrade($oldversion) {
         // Add cleaning task and fixes several bugs.
         upgrade_plugin_savepoint(true, 2024060301, 'report', 'coursemanager');
     }
-    if ($oldversion < 2026101304) {
+    if ($oldversion < 2026101305) {
         // Conversion of file aliases into real files : history of conversions and former aliases, for undo.
         $table = new xmldb_table('report_coursemanager_arun');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -165,7 +165,7 @@ function xmldb_report_coursemanager_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_plugin_savepoint(true, 2026101304, 'report', 'coursemanager');
+        upgrade_plugin_savepoint(true, 2026101305, 'report', 'coursemanager');
     }
     return true;
 }
