@@ -116,6 +116,7 @@ $string['trash'] = 'Ce cours est dans la catégorie à supprimer.';
 $string['table_course_name'] = 'Nom du cours';
 $string['table_course_state'] = 'État';
 $string['table_files_weight'] = 'Taille sur le disque';
+$string['table_files_weight_help'] = 'Place occupée sur le disque par tous les fichiers du cours et de ses activités, données des participants, <b>sauvegardes du cours</b> et fichiers de la corbeille compris, chaque fichier compté une fois. La couleur du thermomètre compare cette taille au poids maximum d\'un cours ; l\'alerte « cours lourd » se base sur le poids du cours, sans les sauvegardes.';
 $string['table_course_weight'] = 'Poids du cours';
 $string['table_course_weight_help'] = 'Poids des fichiers du cours et de ses activités, données des participants comprises, <b>sans les sauvegardes du cours</b>. Les fichiers de la corbeille sont inclus.';
 $string['table_mbz_size'] = 'Poids MBZ';
