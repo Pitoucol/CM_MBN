@@ -172,7 +172,8 @@ if (count($listusercourses) == 0) {
     $table->head[] = get_string('table_course_name', 'report_coursemanager');
     $table->head[] = get_string('table_course_state', 'report_coursemanager');
     if (get_config('report_coursemanager', 'enable_column_coursesize') == 1) {
-        $table->head[] = get_string('table_files_weight', 'report_coursemanager');
+        $table->head[] = get_string('table_files_weight', 'report_coursemanager') .
+            $OUTPUT->help_icon('table_files_weight', 'report_coursemanager');
     }
     if (get_config('report_coursemanager', 'enable_column_courseweight') == 1) {
         $table->head[] = get_string('table_course_weight', 'report_coursemanager') .

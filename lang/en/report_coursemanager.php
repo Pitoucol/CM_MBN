@@ -115,6 +115,7 @@ $string['trash'] = 'This course is in the category for deleted courses.';
 $string['table_course_name'] = 'Course name';
 $string['table_course_state'] = 'Visibility';
 $string['table_files_weight'] = 'Disk size';
+$string['table_files_weight_help'] = 'Disk space used by all the files of the course and of its activities, participants data, <b>course backups</b> and files in the recycle bin included, each file counted once. The thermometer colour compares this size with the maximum course size; the heavy course alert uses the course size, without the backups.';
 $string['table_course_weight'] = 'Course size';
 $string['table_course_weight_help'] = 'Size of the files of the course and of its activities, participants data included, <b>without the course backups</b>. Files in the recycle bin are included.';
 $string['table_size_comparison_median'] = 'Comparison - Median course size';
