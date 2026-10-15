@@ -28,5 +28,52 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
+    <TABLE NAME="report_coursemanager_arun" COMMENT="One conversion of file aliases into real files (course page or command line).">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="origin" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="web" SEQUENCE="false" COMMENT="web or cli"/>
+        <FIELD NAME="scope" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="lost" SEQUENCE="false" COMMENT="lost = only aliases that would not be restored, all = every alias"/>
+        <FIELD NAME="aliases" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of aliases converted"/>
+        <FIELD NAME="failures" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of aliases that could not be converted"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timereverted" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="courseid" UNIQUE="false" FIELDS="courseid"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="report_coursemanager_alog" COMMENT="Former alias of every converted file, for undo.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="runid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="files.id of the converted file"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="component" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="filearea" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="itemid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="filepath" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="filename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="contenthash" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="Content of the file when it was converted"/>
+        <FIELD NAME="repositoryid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Former files_reference.repositoryid"/>
+        <FIELD NAME="reference" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Former files_reference.reference"/>
+        <FIELD NAME="referencelastsync" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="oldstatus" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="files.status before the conversion"/>
+        <FIELD NAME="mode" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="api" SEQUENCE="false" COMMENT="api (stored_file::delete_reference) or db (repository not loadable)"/>
+        <FIELD NAME="reverted" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="runid" TYPE="foreign" FIELDS="runid" REFTABLE="report_coursemanager_arun" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="fileid" UNIQUE="false" FIELDS="fileid"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>

@@ -41,4 +41,15 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Convert the file aliases of a course into real files (alias_files.php).
+    'report/coursemanager:convertaliases' => [
+        'riskbitmask' => RISK_DATALOSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/course:manageactivities',
+    ],
 ];

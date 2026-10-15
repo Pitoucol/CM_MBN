@@ -717,6 +717,59 @@ function report_coursemanager_is_enabled($name) {
 }
 
 /**
+ * Number of file aliases that a backup would lose, for several courses, as counted by the nightly task.
+ *
+ * @param int[] $courseids
+ * @return array number of aliases indexed by course id ; courses not checked yet are missing
+ */
+function report_coursemanager_get_alias_reports($courseids) {
+    global $DB;
+    if (empty($courseids)) {
+        return [];
+    }
+    [$insql, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+    $params['report'] = \report_coursemanager\local\alias\scanner::REPORT;
+    $counts = [];
+    $records = $DB->get_recordset_select('report_coursemanager_reports', "course $insql AND report = :report",
+        $params, '', 'id, course, detail');
+    foreach ($records as $record) {
+        $counts[$record->course] = (int)$record->detail;
+    }
+    $records->close();
+    return $counts;
+}
+
+/**
+ * Cell of the alias column of the "Downloads and exports" tab.
+ *
+ * Red cross with the number of aliases a backup would lose and a link to the alias page of the course,
+ * green check when there is none, nothing when the course has not been checked yet.
+ *
+ * @param int $courseid Course ID.
+ * @param int|null $count Number of aliases that would be lost, null if the course has not been checked.
+ * @param context_course $context Course context.
+ * @return html_table_cell
+ */
+function report_coursemanager_alias_cell($courseid, $count, $context) {
+    if ($count === null) {
+        return report_coursemanager_sortable_cell(
+            html_writer::span(get_string('alias_notchecked', 'report_coursemanager'), 'text-muted small'), -1);
+    }
+    if ($count === 0) {
+        return report_coursemanager_sortable_cell('<i class="fa fa-check text-success" aria-hidden="true"></i> '
+            . html_writer::span(get_string('alias_none', 'report_coursemanager'), 'sr-only visually-hidden'), 0);
+    }
+    $content = html_writer::span('<i class="fa fa-times" aria-hidden="true"></i> '
+        . get_string('alias_count', 'report_coursemanager', $count), 'text-danger text-nowrap');
+    if (has_capability('report/coursemanager:convertaliases', $context)) {
+        $content .= html_writer::div(html_writer::link(
+            new moodle_url('/report/coursemanager/alias_files.php', ['id' => $courseid]),
+            get_string('alias_fix', 'report_coursemanager')));
+    }
+    return report_coursemanager_sortable_cell($content, $count);
+}
+
+/**
  * Generates the "Downloads and exports" tab of the teachers dashboard.
  *
  * For each course of the teacher : last backup date, download link of this backup,
@@ -774,6 +827,7 @@ function report_coursemanager_render_exports_tab($userid) {
         return $output . html_writer::div(get_string('no_course_to_show', 'report_coursemanager'), 'alert alert-primary');
     }
 
+    $showalias = report_coursemanager_is_enabled('enable_column_alias');
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
     $pendingbackups = [];
@@ -782,7 +836,18 @@ function report_coursemanager_render_exports_tab($userid) {
     $table = new html_table();
     $table->id = 'courseexports';
     $table->attributes['class'] = 'admintable generaltable browse_courses w-100';
-    $table->head = [get_string('table_course_name', 'report_coursemanager')];
+    $table->head = [];
+    if ($showalias) {
+        // File aliases lost by a backup, counted by the nightly course content task.
+        $table->head[] = get_string('table_alias', 'report_coursemanager');
+        $aliasreports = report_coursemanager_get_alias_reports(array_map(function($course) {
+            return $course->id;
+        }, $courses));
+    }
+    // The table is sorted by course name when the page opens (class read by coursetable.js).
+    $namehead = new html_table_cell(get_string('table_course_name', 'report_coursemanager'));
+    $namehead->attributes['class'] = 'coursemanager-defaultorder';
+    $table->head[] = $namehead;
     if ($showlastbackup) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
     }
@@ -805,6 +870,10 @@ function report_coursemanager_render_exports_tab($userid) {
         $files = $manager->get_last_backup_files($course->id);
         $file = $files ? reset($files) : null;
         $row = [];
+
+        if ($showalias) {
+            $row[] = report_coursemanager_alias_cell($course->id, $aliasreports[$course->id] ?? null, $context);
+        }
 
         $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
             format_string($course->fullname, true, ['context' => $context]));
@@ -925,4 +994,24 @@ function report_coursemanager_render_exports_tab($userid) {
     }
 
     return $output;
+}
+
+/**
+ * Adds the alias page of the course to the course "More" menu.
+ *
+ * Moodle calls this function of a report plugin with the course reports node : the link is added to its
+ * parent, the course node, so that it is shown directly in the "More" menu.
+ *
+ * @param navigation_node $navigation Course reports node.
+ * @param stdClass $course Course.
+ * @param context $context Course context.
+ */
+function report_coursemanager_extend_navigation_course($navigation, $course, $context) {
+    if ($course->id == SITEID || !has_capability('report/coursemanager:convertaliases', $context)) {
+        return;
+    }
+    $node = $navigation->parent ?: $navigation;
+    $node->add(get_string('alias_menuentry', 'report_coursemanager'),
+        new moodle_url('/report/coursemanager/alias_files.php', ['id' => $course->id]),
+        navigation_node::TYPE_SETTING, null, 'report_coursemanager_aliases', new pix_icon('i/files', ''));
 }
