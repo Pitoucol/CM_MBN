@@ -510,6 +510,33 @@ function report_coursemanager_get_course_size($courseid) {
 }
 
 /**
+ * Calculates the course size: disk usage of the course without its backups.
+ *
+ * Same as report_coursemanager_get_course_size(), except the course backups
+ * (component "backup" : manual, automated and activity backups). Files in the
+ * recycle bin are counted.
+ *
+ * @param int $courseid Course ID.
+ * @return int Course size in bytes.
+ */
+function report_coursemanager_get_course_size_without_backups($courseid) {
+    global $DB;
+
+    $context = context_course::instance($courseid);
+
+    $sql = "SELECT SUM(content.filesize)
+              FROM (SELECT DISTINCT f.contenthash, f.filesize
+                      FROM {files} f
+                      JOIN {context} ctx ON ctx.id = f.contextid
+                     WHERE (f.contextid = :contextid OR ctx.path LIKE :path)
+                       AND f.filename <> '.'
+                       AND f.component <> :backup) content";
+    $params = ['contextid' => $context->id, 'path' => $context->path . '/%', 'backup' => 'backup'];
+
+    return (int) $DB->get_field_sql($sql, $params);
+}
+
+/**
  * SQL conditions selecting the files of a course backup (.mbz) without user data.
  *
  * Files of the course context and of all its children (activities, blocks...), except

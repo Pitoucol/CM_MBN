@@ -203,6 +203,10 @@ if (count($listusercourses) == 0) {
         $table->head[] = get_string('table_mbz_size', 'report_coursemanager') .
             $OUTPUT->help_icon('table_mbz_size', 'report_coursemanager');
     }
+    if (get_config('report_coursemanager', 'enable_column_courseweight') == 1) {
+        $table->head[] = get_string('table_course_weight', 'report_coursemanager') .
+            $OUTPUT->help_icon('table_course_weight', 'report_coursemanager');
+    }
     if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
         if (get_config('report_coursemanager', 'aggregation_choice') == 1 ||
             get_config('report_coursemanager', 'aggregation_choice') == 2) {
@@ -278,6 +282,9 @@ if (count($listusercourses) == 0) {
                 if (get_config('report_coursemanager', 'enable_column_coursesize') == 1) {
                     // Files size and MBZ size columns.
                     $row[] = report_coursemanager_sortable_cell('', -1);
+                    $row[] = report_coursemanager_sortable_cell('', -1);
+                }
+                if (get_config('report_coursemanager', 'enable_column_courseweight') == 1) {
                     $row[] = report_coursemanager_sortable_cell('', -1);
                 }
                 if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
@@ -383,6 +390,19 @@ if (count($listusercourses) == 0) {
                         $mbzcontent = display_size((int) $mbzsize, 0, 'MB');
                     }
                     $row[] = report_coursemanager_sortable_cell($mbzcontent, (int) $mbzsize);
+                }
+
+                if (get_config('report_coursemanager', 'enable_column_courseweight') == 1) {
+                    // Course size : disk size without the course backups.
+                    $courseweight = $DB->get_field('report_coursemanager_reports', 'detail',
+                        ['course' => $course->id, 'report' => 'course_weight']);
+                    if ($courseweight === false) {
+                        $courseweightcontent = '<i>' . get_string('weight_not_calculated', 'report_coursemanager') . '</i>';
+                    } else {
+                        $courseweightcontent = display_size((int) $courseweight, 0, 'MB');
+                    }
+                    // Sorted on the size in bytes.
+                    $row[] = report_coursemanager_sortable_cell($courseweightcontent, (int) $courseweight);
                 }
 
                 if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {

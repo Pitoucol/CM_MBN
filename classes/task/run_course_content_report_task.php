@@ -103,6 +103,23 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         unset($dataweight);
                         unset($existsweight);
 
+                        // Course size : disk usage without the course backups.
+                        $coursesize = report_coursemanager_get_course_size_without_backups($course->id) ?: null;
+                        $existscoursesize = $DB->get_record('report_coursemanager_reports',
+                            ['course' => $course->id, 'report' => 'course_weight']);
+                        $datacoursesize = new \stdClass();
+                        $datacoursesize->course = $course->id;
+                        $datacoursesize->report = 'course_weight';
+                        $datacoursesize->detail = $coursesize;
+                        if (empty($existscoursesize)) {
+                            $res = $DB->insert_record($table, $datacoursesize);
+                        } else {
+                            $datacoursesize->id = $existscoursesize->id;
+                            $res = $DB->update_record($table, $datacoursesize);
+                        }
+                        unset($datacoursesize);
+                        unset($existscoursesize);
+
                         // Size of a course backup (.mbz) without user data.
                         $mbzsize = report_coursemanager_get_course_backup_size($course->id) ?: null;
                         $existsmbz = $DB->get_record('report_coursemanager_reports',
@@ -125,13 +142,13 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         \report_coursemanager\local\alias\scanner::save_report($course->id);
 
                         // 1- TEST FOR TOTAL COURSE SIZE.
-                        // If total_course_size exceeds limit, add warning.
-                        // If total filesize is bigger than limit defined in parameters, create alert.
+                        // If the course size (disk size without the course backups) is bigger than
+                        // the limit defined in parameters, create alert.
 
                         $existsheavy = $DB->get_record('report_coursemanager_reports',
                         ['course' => $course->id, 'report' => 'heavy']);
 
-                        if ($filesize >= get_config('report_coursemanager', 'total_filesize_threshold') * 1024 * 1024) {
+                        if ($coursesize >= get_config('report_coursemanager', 'total_filesize_threshold') * 1024 * 1024) {
                             $data = new \stdClass();
                             $data->course = $course->id;
                             $data->report = 'heavy';
