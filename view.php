@@ -174,6 +174,10 @@ if (count($listusercourses) == 0) {
     if (get_config('report_coursemanager', 'enable_column_coursesize') == 1) {
         $table->head[] = get_string('table_files_weight', 'report_coursemanager');
     }
+    if (get_config('report_coursemanager', 'enable_column_courseweight') == 1) {
+        $table->head[] = get_string('table_course_weight', 'report_coursemanager') .
+            $OUTPUT->help_icon('table_course_weight', 'report_coursemanager');
+    }
     // TO DO : hide sortable icons for median and average columns.
     if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
         if (get_config('report_coursemanager', 'aggregation_choice') == 1 ||
@@ -248,6 +252,9 @@ if (count($listusercourses) == 0) {
                     'course_trash'
                 );
                 if (get_config('report_coursemanager', 'enable_column_coursesize') == 1) {
+                    $row[] = html_writer::label('', null);
+                }
+                if (get_config('report_coursemanager', 'enable_column_courseweight') == 1) {
                     $row[] = html_writer::label('', null);
                 }
                 if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {
@@ -339,6 +346,21 @@ if (count($listusercourses) == 0) {
                             ['class' => $weightclass]
                         );
                     }
+                }
+
+                if (get_config('report_coursemanager', 'enable_column_courseweight') == 1) {
+                    // Course size : disk size without the course backups.
+                    $courseweight = $DB->get_field('report_coursemanager_reports', 'detail',
+                        ['course' => $course->id, 'report' => 'course_weight']);
+                    if ($courseweight === false) {
+                        $courseweightcell = new html_table_cell('<i>' .
+                            get_string('weight_not_calculated', 'report_coursemanager') . '</i>');
+                    } else {
+                        $courseweightcell = new html_table_cell(display_size((int) $courseweight, 0, 'MB'));
+                    }
+                    // Raw size in bytes, so that the column is sorted numerically.
+                    $courseweightcell->attributes['data-order'] = (int) $courseweight;
+                    $row[] = $courseweightcell;
                 }
 
                 if (get_config('report_coursemanager', 'enable_column_comparison') == 1) {

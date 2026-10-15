@@ -103,6 +103,23 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         unset($dataweight);
                         unset($existsweight);
 
+                        // Course size : disk usage without the course backups.
+                        $coursesize = report_coursemanager_get_course_size_without_backups($course->id) ?: null;
+                        $existscoursesize = $DB->get_record('report_coursemanager_reports',
+                            ['course' => $course->id, 'report' => 'course_weight']);
+                        $datacoursesize = new \stdClass();
+                        $datacoursesize->course = $course->id;
+                        $datacoursesize->report = 'course_weight';
+                        $datacoursesize->detail = $coursesize;
+                        if (empty($existscoursesize)) {
+                            $res = $DB->insert_record($table, $datacoursesize);
+                        } else {
+                            $datacoursesize->id = $existscoursesize->id;
+                            $res = $DB->update_record($table, $datacoursesize);
+                        }
+                        unset($datacoursesize);
+                        unset($existscoursesize);
+
                         // 1- TEST FOR TOTAL COURSE SIZE.
                         // If total_course_size exceeds limit, add warning.
                         // If total filesize is bigger than limit defined in parameters, create alert.

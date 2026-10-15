@@ -123,6 +123,12 @@ if ($ADMIN->fulltree) {
     $description = get_string('enablecolumncoursesize_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
+    // Checkbox for course weight column (disk size without the course backups).
+    $name = 'report_coursemanager/enable_column_courseweight';
+    $title = get_string('enablecolumncourseweight', 'report_coursemanager');
+    $description = get_string('enablecolumncourseweight_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+
     // Checkbox for coursesize comparison column.
     $name = 'report_coursemanager/enable_column_comparison';
     $title = get_string('enablecolumncomparison', 'report_coursemanager');
