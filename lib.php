@@ -830,13 +830,17 @@ function report_coursemanager_render_exports_tab($userid) {
     $showalias = report_coursemanager_is_enabled('enable_column_alias');
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
+    $showprogress = report_coursemanager_is_enabled('enable_column_progress');
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
 
     $table = new html_table();
     $table->id = 'courseexports';
     $table->attributes['class'] = 'admintable generaltable browse_courses w-100';
-    $table->head = [];
+    // The table is sorted by course name when the page opens (class read by coursetable.js).
+    $namehead = new html_table_cell(get_string('table_course_name', 'report_coursemanager'));
+    $namehead->attributes['class'] = 'coursemanager-defaultorder';
+    $table->head = [$namehead];
     if ($showalias) {
         // File aliases lost by a backup, counted by the nightly course content task.
         $table->head[] = get_string('table_alias', 'report_coursemanager');
@@ -844,14 +848,12 @@ function report_coursemanager_render_exports_tab($userid) {
             return $course->id;
         }, $courses));
     }
-    // The table is sorted by course name when the page opens (class read by coursetable.js).
-    $namehead = new html_table_cell(get_string('table_course_name', 'report_coursemanager'));
-    $namehead->attributes['class'] = 'coursemanager-defaultorder';
-    $table->head[] = $namehead;
     if ($showlastbackup) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
     }
-    $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
+    if ($showprogress) {
+        $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
+    }
     // Download and action columns are not sortable (class read by coursetable.js).
     $nosort = function($text) {
         $cell = new html_table_cell($text);
@@ -871,12 +873,12 @@ function report_coursemanager_render_exports_tab($userid) {
         $file = $files ? reset($files) : null;
         $row = [];
 
+        $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
+            format_string($course->fullname, true, ['context' => $context]));
+
         if ($showalias) {
             $row[] = report_coursemanager_alias_cell($course->id, $aliasreports[$course->id] ?? null, $context);
         }
-
-        $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
-            format_string($course->fullname, true, ['context' => $context]));
 
         if ($showlastbackup) {
             if ($file) {
@@ -903,9 +905,12 @@ function report_coursemanager_render_exports_tab($userid) {
             $progresscell = new html_table_cell($percent . ' %');
             $progresscell->id = 'coursemanager-progress-' . $course->id;
             $progresscell->attributes['data-order'] = $percent;
-            $row[] = $progresscell;
+            if ($showprogress) {
+                $row[] = $progresscell;
+            }
             // Backups to follow, given to backupprogress.js outside the table (rows of other table pages
-            // are not in the page).
+            // are not in the page). Followed even when the progress column is hidden, to reload the page
+            // when they are finished.
             $pendingbackups[] = [
                 'cellid' => $progresscell->id,
                 'contextid' => $context->id,
@@ -913,7 +918,7 @@ function report_coursemanager_render_exports_tab($userid) {
                     return $backup->backupid;
                 }, $pending),
             ];
-        } else {
+        } else if ($showprogress) {
             $row[] = report_coursemanager_sortable_cell('', -1);
         }
         if ($failed) {

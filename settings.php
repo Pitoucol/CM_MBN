@@ -175,7 +175,7 @@ if ($ADMIN->fulltree) {
     $description = get_string('enabletabexports_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
-    // Checkbox for file aliases column, first column of "Downloads and exports" tab.
+    // Checkbox for file aliases column, second column of "Downloads and exports" tab.
     $name = 'report_coursemanager/enable_column_alias';
     $title = get_string('enablecolumnalias', 'report_coursemanager');
     $description = get_string('enablecolumnalias_desc', 'report_coursemanager');
@@ -188,6 +188,13 @@ if ($ADMIN->fulltree) {
     $description = get_string('enablecolumnlastbackup_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
     $settings->hide_if('report_coursemanager/enable_column_lastbackup', 'report_coursemanager/enable_tab_exports');
+
+    // Checkbox for backup progress column, in "Downloads and exports" tab.
+    $name = 'report_coursemanager/enable_column_progress';
+    $title = get_string('enablecolumnprogress', 'report_coursemanager');
+    $description = get_string('enablecolumnprogress_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+    $settings->hide_if('report_coursemanager/enable_column_progress', 'report_coursemanager/enable_tab_exports');
 
     // Checkbox for backup size column, in "Downloads and exports" tab.
     $name = 'report_coursemanager/enable_column_backupsize';
