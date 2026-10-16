@@ -246,14 +246,14 @@ class scanner {
     public static function save_report(int $courseid): int {
         global $DB;
         $lost = count(self::filter(self::scan_course($courseid, true), self::SCOPE_LOST));
-        $data = (object)['course' => $courseid, 'report' => self::REPORT, 'detail' => $lost];
         $existing = $DB->get_record('report_coursemanager_reports', ['course' => $courseid, 'report' => self::REPORT],
-            'id', IGNORE_MULTIPLE);
-        if ($existing) {
-            $data->id = $existing->id;
-            $DB->update_record('report_coursemanager_reports', $data);
-        } else {
-            $DB->insert_record('report_coursemanager_reports', $data);
+            'id, detail', IGNORE_MULTIPLE);
+        if (!$existing) {
+            $DB->insert_record('report_coursemanager_reports',
+                (object)['course' => $courseid, 'report' => self::REPORT, 'detail' => $lost]);
+        } else if ((string)$existing->detail !== (string)$lost) {
+            // Written only when the number has changed.
+            $DB->update_record('report_coursemanager_reports', (object)['id' => $existing->id, 'detail' => $lost]);
         }
         return $lost;
     }
