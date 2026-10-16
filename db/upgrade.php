@@ -122,5 +122,20 @@ function xmldb_report_coursemanager_upgrade($oldversion) {
         // Add cleaning task and fixes several bugs.
         upgrade_plugin_savepoint(true, 2024060301, 'report', 'coursemanager');
     }
+    if ($oldversion < 2026101319) {
+        // Last download of a backup of each course from the "Downloads and exports" tab.
+        $table = new xmldb_table('report_coursemanager_backup_download');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timedownloaded', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN_UNIQUE, ['courseid'], 'course', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        upgrade_plugin_savepoint(true, 2026101319, 'report', 'coursemanager');
+    }
     return true;
 }

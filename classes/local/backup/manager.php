@@ -283,13 +283,54 @@ class manager {
     }
 
     /**
-     * Download URL of a backup file.
+     * Download URL of a backup file : the download page of the plugin, which records the date of the download
+     * then sends the file.
      *
      * @param stored_file $file Backup file.
      * @return moodle_url
      */
     public static function get_download_url(stored_file $file): moodle_url {
-        return moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(),
-            $file->get_filearea(), null, $file->get_filepath(), $file->get_filename(), true);
+        return new moodle_url('/report/coursemanager/download_backup.php',
+            ['fileid' => $file->get_id(), 'sesskey' => sesskey()]);
+    }
+
+    /**
+     * Records the last download of a backup of a course (one row per course).
+     *
+     * @param int $courseid Course ID.
+     * @param int $userid User who downloaded the backup.
+     */
+    public static function record_download(int $courseid, int $userid): void {
+        global $DB;
+        $record = (object)['courseid' => $courseid, 'userid' => $userid, 'timedownloaded' => time()];
+        $existing = $DB->get_record('report_coursemanager_backup_download', ['courseid' => $courseid], 'id',
+            IGNORE_MULTIPLE);
+        if ($existing) {
+            $record->id = $existing->id;
+            $DB->update_record('report_coursemanager_backup_download', $record);
+        } else {
+            $DB->insert_record('report_coursemanager_backup_download', $record);
+        }
+    }
+
+    /**
+     * Last download of a backup of several courses, with the user who downloaded it.
+     *
+     * @param int[] $courseids Course IDs.
+     * @return \stdClass[] courseid, timedownloaded and user name fields, indexed by course id ; courses whose
+     *     backup has never been downloaded are missing
+     */
+    public static function get_last_downloads(array $courseids): array {
+        global $DB;
+        if (!$courseids) {
+            return [];
+        }
+        [$insql, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+        $userfields = \core_user\fields::for_name()->get_sql('u', false, '', '', false)->selects;
+        $records = $DB->get_records_sql("SELECT d.courseid, d.timedownloaded, d.userid, $userfields
+                                           FROM {report_coursemanager_backup_download} d
+                                      LEFT JOIN {user} u ON u.id = d.userid
+                                          WHERE d.courseid $insql", $params);
+        return $records;
     }
 }

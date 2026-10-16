@@ -86,6 +86,10 @@ class run_clean_reports_task extends \core\task\scheduled_task {
             }
         }
 
+        // Last downloads of the backups of deleted courses.
+        $DB->delete_records_select('report_coursemanager_backup_download',
+            'NOT EXISTS (SELECT 1 FROM {course} c WHERE c.id = courseid)');
+
         // 3- Specific check for orphaned submissions.
         if (get_config('report_coursemanager', 'enable_students_task') == 1) {
             // If orphaned submissions is enabled, retrieve all reports.

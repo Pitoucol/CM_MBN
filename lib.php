@@ -717,6 +717,24 @@ function report_coursemanager_is_enabled($name) {
 }
 
 /**
+ * Date of the last download of the backup of a course, and user who downloaded it, for the download column of
+ * the "Downloads and exports" tab.
+ *
+ * @param stdClass|null $download Record from \report_coursemanager\local\backup\manager::get_last_downloads().
+ * @return string HTML, empty when the backup has never been downloaded.
+ */
+function report_coursemanager_last_download($download) {
+    if (!$download) {
+        return '';
+    }
+    $info = (object)[
+        'date' => userdate($download->timedownloaded, get_string('strftimedatetimeshort', 'langconfig')),
+        'user' => fullname($download),
+    ];
+    return html_writer::div(get_string('backup_last_download', 'report_coursemanager', $info), 'small text-muted mt-1');
+}
+
+/**
  * Generates the "Downloads and exports" tab of the teachers dashboard.
  *
  * For each course of the teacher : last backup date, download link of this backup,
@@ -776,6 +794,10 @@ function report_coursemanager_render_exports_tab($userid) {
 
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
+    // Last download of the backup of each course (download_backup.php), shown under the download links.
+    $lastdownloads = \report_coursemanager\local\backup\manager::get_last_downloads(array_map(function($course) {
+        return $course->id;
+    }, $courses));
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
 
@@ -861,7 +883,7 @@ function report_coursemanager_render_exports_tab($userid) {
                     '<i class="fa fa-download" aria-hidden="true"></i> ' . $label,
                     ['class' => 'btn btn-outline-primary btn-sm mb-1', 'title' => $partfile->get_filename()]);
             }
-            $row[] = implode(' ', $links);
+            $row[] = implode(' ', $links) . report_coursemanager_last_download($lastdownloads[$course->id] ?? null);
         } else {
             $row[] = '';
         }
