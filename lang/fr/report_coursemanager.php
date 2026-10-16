@@ -499,6 +499,7 @@ $string['backup_title_error'] = 'Sauvegarde impossible';
 // Wiris formulas converted into LaTeX (wiris_files.php, "Downloads and exports" tab).
 $string['coursemanager:convertwiris'] = 'Convertir les formules Wiris d\'un cours en LaTeX';
 $string['table_wiris'] = 'Wiris';
+$string['table_wiris_help'] = 'Teste la présence de formules Wiris à transformer en LaTeX. Cliquez sur « Vérifier » pour ouvrir la page Wiris du cours.';
 $string['enablecolumnwiris'] = 'Colonne « Wiris »';
 $string['enablecolumnwiris_desc'] = 'Affiche, dans l\'onglet « Téléchargements et exports », un lien vers la page de chaque cours qui vérifie ses formules Wiris et les convertit en LaTeX. Rien n\'est vérifié à l\'affichage de l\'onglet.';
 $string['wirismaxrows'] = 'Formules listées sur la page Wiris';

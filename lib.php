@@ -786,7 +786,8 @@ function report_coursemanager_render_exports_tab($userid) {
     $table->head = [get_string('table_course_name', 'report_coursemanager')];
     if ($showwiris) {
         // Only a link to the Wiris page of the course : not sortable (class read by coursetable.js).
-        $wirishead = new html_table_cell(get_string('table_wiris', 'report_coursemanager'));
+        $wirishead = new html_table_cell(get_string('table_wiris', 'report_coursemanager') .
+            $OUTPUT->help_icon('table_wiris', 'report_coursemanager'));
         $wirishead->attributes['class'] = 'coursemanager-nosort';
         $table->head[] = $wirishead;
     }
