@@ -857,7 +857,6 @@ function report_coursemanager_render_exports_tab($userid) {
     $showalias = report_coursemanager_is_enabled('enable_column_alias');
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
-    $showprogress = report_coursemanager_is_enabled('enable_column_progress');
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
 
@@ -878,9 +877,7 @@ function report_coursemanager_render_exports_tab($userid) {
     if ($showlastbackup) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
     }
-    if ($showprogress) {
-        $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
-    }
+    $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
     // Download and action columns are not sortable (class read by coursetable.js).
     $nosort = function($text) {
         $cell = new html_table_cell($text);
@@ -932,12 +929,9 @@ function report_coursemanager_render_exports_tab($userid) {
             $progresscell = new html_table_cell($percent . ' %');
             $progresscell->id = 'coursemanager-progress-' . $course->id;
             $progresscell->attributes['data-order'] = $percent;
-            if ($showprogress) {
-                $row[] = $progresscell;
-            }
+            $row[] = $progresscell;
             // Backups to follow, given to backupprogress.js outside the table (rows of other table pages
-            // are not in the page). Followed even when the progress column is hidden, to reload the page
-            // when they are finished.
+            // are not in the page).
             $pendingbackups[] = [
                 'cellid' => $progresscell->id,
                 'contextid' => $context->id,
@@ -945,7 +939,7 @@ function report_coursemanager_render_exports_tab($userid) {
                     return $backup->backupid;
                 }, $pending),
             ];
-        } else if ($showprogress) {
+        } else {
             $row[] = report_coursemanager_sortable_cell('', -1);
         }
         if ($failed) {

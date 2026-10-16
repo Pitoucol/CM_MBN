@@ -83,7 +83,7 @@ $summary = scanner::summarise($aliases);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('alias_menuentry', 'report_coursemanager'));
-echo html_writer::tag('p', get_string('alias_intro', 'report_coursemanager'));
+echo html_writer::div(get_string('alias_intro', 'report_coursemanager'));
 
 if (!$aliases) {
     echo $OUTPUT->notification(get_string('alias_noalias', 'report_coursemanager'), 'success');
@@ -109,7 +109,6 @@ if (!$aliases) {
             single_button::BUTTON_SECONDARY);
         $button->add_confirm_action(get_string('alias_confirmconvertall', 'report_coursemanager', $summary['total']));
         $buttons .= html_writer::div($OUTPUT->render($button), 'd-inline-block');
-        $buttons .= html_writer::div(get_string('alias_convert_all_help', 'report_coursemanager'), 'small text-muted mt-1');
     }
     if ($buttons !== '') {
         echo html_writer::div($buttons, 'mb-4');
@@ -125,12 +124,11 @@ if (!$aliases) {
     $hidden = 0;
     foreach ($report->groups as $group) {
         $table = new html_table();
-        $table->head = [get_string('alias_col_preview', 'report_coursemanager'),
-            get_string('alias_col_file', 'report_coursemanager'), get_string('alias_col_where', 'report_coursemanager'),
+        $table->head = [get_string('alias_col_file', 'report_coursemanager'),
             get_string('alias_col_source', 'report_coursemanager'), get_string('alias_col_state', 'report_coursemanager')];
         $table->attributes['class'] = 'generaltable table-sm mb-2';
         $table->attributes['style'] = 'table-layout: fixed; width: 100%;';
-        $table->size = ['10%', '20%', '20%', '35%', '15%'];
+        $table->size = ['30%', '50%', '20%'];
         $lostingroup = 0;
         foreach ($group['rows'] as $row) {
             $alias = $row['alias'];
@@ -143,14 +141,6 @@ if (!$aliases) {
             }
             $shown++;
 
-            $preview = '';
-            $isquestion = $alias->component === 'question' || strpos($alias->component, 'qtype_') === 0;
-            if ($alias->isimage && !$isquestion) {
-                $src = moodle_url::make_pluginfile_url($alias->contextid, $alias->component, $alias->filearea,
-                    $alias->itemid, $alias->filepath, $alias->filename);
-                $preview = html_writer::empty_tag('img', ['src' => $src->out(false), 'alt' => s($alias->filename),
-                    'loading' => 'lazy', 'style' => 'max-width: 100%; max-height: 48px;']);
-            }
             // Type of file (image, H5P package or other file), then name and path.
             $filename = html_writer::span(get_string('alias_type_' . $alias->type, 'report_coursemanager'),
                 'badge badge-secondary bg-secondary text-white mr-1 me-1');
@@ -158,13 +148,12 @@ if (!$aliases) {
             if ($alias->filepath !== '/') {
                 $filename .= html_writer::div(s($alias->filepath), 'small text-muted');
             }
-            $where = $row['whereurl'] ? html_writer::link($row['whereurl'], $row['where']) : $row['where'];
             $state = $alias->lost
                 ? html_writer::span(get_string('alias_state_lost', 'report_coursemanager'),
                     'badge badge-danger bg-danger text-white')
                 : html_writer::span(get_string('alias_state_ok', 'report_coursemanager'),
                     'badge badge-success bg-success text-white');
-            $tr = new html_table_row([$preview, $filename, $where, $row['source'], $state]);
+            $tr = new html_table_row([$filename, $row['source'], $state]);
             if ($alias->lost) {
                 $tr->attributes['class'] = 'table-warning';
             }
