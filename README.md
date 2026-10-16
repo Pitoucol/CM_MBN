@@ -3,7 +3,7 @@
 Ce dépôt est une version dérivée du plugin Course Manager, créé et maintenu par Olivier Valentin. Le plugin d'origine, sa conception et ses fonctionnalités de départ sont son travail. Son dépôt de référence se trouve sur GitHub, sous le nom moodle-report_coursemanager, et contient la documentation complète du plugin.
 
 Nous avons repris ce plugin pour nos plateformes Moodle du Grand-Est, dans une perspective de migration vers Eléa. 
-Nous avons stabilisé en premier lieu le fonctionnement du plugin, en corrigeant certains points et ajouté de nouvelles fonctionnalités. 
+Nous avons stabilisé en premier lieu le fonctionnement du plugin, en corrigeant certains points, et ajouté de nouvelles fonctionnalités. 
 Ce plugin s'appuie sur Claude Code en très grande partie pour la partie développement, cela nous a permis de gagner en rapidité devant les échéances.
 
 
@@ -59,7 +59,7 @@ Ce tableau n'existe que dans la branche ameliorations. Il aide les enseignants �
 - Le calcul du poids des cours a été corrigé : les poids de plus de 1000 Mo étaient mal lus. Le poids est désormais présenté sous trois formes, décrites plus haut, et l'alerte « cours lourd » ne tient plus compte des sauvegardes.
 - Le plugin s'affiche correctement avec les thèmes de Moodle 4.5 comme avec ceux de Moodle 5.
 - Le courrier envoyé aux enseignants a été revu : destinataires mieux ciblés, envois tracés, mise en forme soignée, envoi le 15 et le 30 de chaque mois, et seuil de poids à jour.
-- Les tâches nocturnes ont été allégées pour les plateformes comptant des milliers de cours : la table des rapports est désormais indexée, les trois poids d'un cours sont calculés en une seule lecture, les rapports ne sont réécrits que lorsqu'ils changent, les visites sont comptées en une seule interrogation par cours au lieu d'une par inscrit, et seules les informations utiles des cours sont lues. Deux erreurs liées aux devoirs d'étudiants désinscrits ont aussi été corrigées.
+- Les tâches nocturnes ont été allégées pour les plateformes comptant des milliers de cours : la table des rapports est désormais indexée, les trois poids d'un cours sont calculés en une seule lecture, les rapports ne sont réécrits que lorsqu'ils changent, les visites sont comptées en une seule interrogation par cours au lieu d'une par inscrit, et seules les informations utiles des cours sont lues. Deux erreurs de la recherche des remises orphelines (travaux d’étudiants désinscrits) ont aussi été corrigées : le nettoyage de ces rapports dépendait du mauvais réglage, et la recherche s’arrêtait sur un devoir dont l’activité n’existait plus.
 - Enfin, la configuration du plugin peut être exportée et importée à l'aide d'une commande sur le serveur. Cela permet de copier une configuration d'une plateforme à une autre, ou de corriger un réglage mal défini, comme la catégorie corbeille, sur des centaines de plateformes à la fois. Le mode d'emploi figure en bas de la page des réglages du plugin.
 
 ## Ce que contient la branche ameliorations ##
@@ -70,10 +70,8 @@ Ce tableau n'existe que dans la branche ameliorations. Il aide les enseignants �
 
 ## Pour reprendre une fonctionnalité ##
 
-- Chaque modification se trouve dans sa propre branche, et chaque étape est accompagnée d'une explication qui en donne la raison, pas seulement le contenu.
+- Chaque modification se trouve dans sa propre branche, et chaque étape est expliquée
 
 - Les corrections de la branche stabilisation portent sur le code d'origine. La plupart sont courtes et indépendantes les unes des autres : elles peuvent être reprises séparément, ou proposées une par une au dépôt d'origine.
 
-- Les nouvelles fonctionnalités de la branche ameliorations reposent toutes sur le nouvel onglet « Téléchargements et exports ». Reprendre l'une d'elles suppose de reprendre aussi cet onglet, ou de l'adapter.
-
-- Sur GitHub, la fonction de comparaison entre la branche main et une autre branche montre exactement ce qui a été ajouté ou modifié.
+- Les nouvelles fonctionnalités de la branche améliorations reposent toutes sur le nouvel onglet « Téléchargements et exports ». Reprendre l'une d'elles suppose de reprendre aussi cet onglet, ou de l'adapter.
