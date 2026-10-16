@@ -66,7 +66,8 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                     return;
                 }
 
-            $listcourses = get_courses();
+            // Only the fields used by the task, front page excluded.
+            $listcourses = $DB->get_records_select('course', 'id <> :siteid', ['siteid' => SITEID], 'sortorder', 'id, category');
             foreach ($listcourses as $course) {
                 if ($course->id > 1) {
                     $coursecontext = \context_course::instance($course->id);

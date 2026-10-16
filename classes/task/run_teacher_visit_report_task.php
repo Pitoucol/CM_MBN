@@ -78,7 +78,8 @@ class run_teacher_visit_report_task extends \core\task\scheduled_task {
                 $roleids = array_unique(array_merge($roleids, array_map('intval', $otherroles)));
             }
             $days = (int)get_config('report_coursemanager', 'last_access_teacher');
-            $listcourses = get_courses();
+            // Only the fields used by the task, front page excluded.
+            $listcourses = $DB->get_records_select('course', 'id <> :siteid', ['siteid' => SITEID], 'sortorder', 'id, category');
             foreach ($listcourses as $course) {
                 if ($course->id > 1) {
                     // If course is in trash category, delete all reports.
