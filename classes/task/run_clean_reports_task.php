@@ -88,7 +88,7 @@ class run_clean_reports_task extends \core\task\scheduled_task {
         }
 
         // 3- Specific check for orphaned submissions.
-        if (get_config('report_coursemanager', 'enable_students_task') == 1) {
+        if (get_config('report_coursemanager', 'enable_orphans_task') == 1) {
             // If orphaned submissions is enabled, retrieve all reports.
             $listassigns = $DB->get_records('report_coursemanager_orphans');
             foreach ($listassigns as $assign) {

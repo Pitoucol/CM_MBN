@@ -60,7 +60,14 @@ class run_orphan_submissions_report_task extends \core\task\scheduled_task {
                 AND instance = ?
                 ';
                 $dbresultcontextid = $DB->get_record_sql($sqlcontextid, [$assignmoduleid->id, $assign->id]);
+                // Assignment without course module (incomplete deletion or restore) : nothing to check.
+                if (!$dbresultcontextid) {
+                    continue;
+                }
                 $cm = get_coursemodule_from_id('assign', $dbresultcontextid->id);
+                if (!$cm) {
+                    continue;
+                }
                 $context = \context_module::instance($cm->id);
 
                 $sqlassignsorphans = 'SELECT SUM(f.filesize) AS total_size, COUNT(f.id) AS total_files
