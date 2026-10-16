@@ -33,7 +33,8 @@ use core_privacy\local\request\writer;
 
 /**
  * Privacy provider: the plugin records which user converted the file aliases or the Wiris formulas of a course
- * (Wiris conversions of question banks outside courses are recorded with course id 0, in the system context).
+ * (Wiris conversions of question banks outside courses are recorded with course id 0, in the system context),
+ * and which user last downloaded the backup of a course from the "Downloads and exports" tab.
  *
  * The reports of the plugin (report_coursemanager_reports, report_coursemanager_orphans) store no personal data.
  *
@@ -63,6 +64,11 @@ class provider implements
             'courseid' => 'privacy:metadata:wrun:courseid',
             'timecreated' => 'privacy:metadata:wrun:timecreated',
         ], 'privacy:metadata:wrun');
+        $collection->add_database_table('report_coursemanager_backup_download', [
+            'userid' => 'privacy:metadata:backupdownload:userid',
+            'courseid' => 'privacy:metadata:backupdownload:courseid',
+            'timedownloaded' => 'privacy:metadata:backupdownload:timedownloaded',
+        ], 'privacy:metadata:backupdownload');
         return $collection;
     }
 
@@ -86,6 +92,10 @@ class provider implements
                                      WHERE ctx.contextlevel = :level AND EXISTS (
                                            SELECT 1 FROM {report_coursemanager_wrun} r WHERE r.courseid = 0 AND r.userid = :userid)",
             ['level' => CONTEXT_SYSTEM, 'userid' => $userid]);
+        $contextlist->add_from_sql("SELECT ctx.id FROM {context} ctx
+                                      JOIN {report_coursemanager_backup_download} d ON d.courseid = ctx.instanceid
+                                     WHERE ctx.contextlevel = :level AND d.userid = :userid",
+            ['level' => CONTEXT_COURSE, 'userid' => $userid]);
         return $contextlist;
     }
 
@@ -100,6 +110,9 @@ class provider implements
             $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_arun} WHERE courseid = :courseid',
                 ['courseid' => $context->instanceid]);
             $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_wrun} WHERE courseid = :courseid',
+                ['courseid' => $context->instanceid]);
+            $userlist->add_from_sql('userid',
+                'SELECT userid FROM {report_coursemanager_backup_download} WHERE courseid = :courseid',
                 ['courseid' => $context->instanceid]);
         } else if ($context->contextlevel == CONTEXT_SYSTEM) {
             $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_wrun} WHERE courseid = 0', []);
@@ -145,6 +158,12 @@ class provider implements
                 writer::with_context($context)->export_data([get_string('wiris_privacy_path', 'report_coursemanager')],
                     (object)['runs' => $data]);
             }
+            $record = $context->contextlevel == CONTEXT_COURSE ? $DB->get_record('report_coursemanager_backup_download',
+                ['userid' => $userid, 'courseid' => $courseid]) : false;
+            if ($record) {
+                writer::with_context($context)->export_data([get_string('backup_download_privacy_path', 'report_coursemanager')],
+                    (object)['timedownloaded' => \core_privacy\local\request\transform::datetime($record->timedownloaded)]);
+            }
         }
     }
 
@@ -157,6 +176,7 @@ class provider implements
         global $DB;
         if ($context->contextlevel == CONTEXT_COURSE) {
             $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $context->instanceid]);
+            $DB->set_field('report_coursemanager_backup_download', 'userid', 0, ['courseid' => $context->instanceid]);
         }
         $courseid = self::courseid($context);
         if ($courseid !== null) {
@@ -175,6 +195,8 @@ class provider implements
         foreach ($contextlist->get_contexts() as $context) {
             if ($context->contextlevel == CONTEXT_COURSE) {
                 $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $context->instanceid, 'userid' => $userid]);
+                $DB->set_field('report_coursemanager_backup_download', 'userid', 0,
+                    ['courseid' => $context->instanceid, 'userid' => $userid]);
             }
             $courseid = self::courseid($context);
             if ($courseid !== null) {
@@ -198,6 +220,8 @@ class provider implements
         foreach ($userlist->get_userids() as $userid) {
             if ($context->contextlevel == CONTEXT_COURSE) {
                 $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $courseid, 'userid' => $userid]);
+                $DB->set_field('report_coursemanager_backup_download', 'userid', 0,
+                    ['courseid' => $courseid, 'userid' => $userid]);
             }
             $DB->set_field('report_coursemanager_wrun', 'userid', 0, ['courseid' => $courseid, 'userid' => $userid]);
         }
