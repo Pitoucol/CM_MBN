@@ -580,8 +580,17 @@ $string['alias_where_section'] = 'Section: {$a}';
 $string['alias_where_unknown'] = 'Unknown location';
 
 // Downloads and exports tab : checks before exporting a course.
-$string['destpfpluginsspecs'] = 'Plugins of the destination site';
-$string['destpfpluginsspecs_desc'] = 'Information about the activities and plugins available, or missing, on the site where courses will be restored. When this field is filled, the "Downloads and exports" tab asks teachers to check the activities that may be missing there.';
+$string['destpfpluginsspecs'] = 'Plugins missing on the destination site';
+$string['destpfpluginsspecs_desc'] = 'One plugin per line: its frankenstyle name, then "|", then the name shown to teachers. Example:<br><code>block_sharing_cart | Sharing cart</code><br><code>qtype_wq | Wiris questions</code><br>Supported types: activities (<code>mod_</code>), blocks (<code>block_</code>), question types (<code>qtype_</code>) and course formats (<code>format_</code>). When this field is filled, the "Downloads and exports" tab asks teachers to check these plugins and shows the "Potential losses" column.';
+$string['destpfpluginsinfo'] = 'Plugins of the destination site';
+$string['destpfpluginsinfo_desc'] = 'Declare below the plugins that are not installed on the site where courses will be restored. Each plugin is declared by its <b>frankenstyle name</b>, given on its page of the Moodle plugins directory ("Frankenstyle name", for example <code>block_sharing_cart</code>), followed by the name teachers will understand.';
+$string['enablecolumnlostactivities'] = 'Potential losses column';
+$string['enablecolumnlostactivities_desc'] = 'Displays, in the "Downloads and exports" tab, the plugins declared as missing on the destination site that each course uses, with their number of uses. Shown only when plugins are declared.';
+$string['table_lost_activities'] = 'Potential losses';
+$string['table_lost_activities_help'] = 'Activities, blocks, question types or course format of this course that are not available on the destination site, with their number of uses. They will be lost when the backup is restored there.';
+$string['lostactivities_count'] = '{$a->name} ({$a->count})';
+$string['lostactivities_error'] = 'Invalid lines (expected: frankenstyle name of an activity, block, question type or course format, then "|" and the name shown): {$a}';
+$string['lostactivities_errorline'] = 'line {$a->line}: "{$a->text}"';
 $string['exports_intro'] = 'This table lets you do some basic checks before exporting your course.';
 $string['exports_intro_alias'] = 'The presence of aliases is tested and reported. Correct them by clicking the link, otherwise data may be lost when your mbz is later restored on another site.';
 $string['exports_intro_wiris'] = 'If you used mathematical formulas made with Wiris, check your course and convert your formulas into LaTeX, which is interoperable.';
