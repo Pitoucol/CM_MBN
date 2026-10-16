@@ -122,7 +122,7 @@ function xmldb_report_coursemanager_upgrade($oldversion) {
         // Add cleaning task and fixes several bugs.
         upgrade_plugin_savepoint(true, 2024060301, 'report', 'coursemanager');
     }
-    if ($oldversion < 2026101311) {
+    if ($oldversion < 2026101314) {
         // Conversion of Wiris formulas into LaTeX : history of conversions and original texts, for undo.
         $table = new xmldb_table('report_coursemanager_wrun');
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
@@ -158,7 +158,7 @@ function xmldb_report_coursemanager_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_plugin_savepoint(true, 2026101311, 'report', 'coursemanager');
+        upgrade_plugin_savepoint(true, 2026101314, 'report', 'coursemanager');
     }
     return true;
 }
