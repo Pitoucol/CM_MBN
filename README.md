@@ -1,4 +1,4 @@
-##Course Manager, version MBN GE##
+## Course Manager, version MBN GE ##
 
 Ce dépôt est une version dérivée du plugin Course Manager, créé et maintenu par Olivier Valentin. Le plugin d'origine, sa conception et ses fonctionnalités de départ sont son travail. Son dépôt de référence se trouve sur GitHub, sous le nom moodle-report_coursemanager, et contient la documentation complète du plugin.
 
@@ -7,7 +7,7 @@ Nous avons stabilisé en premier lieu le fonctionnement du plugin, en corrigeant
 Ce plugin s'appuie sur Claude Code en très grande partie pour la partie développement, cela nous a permis de gagner en rapidité devant les échéances.
 
 
-##Organisation du dépôt##
+## Organisation du dépôt ##
 
 Le dépôt contient trois branches principales.
 
@@ -20,12 +20,12 @@ Chaque modification a d'abord été faite dans une branche qui lui est propre, p
 Le plugin nécessite Moodle 4.5 ou une version plus récente, et fonctionne aussi avec Moodle 5.1.
 
 
-##Le tableau de bord des enseignants##
+## Le tableau de bord des enseignants ##
 
 Le tableau de bord présente désormais deux tableaux, dans deux onglets séparés.
 
 
-###Premier tableau : les rapports sur les cours.###
+### Premier tableau : les rapports sur les cours. ###
 
 C'est le tableau d'origine du plugin, amélioré dans la branche stabilisation. Il présente les cours de l'enseignant. Les informations sont calculées chaque nuit. L'administrateur choisit les colonnes affichées.
 
@@ -36,7 +36,7 @@ Viennent ensuite la comparaison avec la médiane et la moyenne de la plateforme,
 Toutes les colonnes peuvent être triées, et des boutons de filtre permettent d'afficher les cours concernés par un rapport précis.
 
 
-###Second tableau : les téléchargements et exports###
+### Second tableau : les téléchargements et exports ###
 
 Ce tableau n'existe que dans la branche ameliorations. Il aide les enseignants à préparer le transfert de leurs cours vers une autre plateforme. L'administrateur peut l'activer ou non, et choisit la plupart des colonnes affichées.
 
@@ -51,7 +51,7 @@ Ce tableau n'existe que dans la branche ameliorations. Il aide les enseignants �
 - Un texte au-dessus du tableau rappelle les vérifications à faire avant d'exporter un cours.
 
 
-##Ce que contient la branche stabilisation##
+## Ce que contient la branche stabilisation ##
 
 - Les tâches de calcul nocturnes démarrent à une minute choisie au hasard, pour éviter que toutes les plateformes ne les lancent au même instant. Elles ne s'interrompent plus brutalement lorsqu'un réglage est manquant.
 - La page des fichiers du cours prend en compte les travaux remis dans tous les devoirs, ainsi que les fichiers lourds et les vidéos de toutes les activités. Elle n'affiche plus de nom erroné pour les fichiers propres à Moodle, et les fichiers liés aux notes y sont libellés « Notes ».
@@ -62,13 +62,13 @@ Ce tableau n'existe que dans la branche ameliorations. Il aide les enseignants �
 - Les tâches nocturnes ont été allégées pour les plateformes comptant des milliers de cours : la table des rapports est désormais indexée, les trois poids d'un cours sont calculés en une seule lecture, les rapports ne sont réécrits que lorsqu'ils changent, les visites sont comptées en une seule interrogation par cours au lieu d'une par inscrit, et seules les informations utiles des cours sont lues. Deux erreurs liées aux devoirs d'étudiants désinscrits ont aussi été corrigées.
 - Enfin, la configuration du plugin peut être exportée et importée à l'aide d'une commande sur le serveur. Cela permet de copier une configuration d'une plateforme à une autre, ou de corriger un réglage mal défini, comme la catégorie corbeille, sur des centaines de plateformes à la fois. Le mode d'emploi figure en bas de la page des réglages du plugin.
 
-##Ce que contient la branche ameliorations##
+## Ce que contient la branche ameliorations ##
 
 - Elle contient tout ce qui précède, plus l'onglet « Téléchargements et exports » décrit plus haut, avec ses outils : la sauvegarde en un clic et le découpage des cours lourds, le suivi des téléchargements, la correction des alias de fichiers, la conversion des formules Wiris, le signalement des activités absentes de la plateforme de destination et le suivi des sauvegardes terminées.
 - L'outil de conversion des formules Wiris est adapté d'un plugin séparé, wiris2tex, intégré à Course Manager.
 
 
-##Pour reprendre une fonctionnalité##
+## Pour reprendre une fonctionnalité ##
 
 - Chaque modification se trouve dans sa propre branche, et chaque étape est accompagnée d'une explication qui en donne la raison, pas seulement le contenu.
 
