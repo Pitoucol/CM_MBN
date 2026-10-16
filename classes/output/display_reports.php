@@ -128,7 +128,7 @@ class display_reports {
                                 case $report->report = 'heavy':
                                     $info->size = display_size($courseweight, 0, 'MB');
                                     $final .= "<li><i class='fa fa-thermometer-three-quarters text-danger fa-lg'></i>  ".
-                                    get_string('course_alert_heavy', 'report_coursemanager', $info)."</li>";
+                                    get_string('course_alert_heavy_coursesize', 'report_coursemanager', $info)."</li>";
                                     break;
                                 case $report->report = 'no_visit_teacher':
                                     $final .= "<li><i class='fa fa-graduation-cap text-info fa-lg'></i>  ".
@@ -186,7 +186,7 @@ class display_reports {
                             switch($report->report) {
                                 case $report->report = 'heavy':
                                     $info->size = display_size($courseweight, 0, 'MB');
-                                    $content = get_string('course_alert_heavy', 'report_coursemanager', $info);
+                                    $content = get_string('course_alert_heavy_coursesize', 'report_coursemanager', $info);
                                     $final .= '<li><button type=\"button\" '
                                     .'class=\"report_coursemanager-reportbutton bg-danger heavy\" '
                                     .'data-html=\"true\" data-bs-toggle=\"popover\" data-bs-placement=\"bottom\" '

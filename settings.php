@@ -68,7 +68,7 @@ if ($ADMIN->fulltree) {
     // Limit for total course files size before warning.
     $name = 'report_coursemanager/total_filesize_threshold';
     $title = get_string('total_filesize_threshold', 'report_coursemanager');
-    $description = get_string('total_filesize_threshold_desc', 'report_coursemanager');
+    $description = get_string('coursesize_threshold_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configtext($name, $title, $description, null, PARAM_TEXT, '5'));
 
     // Limit for single file size  before warning.
@@ -119,8 +119,8 @@ if ($ADMIN->fulltree) {
 
     // Checkbox for course size column.
     $name = 'report_coursemanager/enable_column_coursesize';
-    $title = get_string('enablecolumncoursesize', 'report_coursemanager');
-    $description = get_string('enablecolumncoursesize_desc', 'report_coursemanager');
+    $title = get_string('enablecolumndisksize', 'report_coursemanager');
+    $description = get_string('enablecolumndisksize_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
     // Checkbox for course weight column (disk size without the course backups).
