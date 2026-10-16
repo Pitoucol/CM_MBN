@@ -712,3 +712,39 @@ function report_coursemanager_sortable_cell($content, $order) {
     $cell->attributes['data-order'] = $order;
     return $cell;
 }
+
+/**
+ * Counts, in one query, the users having some roles in a course and those of them who visited the course recently.
+ *
+ * Used by the nightly visit tasks. A user visited the course when their last access is less than $days full days old
+ * (same rule as before : floor((now - last access) / 86400) <= $days). Users who never accessed the course have no
+ * last access and are not visitors.
+ *
+ * @param int $courseid Course ID.
+ * @param int[] $roleids Roles to count (role assignments in the course context, as get_role_users()).
+ * @param int $days Number of days.
+ * @param int $now Current time.
+ * @return stdClass users (number of users with these roles), visitors (number of them who visited the course)
+ */
+function report_coursemanager_count_visitors($courseid, array $roleids, $days, $now) {
+    global $DB;
+
+    $context = context_course::instance($courseid);
+    [$insql, $params] = $DB->get_in_or_equal($roleids, SQL_PARAMS_NAMED, 'visitrole');
+    $params += [
+        'contextid' => $context->id,
+        'courseid' => $courseid,
+        'limit' => $now - ($days + 1) * DAYSECS,
+    ];
+
+    $sql = "SELECT COUNT(DISTINCT ra.userid) AS users,
+                   COUNT(DISTINCT CASE WHEN ula.timeaccess > :limit THEN ra.userid END) AS visitors
+              FROM {role_assignments} ra
+              JOIN {user} u ON u.id = ra.userid AND u.deleted = 0
+         LEFT JOIN {user_lastaccess} ula ON ula.userid = ra.userid AND ula.courseid = :courseid
+             WHERE ra.contextid = :contextid
+               AND ra.roleid $insql";
+    $counts = $DB->get_record_sql($sql, $params);
+
+    return (object)['users' => (int)$counts->users, 'visitors' => (int)$counts->visitors];
+}
