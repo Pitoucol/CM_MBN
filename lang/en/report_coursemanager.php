@@ -482,3 +482,37 @@ $string['configjson_roleidnotfound'] = 'The role {$a} of this setting does not e
 $string['configjson_rolenotfound'] = 'Role not found on this site: {$a}';
 $string['configjson_unknownsetting'] = 'Unknown setting ignored: {$a}';
 $string['configjson_wrongplugin'] = 'This file is the configuration of another plugin: {$a}';
+$string['configjson_settings_heading'] = 'Export and import of this configuration (command line)';
+$string['configjson_settings_doc'] = '<p>The settings of this page can be exported to a JSON file and imported on other sites with the command line script <code>report/coursemanager/cli/config.php</code>, for example to copy a configuration to identical sites, or to fix a wrong setting (such as the trash category) on many sites at once.</p>
+<p>Run the script from the Moodle directory (the <code>public</code> directory since Moodle 5.1), as the user of the web server:</p>
+<pre>sudo -u www-data php report/coursemanager/cli/config.php --help</pre>
+<p><strong>Options</strong></p>
+<ul>
+<li><code>--export</code>: writes the whole configuration in JSON, to the screen or, with <code>--file=PATH</code>, to a file.</li>
+<li><code>--import=PATH</code>: applies a JSON file.</li>
+<li><code>--dry-run</code>: with <code>--import</code>, lists the changes (old value -&gt; new value) without writing anything.</li>
+</ul>
+<p><strong>Examples</strong></p>
+<pre>php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+php report/coursemanager/cli/config.php --import=/tmp/fix.json --dry-run
+php report/coursemanager/cli/config.php --import=/tmp/fix.json</pre>
+<p><strong>JSON file</strong></p>
+<ul>
+<li>An import may contain only some settings: the other settings are not changed. A file fixing only the trash category:
+<pre>{"category_bin": {"path": "Archives / Trash"}}</pre></li>
+<li>The names of the settings are the names shown under each setting of this page (without "report_coursemanager | "). The easiest way to get the format is to export the configuration of a site.</li>
+<li>Ids are not the same on every site: roles are given with their short name (<code>"editingteacher"</code>, <code>"student"</code>...), and the trash category with its id number <code>{"idnumber": "TRASH"}</code> or its path <code>{"path": "Category / Subcategory"}</code>, as shown in the list of this page. Each site finds its own ids.</li>
+<li>Checkboxes take <code>"1"</code> (checked) or <code>"0"</code>.</li>
+</ul>
+<p><strong>Checks</strong></p>
+<ul>
+<li>Every value is checked as in this page before anything is written. If one value is wrong (role or category not found, path matching several categories, value not allowed), nothing is written.</li>
+<li>Each change is recorded in Reports &gt; Config changes.</li>
+<li>Unknown settings are reported and ignored.</li>
+<li>Exit codes, for scripts: 0 success, 1 error, 2 wrong options.</li>
+</ul>
+<p><strong>Several sites</strong>: for example, with one Moodle directory per site:</p>
+<pre>for dir in /var/www/moodle-*/; do
+  sudo -u www-data php "$dir/report/coursemanager/cli/config.php" --import=/tmp/fix.json || echo "Failed: $dir"
+done</pre>
+<p>Run it first with <code>--dry-run</code> to check what will change on each site.</p>';
