@@ -1074,14 +1074,15 @@ function report_coursemanager_render_exports_tab($userid) {
             $downloadcell = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
                 . get_string('backup_potential_error', 'report_coursemanager'), 'text-danger');
         } else if ($files) {
-            // For each archive (one, or one per part of a split backup) : its size, red over the split threshold
-            // and green under it, then its download button.
+            // For each archive (one, or one per part of a split backup), on one line : its size on the left, red over
+            // the split threshold and green under it, and its download button on the right.
             $candownload = has_capability('moodle/backup:downloadfile', $context);
             $parts = [];
             foreach ($files as $index => $partfile) {
                 $size = $partfile->get_filesize();
                 $sizeclass = !$splitthreshold ? '' : (($size > $splitthreshold) ? 'text-danger' : 'text-success');
-                $part = html_writer::div(display_size($size), 'small font-weight-bold fw-bold ' . $sizeclass);
+                $part = html_writer::span(display_size($size),
+                    'small font-weight-bold fw-bold text-nowrap mr-2 me-2 ' . $sizeclass);
                 if ($candownload) {
                     $label = (count($files) > 1) ? get_string('download_part', 'report_coursemanager', $index + 1)
                         : get_string('download_backup', 'report_coursemanager');
@@ -1089,7 +1090,7 @@ function report_coursemanager_render_exports_tab($userid) {
                         '<i class="fa fa-download" aria-hidden="true"></i> ' . $label,
                         ['class' => 'btn btn-outline-primary btn-sm rounded', 'title' => $partfile->get_filename()]);
                 }
-                $parts[] = html_writer::div($part, 'mb-2');
+                $parts[] = html_writer::div($part, 'd-flex align-items-center justify-content-center mb-1');
             }
             $downloadcell = implode('', $parts) . report_coursemanager_last_download($lastdownloads[$course->id] ?? null);
         } else {
