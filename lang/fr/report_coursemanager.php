@@ -500,12 +500,12 @@ $string['backup_title_error'] = 'Sauvegarde impossible';
 
 // Downloads and exports tab : checks before exporting a course.
 $string['destpfpluginsspecs'] = 'Plugins absents de la plateforme de destination';
-$string['destpfpluginsspecs_desc'] = 'Un plugin par ligne : son nom frankenstyle, puis « | », puis le nom affiché aux enseignants. Exemple :<br><code>block_sharing_cart | Panier de partage</code><br><code>qtype_wq | Questions Wiris</code><br>Types pris en charge : activités (<code>mod_</code>), blocs (<code>block_</code>), types de questions (<code>qtype_</code>) et formats de cours (<code>format_</code>). Quand ce champ est rempli, l\'onglet « Téléchargements et exports » invite les enseignants à vérifier ces plugins et affiche la colonne « Activités perdues ».';
+$string['destpfpluginsspecs_desc'] = 'Un plugin par ligne : son nom frankenstyle, puis « | », puis le nom affiché aux enseignants. Exemple :<br><code>block_sharing_cart | Panier de partage</code><br><code>qtype_wq | Questions Wiris</code><br>Types pris en charge : activités (<code>mod_</code>), blocs (<code>block_</code>), types de questions (<code>qtype_</code>) et formats de cours (<code>format_</code>). Quand ce champ est rempli, l\'onglet « Téléchargements et exports » invite les enseignants à vérifier ces plugins et affiche la colonne « Pertes potentielles ».';
 $string['destpfpluginsinfo'] = 'Plugins de la plateforme de destination';
 $string['destpfpluginsinfo_desc'] = 'Déclarez ci-dessous les plugins qui ne sont pas installés sur la plateforme où les cours seront restaurés. Chaque plugin est déclaré par son <b>nom frankenstyle</b>, indiqué sur sa fiche du répertoire des plugins Moodle (« Frankenstyle name », par exemple <code>block_sharing_cart</code>), suivi du nom que les enseignants comprendront.';
-$string['enablecolumnlostactivities'] = 'Colonne « Activités perdues »';
+$string['enablecolumnlostactivities'] = 'Colonne « Pertes potentielles »';
 $string['enablecolumnlostactivities_desc'] = 'Affiche, dans l\'onglet « Téléchargements et exports », les plugins déclarés absents de la plateforme de destination que chaque cours utilise, avec leur nombre d\'occurrences. Affichée seulement si des plugins sont déclarés.';
-$string['table_lost_activities'] = 'Activités perdues';
+$string['table_lost_activities'] = 'Pertes potentielles';
 $string['table_lost_activities_help'] = 'Activités, blocs, types de questions ou format de cours de ce cours qui ne sont pas disponibles sur la plateforme de destination, avec leur nombre d\'occurrences. Ils seront perdus lors de la restauration de la sauvegarde sur cette plateforme.';
 $string['lostactivities_count'] = '{$a->name} ({$a->count})';
 $string['lostactivities_error'] = 'Lignes non valides (attendu : nom frankenstyle d\'une activité, d\'un bloc, d\'un type de question ou d\'un format de cours, puis « | » et le nom affiché) : {$a}';

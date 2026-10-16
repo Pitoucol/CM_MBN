@@ -217,7 +217,7 @@ if ($ADMIN->fulltree) {
     $settings->hide_if('report_coursemanager/destpfpluginsinfo', 'report_coursemanager/enable_tab_exports');
 
     // Plugins missing on the destination site, one "frankenstyle_name | Name shown" per line. When filled, the
-    // "Downloads and exports" tab asks teachers to check them and shows the "Lost activities" column.
+    // "Downloads and exports" tab asks teachers to check them and shows the "Potential losses" column.
     $name = 'report_coursemanager/dest_pf_plugins_specs';
     $title = get_string('destpfpluginsspecs', 'report_coursemanager');
     $description = get_string('destpfpluginsspecs_desc', 'report_coursemanager');
@@ -225,7 +225,7 @@ if ($ADMIN->fulltree) {
         '60', '8'));
     $settings->hide_if('report_coursemanager/dest_pf_plugins_specs', 'report_coursemanager/enable_tab_exports');
 
-    // Checkbox for the "Lost activities" column, shown only when plugins are declared above.
+    // Checkbox for the "Potential losses" column, shown only when plugins are declared above.
     $name = 'report_coursemanager/enable_column_lostactivities';
     $title = get_string('enablecolumnlostactivities', 'report_coursemanager');
     $description = get_string('enablecolumnlostactivities_desc', 'report_coursemanager');

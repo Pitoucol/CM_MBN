@@ -481,12 +481,12 @@ $string['backup_title_error'] = 'Backup not possible';
 
 // Downloads and exports tab : checks before exporting a course.
 $string['destpfpluginsspecs'] = 'Plugins missing on the destination site';
-$string['destpfpluginsspecs_desc'] = 'One plugin per line: its frankenstyle name, then "|", then the name shown to teachers. Example:<br><code>block_sharing_cart | Sharing cart</code><br><code>qtype_wq | Wiris questions</code><br>Supported types: activities (<code>mod_</code>), blocks (<code>block_</code>), question types (<code>qtype_</code>) and course formats (<code>format_</code>). When this field is filled, the "Downloads and exports" tab asks teachers to check these plugins and shows the "Lost activities" column.';
+$string['destpfpluginsspecs_desc'] = 'One plugin per line: its frankenstyle name, then "|", then the name shown to teachers. Example:<br><code>block_sharing_cart | Sharing cart</code><br><code>qtype_wq | Wiris questions</code><br>Supported types: activities (<code>mod_</code>), blocks (<code>block_</code>), question types (<code>qtype_</code>) and course formats (<code>format_</code>). When this field is filled, the "Downloads and exports" tab asks teachers to check these plugins and shows the "Potential losses" column.';
 $string['destpfpluginsinfo'] = 'Plugins of the destination site';
 $string['destpfpluginsinfo_desc'] = 'Declare below the plugins that are not installed on the site where courses will be restored. Each plugin is declared by its <b>frankenstyle name</b>, given on its page of the Moodle plugins directory ("Frankenstyle name", for example <code>block_sharing_cart</code>), followed by the name teachers will understand.';
-$string['enablecolumnlostactivities'] = 'Lost activities column';
+$string['enablecolumnlostactivities'] = 'Potential losses column';
 $string['enablecolumnlostactivities_desc'] = 'Displays, in the "Downloads and exports" tab, the plugins declared as missing on the destination site that each course uses, with their number of uses. Shown only when plugins are declared.';
-$string['table_lost_activities'] = 'Lost activities';
+$string['table_lost_activities'] = 'Potential losses';
 $string['table_lost_activities_help'] = 'Activities, blocks, question types or course format of this course that are not available on the destination site, with their number of uses. They will be lost when the backup is restored there.';
 $string['lostactivities_count'] = '{$a->name} ({$a->count})';
 $string['lostactivities_error'] = 'Invalid lines (expected: frankenstyle name of an activity, block, question type or course format, then "|" and the name shown): {$a}';
