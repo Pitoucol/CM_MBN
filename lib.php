@@ -717,6 +717,26 @@ function report_coursemanager_is_enabled($name) {
 }
 
 /**
+ * Cell of the "Lost activities" column of the "Downloads and exports" tab : the declared plugins used in the
+ * course, with the name chosen by the administrator and the number of uses.
+ *
+ * @param int[] $counts number of uses indexed by frankenstyle name (plugins used in the course only)
+ * @param string[] $plugins names shown to teachers indexed by frankenstyle name, in the order of the setting
+ * @return html_table_cell
+ */
+function report_coursemanager_lost_activities_cell($counts, $plugins) {
+    $lines = [];
+    foreach ($plugins as $component => $label) {
+        if (!empty($counts[$component])) {
+            $lines[] = html_writer::div(get_string('lostactivities_count', 'report_coursemanager',
+                (object)['name' => format_string($label), 'count' => $counts[$component]]), 'text-nowrap');
+        }
+    }
+    // Sorted on the total number of uses.
+    return report_coursemanager_sortable_cell(implode('', $lines), array_sum($counts));
+}
+
+/**
  * Generates the "Downloads and exports" tab of the teachers dashboard.
  *
  * For each course of the teacher : last backup date, download link of this backup,
@@ -764,8 +784,9 @@ function report_coursemanager_render_exports_tab($userid) {
     // Checks to do before exporting a course, shown under the search and the page length menu (coursetable.js).
     $checks = [get_string('exports_intro_alias', 'report_coursemanager'),
         get_string('exports_intro_wiris', 'report_coursemanager')];
-    // Only when the administrator has described the plugins of the destination site.
-    if (trim((string)get_config('report_coursemanager', 'dest_pf_plugins_specs')) !== '') {
+    // Only when the administrator has declared plugins missing on the destination site.
+    $lostplugins = \report_coursemanager\local\lostactivities\checker::get_plugins();
+    if ($lostplugins) {
         $checks[] = get_string('exports_intro_plugins', 'report_coursemanager');
     }
     $output .= html_writer::div(html_writer::tag('p', get_string('exports_intro', 'report_coursemanager'), ['class' => 'mb-1'])
@@ -788,10 +809,12 @@ function report_coursemanager_render_exports_tab($userid) {
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
     $showprogress = report_coursemanager_is_enabled('enable_column_progress');
+    // Lost activities : only when plugins missing on the destination site are declared.
+    $showlost = $lostplugins && report_coursemanager_is_enabled('enable_column_lostactivities');
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
 
-    // Columns : course name, last backup, backup size, download, action, progress.
+    // Columns : course name, lost activities, last backup, backup size, download, action, progress.
     $table = new html_table();
     $table->id = 'courseexports';
     $table->attributes['class'] = 'admintable generaltable browse_courses w-100 coursemanager-exports';
@@ -799,6 +822,15 @@ function report_coursemanager_render_exports_tab($userid) {
     $namehead = new html_table_cell(get_string('table_course_name', 'report_coursemanager'));
     $namehead->attributes['class'] = 'coursemanager-defaultorder';
     $table->head = [$namehead];
+    if ($showlost) {
+        $table->head[] = get_string('table_lost_activities', 'report_coursemanager') .
+            $OUTPUT->help_icon('table_lost_activities', 'report_coursemanager');
+        // Uses of the declared plugins in all the courses of the page : one query per plugin type.
+        $lostcounts = \report_coursemanager\local\lostactivities\checker::count_in_courses(
+            array_map(function($course) {
+                return $course->id;
+            }, $courses), $lostplugins);
+    }
     if ($showlastbackup) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
     }
@@ -926,6 +958,9 @@ function report_coursemanager_render_exports_tab($userid) {
 
         // Same order as the headers.
         $row = [$namecell];
+        if ($showlost) {
+            $row[] = report_coursemanager_lost_activities_cell($lostcounts[$course->id] ?? [], $lostplugins);
+        }
         if ($showlastbackup) {
             $row[] = $lastbackupcell;
         }

@@ -210,13 +210,27 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext($name, $title, $description, 250, PARAM_INT, '5'));
     $settings->hide_if('report_coursemanager/backup_split_threshold', 'report_coursemanager/enable_tab_exports');
 
-    // Plugins of the destination site : when filled, the "Downloads and exports" tab asks teachers
-    // to check the activities that may be missing there.
+    // Plugins missing on the destination site : how to declare them, just before the field.
+    $settings->add(new admin_setting_description('report_coursemanager/destpfpluginsinfo',
+        get_string('destpfpluginsinfo', 'report_coursemanager'),
+        get_string('destpfpluginsinfo_desc', 'report_coursemanager')));
+    $settings->hide_if('report_coursemanager/destpfpluginsinfo', 'report_coursemanager/enable_tab_exports');
+
+    // Plugins missing on the destination site, one "frankenstyle_name | Name shown" per line. When filled, the
+    // "Downloads and exports" tab asks teachers to check them and shows the "Lost activities" column.
     $name = 'report_coursemanager/dest_pf_plugins_specs';
     $title = get_string('destpfpluginsspecs', 'report_coursemanager');
     $description = get_string('destpfpluginsspecs_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configtextarea($name, $title, $description, ''));
+    $settings->add(new \report_coursemanager\admin\setting_lost_activities($name, $title, $description, '', PARAM_RAW,
+        '60', '8'));
     $settings->hide_if('report_coursemanager/dest_pf_plugins_specs', 'report_coursemanager/enable_tab_exports');
+
+    // Checkbox for the "Lost activities" column, shown only when plugins are declared above.
+    $name = 'report_coursemanager/enable_column_lostactivities';
+    $title = get_string('enablecolumnlostactivities', 'report_coursemanager');
+    $description = get_string('enablecolumnlostactivities_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+    $settings->hide_if('report_coursemanager/enable_column_lostactivities', 'report_coursemanager/enable_tab_exports');
 
     // Settings for trash category.
     $settings->add(new admin_setting_heading('trashsettingsheading',
