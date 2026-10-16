@@ -69,15 +69,13 @@ class run_student_visit_report_task extends \core\task\scheduled_task {
                     return;
                 }
 
+            require_once($CFG->dirroot . '/report/coursemanager/lib.php');
+            $now = time();
+            $roleids = [(int)get_config('report_coursemanager', 'student_role_report')];
+            $days = (int)get_config('report_coursemanager', 'last_access_student');
             $listcourses = get_courses();
             foreach ($listcourses as $course) {
                 if ($course->id > 1) {
-                    $coursecontext = \context_course::instance($course->id);
-                    $now = time();
-
-                    // Let's count students enrolled in course.
-                    $allstudents = get_role_users(get_config('report_coursemanager', 'student_role_report'), $coursecontext);
-
                     // If course is in trash category, delete all reports.
                     if ($course->category == get_config('report_coursemanager', 'category_bin')) {
                         $exists = $DB->get_records('report_coursemanager_reports', ['course' => $course->id]);
@@ -87,66 +85,13 @@ class run_student_visit_report_task extends \core\task\scheduled_task {
                     } else {
                         // Start reports calculation.
                         // REPORTS FOR STUDENTS - NO VISITS OR COURSES WITHOUT STUDENTS.
-                        // Check if course entry exists in database.
-                        $existsnovisitstudent = $DB->get_record('report_coursemanager_reports',
-                        ['course' => $course->id, 'report' => 'no_visit_student']);
-                        $existsnostudent = $DB->get_record('report_coursemanager_reports',
-                        ['course' => $course->id, 'report' => 'no_student']);
+                        // Students of the course and those who visited it recently, in one query.
+                        $counts = report_coursemanager_count_visitors($course->id, $roleids, $days, $now);
 
-                        // CASE 1 : at least one student enrolled.
-                        if (count($allstudents) > 0) {
-                            $rescountstudentvisit = 0;
-
-                            // As there are enrolled students, first delete "no student" report if exists.
-                            if ($existsnostudent) {
-                                $res = $DB->delete_records($table, ['id' => $existsnostudent->id]);
-                            }
-
-                            // For each student, retrieve last access in course.
-                            foreach ($allstudents as $student) {
-                                $lastaccess = $DB->get_field('user_lastaccess', 'timeaccess',
-                                ['courseid' => $course->id, 'userid' => $student->id]);
-                                // Difference between now and last access.
-                                $diff = $now - $lastaccess;
-                                // Calculate number of days without connection in course (86 400 equals number of seconds per day).
-                                $timestudent = floor($diff / 86400);
-                                // Si limit is under last_access_student, student has visited course.
-                                if ($timestudent <= get_config('report_coursemanager', 'last_access_student')) {
-                                    // Let's count a visit.
-                                    $rescountstudentvisit++;
-                                }
-                                unset($timestudent);
-                            }
-
-                            // If res_count_student_visit is empty : no student has visited course.
-                            if ($rescountstudentvisit == 0) {
-                                $data = new \stdClass();
-                                $data->course = $course->id;
-                                $data->report = 'no_visit_student';
-
-                                if (empty($existsnovisitstudent)) {
-                                    $res = $DB->insert_record($table, $data);
-                                }
-                            } else if (!empty($existsnovisitstudent)) {
-                                $res = $DB->delete_records($table, ['id' => $existsnovisitstudent->id]);
-                            }
-                            unset($data);
-                        } else {
-                            // CASE 2 : no student enrolled in course.
-                            $data = new \stdClass();
-                            $data->course = $course->id;
-                            $data->report = 'no_student';
-
-                            // First, delete entry "zero student" for this course.
-                            if ($existsnovisitstudent) {
-                                $res = $DB->delete_records($table, ['id' => $existsnovisitstudent->id]);
-                            }
-                            if (empty($existsnostudent)) {
-                                    $res = $DB->insert_record($table, $data);
-                            }
-                            unset($data);
-                            unset($countstudentvisit);
-                        }
+                        // CASE 1 : at least one student enrolled ; report when none visited the course.
+                        // CASE 2 : no student enrolled in course.
+                        $this->set_report($course->id, 'no_student', $counts->users == 0);
+                        $this->set_report($course->id, 'no_visit_student', $counts->users > 0 && $counts->visitors == 0);
                     }
                     // Tests end.
                 }
@@ -156,5 +101,23 @@ class run_student_visit_report_task extends \core\task\scheduled_task {
             mtrace("...... Reports for students is not enabled !");
         }
         mtrace("... End coursemanager students report.");
+    }
+
+    /**
+     * Creates or deletes a report of a course, only when its state changes.
+     *
+     * @param int $courseid Course ID.
+     * @param string $report Report name.
+     * @param bool $active True when the report must exist.
+     */
+    protected function set_report($courseid, $report, $active) {
+        global $DB;
+        $table = 'report_coursemanager_reports';
+        $exists = $DB->record_exists($table, ['course' => $courseid, 'report' => $report]);
+        if ($active && !$exists) {
+            $DB->insert_record($table, (object)['course' => $courseid, 'report' => $report]);
+        } else if (!$active && $exists) {
+            $DB->delete_records($table, ['course' => $courseid, 'report' => $report]);
+        }
     }
 }
