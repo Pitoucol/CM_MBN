@@ -32,7 +32,8 @@ use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
 /**
- * Privacy provider: the plugin records which user converted the file aliases of a course.
+ * Privacy provider: the plugin records which user converted the file aliases or the Wiris formulas of a course
+ * (Wiris conversions of question banks outside courses are recorded with course id 0, in the system context).
  *
  * The reports of the plugin (report_coursemanager_reports, report_coursemanager_orphans) store no personal data.
  *
@@ -57,6 +58,11 @@ class provider implements
             'courseid' => 'privacy:metadata:arun:courseid',
             'timecreated' => 'privacy:metadata:arun:timecreated',
         ], 'privacy:metadata:arun');
+        $collection->add_database_table('report_coursemanager_wrun', [
+            'userid' => 'privacy:metadata:wrun:userid',
+            'courseid' => 'privacy:metadata:wrun:courseid',
+            'timecreated' => 'privacy:metadata:wrun:timecreated',
+        ], 'privacy:metadata:wrun');
         return $collection;
     }
 
@@ -72,6 +78,14 @@ class provider implements
                                       JOIN {report_coursemanager_arun} r ON r.courseid = ctx.instanceid
                                      WHERE ctx.contextlevel = :level AND r.userid = :userid",
             ['level' => CONTEXT_COURSE, 'userid' => $userid]);
+        $contextlist->add_from_sql("SELECT ctx.id FROM {context} ctx
+                                      JOIN {report_coursemanager_wrun} r ON r.courseid = ctx.instanceid
+                                     WHERE ctx.contextlevel = :level AND r.userid = :userid",
+            ['level' => CONTEXT_COURSE, 'userid' => $userid]);
+        $contextlist->add_from_sql("SELECT ctx.id FROM {context} ctx
+                                     WHERE ctx.contextlevel = :level AND EXISTS (
+                                           SELECT 1 FROM {report_coursemanager_wrun} r WHERE r.courseid = 0 AND r.userid = :userid)",
+            ['level' => CONTEXT_SYSTEM, 'userid' => $userid]);
         return $contextlist;
     }
 
@@ -85,6 +99,10 @@ class provider implements
         if ($context->contextlevel == CONTEXT_COURSE) {
             $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_arun} WHERE courseid = :courseid',
                 ['courseid' => $context->instanceid]);
+            $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_wrun} WHERE courseid = :courseid',
+                ['courseid' => $context->instanceid]);
+        } else if ($context->contextlevel == CONTEXT_SYSTEM) {
+            $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_wrun} WHERE courseid = 0', []);
         }
     }
 
@@ -97,23 +115,36 @@ class provider implements
         global $DB;
         $userid = $contextlist->get_user()->id;
         foreach ($contextlist->get_contexts() as $context) {
-            if ($context->contextlevel != CONTEXT_COURSE) {
+            $courseid = self::courseid($context);
+            if ($courseid === null) {
                 continue;
             }
-            $runs = $DB->get_records('report_coursemanager_arun', ['userid' => $userid, 'courseid' => $context->instanceid],
-                'id', 'id, timecreated, aliases, timereverted');
-            if (!$runs) {
-                continue;
+            $runs = $context->contextlevel == CONTEXT_COURSE ? $DB->get_records('report_coursemanager_arun',
+                ['userid' => $userid, 'courseid' => $courseid], 'id', 'id, timecreated, aliases, timereverted') : [];
+            if ($runs) {
+                $data = array_map(function($r) {
+                    return [
+                        'timecreated' => \core_privacy\local\request\transform::datetime($r->timecreated),
+                        'aliases' => $r->aliases,
+                        'reverted' => $r->timereverted ? \core_privacy\local\request\transform::datetime($r->timereverted) : '',
+                    ];
+                }, array_values($runs));
+                writer::with_context($context)->export_data([get_string('alias_privacy_path', 'report_coursemanager')],
+                    (object)['runs' => $data]);
             }
-            $data = array_map(function($r) {
-                return [
-                    'timecreated' => \core_privacy\local\request\transform::datetime($r->timecreated),
-                    'aliases' => $r->aliases,
-                    'reverted' => $r->timereverted ? \core_privacy\local\request\transform::datetime($r->timereverted) : '',
-                ];
-            }, array_values($runs));
-            writer::with_context($context)->export_data([get_string('alias_privacy_path', 'report_coursemanager')],
-                (object)['runs' => $data]);
+            $runs = $DB->get_records('report_coursemanager_wrun', ['userid' => $userid, 'courseid' => $courseid], 'id',
+                'id, timecreated, formulas, timereverted');
+            if ($runs) {
+                $data = array_map(function($r) {
+                    return [
+                        'timecreated' => \core_privacy\local\request\transform::datetime($r->timecreated),
+                        'formulas' => $r->formulas,
+                        'reverted' => $r->timereverted ? \core_privacy\local\request\transform::datetime($r->timereverted) : '',
+                    ];
+                }, array_values($runs));
+                writer::with_context($context)->export_data([get_string('wiris_privacy_path', 'report_coursemanager')],
+                    (object)['runs' => $data]);
+            }
         }
     }
 
@@ -126,6 +157,10 @@ class provider implements
         global $DB;
         if ($context->contextlevel == CONTEXT_COURSE) {
             $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $context->instanceid]);
+        }
+        $courseid = self::courseid($context);
+        if ($courseid !== null) {
+            $DB->set_field('report_coursemanager_wrun', 'userid', 0, ['courseid' => $courseid]);
         }
     }
 
@@ -141,6 +176,10 @@ class provider implements
             if ($context->contextlevel == CONTEXT_COURSE) {
                 $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $context->instanceid, 'userid' => $userid]);
             }
+            $courseid = self::courseid($context);
+            if ($courseid !== null) {
+                $DB->set_field('report_coursemanager_wrun', 'userid', 0, ['courseid' => $courseid, 'userid' => $userid]);
+            }
         }
     }
 
@@ -152,11 +191,32 @@ class provider implements
     public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;
         $context = $userlist->get_context();
-        if ($context->contextlevel != CONTEXT_COURSE) {
+        $courseid = self::courseid($context);
+        if ($courseid === null) {
             return;
         }
         foreach ($userlist->get_userids() as $userid) {
-            $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $context->instanceid, 'userid' => $userid]);
+            if ($context->contextlevel == CONTEXT_COURSE) {
+                $DB->set_field('report_coursemanager_arun', 'userid', 0, ['courseid' => $courseid, 'userid' => $userid]);
+            }
+            $DB->set_field('report_coursemanager_wrun', 'userid', 0, ['courseid' => $courseid, 'userid' => $userid]);
         }
+    }
+
+    /**
+     * Course id matching a context : the course, or 0 for the system context (Wiris conversions of question
+     * banks outside courses). Null for other contexts.
+     *
+     * @param \context $context
+     * @return int|null
+     */
+    protected static function courseid(\context $context): ?int {
+        if ($context->contextlevel == CONTEXT_COURSE) {
+            return (int)$context->instanceid;
+        }
+        if ($context->contextlevel == CONTEXT_SYSTEM) {
+            return 0;
+        }
+        return null;
     }
 }

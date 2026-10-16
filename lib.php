@@ -887,6 +887,7 @@ function report_coursemanager_render_exports_tab($userid) {
     }
 
     $showalias = report_coursemanager_is_enabled('enable_column_alias');
+    $showwiris = report_coursemanager_is_enabled('enable_column_wiris');
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
     $showprogress = report_coursemanager_is_enabled('enable_column_progress');
@@ -909,6 +910,12 @@ function report_coursemanager_render_exports_tab($userid) {
         $aliasreports = report_coursemanager_get_alias_reports(array_map(function($course) {
             return $course->id;
         }, $courses));
+    }
+    if ($showwiris) {
+        // Only a link to the Wiris page of the course : not sortable (class read by coursetable.js).
+        $wirishead = new html_table_cell(get_string('table_wiris', 'report_coursemanager'));
+        $wirishead->attributes['class'] = 'coursemanager-nosort';
+        $table->head[] = $wirishead;
     }
     if ($showlost) {
         $table->head[] = get_string('table_lost_activities', 'report_coursemanager') .
@@ -1049,6 +1056,12 @@ function report_coursemanager_render_exports_tab($userid) {
         if ($showalias) {
             $row[] = report_coursemanager_alias_cell($course->id, $aliasreports[$course->id] ?? null, $context);
         }
+        if ($showwiris) {
+            // Link to the Wiris page of the course : nothing is checked here, the page does it when opened.
+            $row[] = has_capability('report/coursemanager:convertwiris', $context) ? html_writer::link(
+                new moodle_url('/report/coursemanager/wiris_files.php', ['id' => $course->id]),
+                get_string('wiris_check', 'report_coursemanager')) : '';
+        }
         if ($showlost) {
             $row[] = report_coursemanager_lost_activities_cell($lostcounts[$course->id] ?? [], $lostplugins);
         }
@@ -1081,7 +1094,7 @@ function report_coursemanager_render_exports_tab($userid) {
 }
 
 /**
- * Adds the alias page of the course to the course "More" menu.
+ * Adds the alias page and the Wiris page of the course to the course "More" menu.
  *
  * Moodle calls this function of a report plugin with the course reports node : the link is added to its
  * parent, the course node, so that it is shown directly in the "More" menu.
@@ -1091,11 +1104,18 @@ function report_coursemanager_render_exports_tab($userid) {
  * @param context $context Course context.
  */
 function report_coursemanager_extend_navigation_course($navigation, $course, $context) {
-    if ($course->id == SITEID || !has_capability('report/coursemanager:convertaliases', $context)) {
+    if ($course->id == SITEID) {
         return;
     }
     $node = $navigation->parent ?: $navigation;
-    $node->add(get_string('alias_menuentry', 'report_coursemanager'),
-        new moodle_url('/report/coursemanager/alias_files.php', ['id' => $course->id]),
-        navigation_node::TYPE_SETTING, null, 'report_coursemanager_aliases', new pix_icon('i/files', ''));
+    if (has_capability('report/coursemanager:convertaliases', $context)) {
+        $node->add(get_string('alias_menuentry', 'report_coursemanager'),
+            new moodle_url('/report/coursemanager/alias_files.php', ['id' => $course->id]),
+            navigation_node::TYPE_SETTING, null, 'report_coursemanager_aliases', new pix_icon('i/files', ''));
+    }
+    if (has_capability('report/coursemanager:convertwiris', $context)) {
+        $node->add(get_string('wiris_menuentry', 'report_coursemanager'),
+            new moodle_url('/report/coursemanager/wiris_files.php', ['id' => $course->id]),
+            navigation_node::TYPE_SETTING, null, 'report_coursemanager_wiris', new pix_icon('i/settings', ''));
+    }
 }
