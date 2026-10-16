@@ -62,6 +62,8 @@ if ($action === 'undo') {
 core_php_time_limit::raise();
 $items = $manager->scan(locator::course_targets($course->id));
 $summary = manager::summarise($items);
+// Result of this check, shown in the "Downloads and exports" tab : formulas left, converted or not convertible.
+manager::save_check($course->id, $summary['formulas'] + $summary['failures']);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('wiris_menuentry', 'report_coursemanager'));

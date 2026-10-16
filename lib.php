@@ -917,6 +917,37 @@ function report_coursemanager_backup_done_cell($course, $done, $info, $canedit) 
 }
 
 /**
+ * Cell of the Wiris column of the "Downloads and exports" tab, from the last check of the Wiris page of the course.
+ *
+ * Never checked : a "Check" link. Checked : a green tick when no formula is left (converted, or none), a red cross
+ * when formulas are left to convert, the date of the check and a "Check again" link.
+ *
+ * @param int $courseid Course ID.
+ * @param stdClass|null $check Result of the last check (formulas, time), null if the course has never been checked.
+ * @param bool $canconvert Whether the user can open the Wiris page of the course.
+ * @return string HTML
+ */
+function report_coursemanager_wiris_cell($courseid, $check, $canconvert) {
+    $url = new moodle_url('/report/coursemanager/wiris_files.php', ['id' => $courseid]);
+    if (!$check) {
+        return $canconvert ? html_writer::link($url, get_string('wiris_check', 'report_coursemanager')) : '';
+    }
+    if ($check->formulas == 0) {
+        $content = html_writer::span('<i class="fa fa-check" aria-hidden="true"></i>', 'text-success')
+            . html_writer::span(get_string('wiris_status_ok', 'report_coursemanager'), 'sr-only visually-hidden');
+    } else {
+        $content = html_writer::span('<i class="fa fa-times" aria-hidden="true"></i>', 'text-danger')
+            . html_writer::span(get_string('wiris_status_todo', 'report_coursemanager'), 'sr-only visually-hidden');
+    }
+    $content .= html_writer::div(get_string('wiris_checked_on', 'report_coursemanager',
+        userdate($check->time, get_string('strftimedatetimeshort', 'langconfig'))), 'small text-muted');
+    if ($canconvert) {
+        $content .= html_writer::div(html_writer::link($url, get_string('wiris_recheck', 'report_coursemanager')), 'small');
+    }
+    return $content;
+}
+
+/**
  * Generates the "Downloads and exports" tab of the teachers dashboard.
  *
  * For each course of the teacher : last backup date, download link of this backup,
@@ -1007,6 +1038,10 @@ function report_coursemanager_render_exports_tab($userid) {
 
     $showalias = report_coursemanager_is_enabled('enable_column_alias');
     $showwiris = report_coursemanager_is_enabled('enable_column_wiris');
+    // Results of the last checks of the Wiris page of each course.
+    $wirischecks = $showwiris ? \report_coursemanager\local\wiris\manager::get_checks(array_map(function($course) {
+        return $course->id;
+    }, $courses)) : [];
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     // Size of each backup archive, compared with the split threshold (MB, 0 = no split : no colour).
     $splitthreshold = (int)get_config('report_coursemanager', 'backup_split_threshold') * 1024 * 1024;
@@ -1038,9 +1073,9 @@ function report_coursemanager_render_exports_tab($userid) {
         }, $courses));
     }
     if ($showwiris) {
-        // Only a link to the Wiris page of the course : not sortable (class read by coursetable.js).
+        // Result of the last check and links to the Wiris page of the course : not sortable (class read by coursetable.js).
         $wirishead = new html_table_cell(get_string('table_wiris', 'report_coursemanager') .
-            $OUTPUT->help_icon('table_wiris', 'report_coursemanager'));
+            $OUTPUT->help_icon('table_wiris_status', 'report_coursemanager'));
         $wirishead->attributes['class'] = 'coursemanager-nosort';
         $table->head[] = $wirishead;
     }
@@ -1186,10 +1221,9 @@ function report_coursemanager_render_exports_tab($userid) {
             $row[] = report_coursemanager_alias_cell($course->id, $aliasreports[$course->id] ?? null, $context);
         }
         if ($showwiris) {
-            // Link to the Wiris page of the course : nothing is checked here, the page does it when opened.
-            $row[] = has_capability('report/coursemanager:convertwiris', $context) ? html_writer::link(
-                new moodle_url('/report/coursemanager/wiris_files.php', ['id' => $course->id]),
-                get_string('wiris_check', 'report_coursemanager')) : '';
+            // Result of the last check : nothing is checked here, the Wiris page of the course does it when opened.
+            $row[] = report_coursemanager_wiris_cell($course->id, $wirischecks[$course->id] ?? null,
+                has_capability('report/coursemanager:convertwiris', $context));
         }
         if ($showlost) {
             $row[] = report_coursemanager_lost_activities_cell($lostcounts[$course->id] ?? [], $lostplugins);
