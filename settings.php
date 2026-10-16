@@ -206,15 +206,8 @@ if ($ADMIN->fulltree) {
     $name = 'report_coursemanager/enable_column_progress';
     $title = get_string('enablecolumnprogress', 'report_coursemanager');
     $description = get_string('enablecolumnprogress_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
     $settings->hide_if('report_coursemanager/enable_column_progress', 'report_coursemanager/enable_tab_exports');
-
-    // Checkbox for backup size column, in "Downloads and exports" tab.
-    $name = 'report_coursemanager/enable_column_backupsize';
-    $title = get_string('enablecolumnbackupsize', 'report_coursemanager');
-    $description = get_string('enablecolumnbackupsize_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
-    $settings->hide_if('report_coursemanager/enable_column_backupsize', 'report_coursemanager/enable_tab_exports');
 
     // Delay after which a backup launched and not done is shown as a potential error.
     $name = 'report_coursemanager/backup_error_delay';
