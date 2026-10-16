@@ -14,6 +14,9 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="course-report" UNIQUE="false" FIELDS="course, report"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="report_coursemanager_orphans" COMMENT="Stores reports for assigns containing orphan submissions.">
       <FIELDS>
