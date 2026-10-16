@@ -774,6 +774,7 @@ function report_coursemanager_render_exports_tab($userid) {
         return $output . html_writer::div(get_string('no_course_to_show', 'report_coursemanager'), 'alert alert-primary');
     }
 
+    $showwiris = report_coursemanager_is_enabled('enable_column_wiris');
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
     $pendingbackups = [];
@@ -783,6 +784,12 @@ function report_coursemanager_render_exports_tab($userid) {
     $table->id = 'courseexports';
     $table->attributes['class'] = 'admintable generaltable browse_courses w-100';
     $table->head = [get_string('table_course_name', 'report_coursemanager')];
+    if ($showwiris) {
+        // Only a link to the Wiris page of the course : not sortable (class read by coursetable.js).
+        $wirishead = new html_table_cell(get_string('table_wiris', 'report_coursemanager'));
+        $wirishead->attributes['class'] = 'coursemanager-nosort';
+        $table->head[] = $wirishead;
+    }
     if ($showlastbackup) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
     }
@@ -808,6 +815,13 @@ function report_coursemanager_render_exports_tab($userid) {
 
         $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
             format_string($course->fullname, true, ['context' => $context]));
+
+        if ($showwiris) {
+            // Link to the Wiris page of the course : nothing is checked here, the page does it when opened.
+            $row[] = has_capability('report/coursemanager:convertwiris', $context) ? html_writer::link(
+                new moodle_url('/report/coursemanager/wiris_files.php', ['id' => $course->id]),
+                get_string('wiris_check', 'report_coursemanager')) : '';
+        }
 
         if ($showlastbackup) {
             if ($file) {
@@ -925,4 +939,24 @@ function report_coursemanager_render_exports_tab($userid) {
     }
 
     return $output;
+}
+
+/**
+ * Adds the Wiris page of the course to the course "More" menu.
+ *
+ * Moodle calls this function of a report plugin with the course reports node : the link is added to its
+ * parent, the course node, so that it is shown directly in the "More" menu.
+ *
+ * @param navigation_node $navigation Course reports node.
+ * @param stdClass $course Course.
+ * @param context $context Course context.
+ */
+function report_coursemanager_extend_navigation_course($navigation, $course, $context) {
+    if ($course->id == SITEID || !has_capability('report/coursemanager:convertwiris', $context)) {
+        return;
+    }
+    $node = $navigation->parent ?: $navigation;
+    $node->add(get_string('wiris_menuentry', 'report_coursemanager'),
+        new moodle_url('/report/coursemanager/wiris_files.php', ['id' => $course->id]),
+        navigation_node::TYPE_SETTING, null, 'report_coursemanager_wiris', new pix_icon('i/settings', ''));
 }

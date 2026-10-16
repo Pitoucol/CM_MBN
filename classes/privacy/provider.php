@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for report_benchmark.
+ * Privacy Subsystem implementation for report_coursemanager.
  *
  * @package     report_coursemanager
  * @copyright   2022 Olivier VALENTIN
@@ -24,20 +24,163 @@
 
 namespace report_coursemanager\privacy;
 
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\contextlist;
+use core_privacy\local\request\userlist;
+use core_privacy\local\request\writer;
+
 /**
- * Privacy Subsystem for report_coursemanager implementing null_provider.
+ * Privacy provider: the plugin records which user converted the Wiris formulas of a course (conversions of
+ * question banks outside courses are recorded with course id 0, in the system context).
  *
- * This plugin does not store any personal user data.
+ * @package    report_coursemanager
+ * @copyright  2026
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\null_provider {
+class provider implements
+        \core_privacy\local\metadata\provider,
+        \core_privacy\local\request\plugin\provider,
+        \core_privacy\local\request\core_userlist_provider {
 
     /**
-     * Get the language string identifier with the component's language
-     * file to explain why this plugin stores no data.
+     * Describes the stored data.
      *
-     * @return  String
+     * @param collection $collection
+     * @return collection
      */
-    public static function get_reason(): string {
-        return 'privacy:no_data_reason';
+    public static function get_metadata(collection $collection): collection {
+        $collection->add_database_table('report_coursemanager_wrun', [
+            'userid' => 'privacy:metadata:wrun:userid',
+            'courseid' => 'privacy:metadata:wrun:courseid',
+            'timecreated' => 'privacy:metadata:wrun:timecreated',
+        ], 'privacy:metadata:wrun');
+        return $collection;
+    }
+
+    /**
+     * Contexts with data of a user.
+     *
+     * @param int $userid
+     * @return contextlist
+     */
+    public static function get_contexts_for_userid(int $userid): contextlist {
+        $contextlist = new contextlist();
+        $contextlist->add_from_sql("SELECT ctx.id FROM {context} ctx
+                                      JOIN {report_coursemanager_wrun} r ON r.courseid = ctx.instanceid
+                                     WHERE ctx.contextlevel = :level AND r.userid = :userid",
+            ['level' => CONTEXT_COURSE, 'userid' => $userid]);
+        $contextlist->add_from_sql("SELECT ctx.id FROM {context} ctx
+                                     WHERE ctx.contextlevel = :level AND EXISTS (
+                                           SELECT 1 FROM {report_coursemanager_wrun} r WHERE r.courseid = 0 AND r.userid = :userid)",
+            ['level' => CONTEXT_SYSTEM, 'userid' => $userid]);
+        return $contextlist;
+    }
+
+    /**
+     * Users with data in a context.
+     *
+     * @param userlist $userlist
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+        if ($context->contextlevel == CONTEXT_COURSE) {
+            $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_wrun} WHERE courseid = :courseid',
+                ['courseid' => $context->instanceid]);
+        } else if ($context->contextlevel == CONTEXT_SYSTEM) {
+            $userlist->add_from_sql('userid', 'SELECT userid FROM {report_coursemanager_wrun} WHERE courseid = 0', []);
+        }
+    }
+
+    /**
+     * Course id matching a context, or null.
+     *
+     * @param \context $context
+     * @return int|null
+     */
+    protected static function courseid(\context $context): ?int {
+        if ($context->contextlevel == CONTEXT_COURSE) {
+            return (int)$context->instanceid;
+        }
+        if ($context->contextlevel == CONTEXT_SYSTEM) {
+            return 0;
+        }
+        return null;
+    }
+
+    /**
+     * Exports the data of a user.
+     *
+     * @param approved_contextlist $contextlist
+     */
+    public static function export_user_data(approved_contextlist $contextlist) {
+        global $DB;
+        $userid = $contextlist->get_user()->id;
+        foreach ($contextlist->get_contexts() as $context) {
+            $courseid = self::courseid($context);
+            if ($courseid === null) {
+                continue;
+            }
+            $runs = $DB->get_records('report_coursemanager_wrun', ['userid' => $userid, 'courseid' => $courseid], 'id',
+                'id, timecreated, formulas, timereverted');
+            if (!$runs) {
+                continue;
+            }
+            $data = array_map(function($r) {
+                return [
+                    'timecreated' => \core_privacy\local\request\transform::datetime($r->timecreated),
+                    'formulas' => $r->formulas,
+                    'reverted' => $r->timereverted ? \core_privacy\local\request\transform::datetime($r->timereverted) : '',
+                ];
+            }, array_values($runs));
+            writer::with_context($context)->export_data([get_string('wiris_privacy_path', 'report_coursemanager')],
+                (object)['runs' => $data]);
+        }
+    }
+
+    /**
+     * Deletes (anonymises) the data of all users in a context. The history is kept for undo.
+     *
+     * @param \context $context
+     */
+    public static function delete_data_for_all_users_in_context(\context $context) {
+        global $DB;
+        $courseid = self::courseid($context);
+        if ($courseid !== null) {
+            $DB->set_field('report_coursemanager_wrun', 'userid', 0, ['courseid' => $courseid]);
+        }
+    }
+
+    /**
+     * Deletes (anonymises) the data of a user.
+     *
+     * @param approved_contextlist $contextlist
+     */
+    public static function delete_data_for_user(approved_contextlist $contextlist) {
+        global $DB;
+        $userid = $contextlist->get_user()->id;
+        foreach ($contextlist->get_contexts() as $context) {
+            $courseid = self::courseid($context);
+            if ($courseid !== null) {
+                $DB->set_field('report_coursemanager_wrun', 'userid', 0, ['courseid' => $courseid, 'userid' => $userid]);
+            }
+        }
+    }
+
+    /**
+     * Deletes (anonymises) the data of several users.
+     *
+     * @param approved_userlist $userlist
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+        $courseid = self::courseid($userlist->get_context());
+        if ($courseid === null) {
+            return;
+        }
+        foreach ($userlist->get_userids() as $userid) {
+            $DB->set_field('report_coursemanager_wrun', 'userid', 0, ['courseid' => $courseid, 'userid' => $userid]);
+        }
     }
 }

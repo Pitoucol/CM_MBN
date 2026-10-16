@@ -175,6 +175,13 @@ if ($ADMIN->fulltree) {
     $description = get_string('enabletabexports_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
+    // Checkbox for Wiris column (link to the Wiris page of each course), in "Downloads and exports" tab.
+    $name = 'report_coursemanager/enable_column_wiris';
+    $title = get_string('enablecolumnwiris', 'report_coursemanager');
+    $description = get_string('enablecolumnwiris_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+    $settings->hide_if('report_coursemanager/enable_column_wiris', 'report_coursemanager/enable_tab_exports');
+
     // Checkbox for last backup column, in "Downloads and exports" tab.
     $name = 'report_coursemanager/enable_column_lastbackup';
     $title = get_string('enablecolumnlastbackup', 'report_coursemanager');
@@ -202,6 +209,12 @@ if ($ADMIN->fulltree) {
     $description = get_string('backupsplitthreshold_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configtext($name, $title, $description, 250, PARAM_INT, '5'));
     $settings->hide_if('report_coursemanager/backup_split_threshold', 'report_coursemanager/enable_tab_exports');
+
+    // Maximum number of formulas listed on the Wiris page of a course (all formulas are converted anyway).
+    $name = 'report_coursemanager/wiris_max_rows';
+    $title = get_string('wirismaxrows', 'report_coursemanager');
+    $description = get_string('wirismaxrows_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configtext($name, $title, $description, 300, PARAM_INT, '5'));
 
     // Settings for trash category.
     $settings->add(new admin_setting_heading('trashsettingsheading',
