@@ -537,19 +537,15 @@ function report_coursemanager_get_course_size_without_backups($courseid) {
 }
 
 /**
- * Calculates the size of a course backup (.mbz) without user data.
+ * Conditions excluding the files that are not part of a course backup (.mbz) without user data:
+ * course backups, recycle bin, grades and user data (submissions, feedbacks, forum posts...).
  *
- * Each file content is counted once (files with the same content are stored once
- * in a backup), and files that are not part of such a backup are excluded:
- * course backups, recycle bin and user data (submissions, feedbacks, forum posts...).
+ * The conditions apply to the files table, aliased "f".
  *
- * @param int $courseid Course ID.
- * @return int Size of the course backup in bytes, before compression.
+ * @return array [string[] $conditions, array $params] conditions to join with AND, and their named parameters
  */
-function report_coursemanager_get_course_backup_size($courseid) {
+function report_coursemanager_get_mbz_conditions() {
     global $DB;
-
-    $context = context_course::instance($courseid);
 
     // Components that are never in a backup without user data.
     $excludedcomponents = ['backup', 'tool_recyclebin', 'grade'];
@@ -564,30 +560,49 @@ function report_coursemanager_get_course_backup_size($courseid) {
             'overallfeedback_content', 'overallfeedback_attachment'],
     ];
 
-    // Files of the course context and of all its children (activities, blocks...).
-    $where = ['(f.contextid = :contextid OR ctx.path LIKE :path)', "f.filename <> '.'"];
-    $params = ['contextid' => $context->id, 'path' => $context->path . '/%'];
-
-    [$insql, $inparams] = $DB->get_in_or_equal($excludedcomponents, SQL_PARAMS_NAMED, 'comp', false);
-    $where[] = 'f.component ' . $insql;
-    $params += $inparams;
+    [$insql, $params] = $DB->get_in_or_equal($excludedcomponents, SQL_PARAMS_NAMED, 'mbzcomp', false);
+    $where = ['f.component ' . $insql];
 
     // Assign submissions and feedbacks, and question attempts responses.
-    $where[] = $DB->sql_like('f.component', ':assignsub', true, true, true);
-    $params['assignsub'] = 'assignsubmission\_%';
-    $where[] = $DB->sql_like('f.component', ':assignfeed', true, true, true);
-    $params['assignfeed'] = 'assignfeedback\_%';
-    $where[] = '(f.component <> :question OR ' . $DB->sql_like('f.filearea', ':response', true, true, true) . ')';
-    $params['question'] = 'question';
-    $params['response'] = 'response\_%';
+    $where[] = $DB->sql_like('f.component', ':mbzassignsub', true, true, true);
+    $params['mbzassignsub'] = 'assignsubmission\_%';
+    $where[] = $DB->sql_like('f.component', ':mbzassignfeed', true, true, true);
+    $params['mbzassignfeed'] = 'assignfeedback\_%';
+    $where[] = '(f.component <> :mbzquestion OR ' . $DB->sql_like('f.filearea', ':mbzresponse', true, true, true) . ')';
+    $params['mbzquestion'] = 'question';
+    $params['mbzresponse'] = 'response\_%';
 
     foreach ($excludedfileareas as $component => $fileareas) {
-        [$insql, $inparams] = $DB->get_in_or_equal($fileareas, SQL_PARAMS_NAMED, 'area', false);
-        $key = 'excl' . count($params);
+        [$insql, $inparams] = $DB->get_in_or_equal($fileareas, SQL_PARAMS_NAMED, 'mbzarea', false);
+        $key = 'mbzexcl' . count($params);
         $where[] = "(f.component <> :{$key} OR f.filearea {$insql})";
         $params[$key] = $component;
         $params += $inparams;
     }
+
+    return [$where, $params];
+}
+
+/**
+ * Calculates the size of a course backup (.mbz) without user data.
+ *
+ * Each file content is counted once (files with the same content are stored once
+ * in a backup), and files that are not part of such a backup are excluded:
+ * course backups, recycle bin and user data (submissions, feedbacks, forum posts...).
+ *
+ * @param int $courseid Course ID.
+ * @return int Size of the course backup in bytes, before compression.
+ */
+function report_coursemanager_get_course_backup_size($courseid) {
+    global $DB;
+
+    $context = context_course::instance($courseid);
+
+    // Files of the course context and of all its children (activities, blocks...).
+    [$where, $params] = report_coursemanager_get_mbz_conditions();
+    $where[] = '(f.contextid = :contextid OR ctx.path LIKE :path)';
+    $where[] = "f.filename <> '.'";
+    $params += ['contextid' => $context->id, 'path' => $context->path . '/%'];
 
     $sql = 'SELECT SUM(content.filesize)
               FROM (SELECT DISTINCT f.contenthash, f.filesize
@@ -596,6 +611,45 @@ function report_coursemanager_get_course_backup_size($courseid) {
                      WHERE ' . implode(' AND ', $where) . ') content';
 
     return (int) $DB->get_field_sql($sql, $params);
+}
+
+/**
+ * Calculates in one query the three sizes of a course, for the nightly task : the same values as
+ * report_coursemanager_get_course_size(), report_coursemanager_get_course_size_without_backups()
+ * and report_coursemanager_get_course_backup_size().
+ *
+ * The files of the course are read once and grouped by content (each content is counted once). For each
+ * content, the query records whether it is used outside the course backups and in a backup without user data,
+ * then adds up the sizes.
+ *
+ * @param int $courseid Course ID.
+ * @return array disk (size on disk), course (without the backups), mbz (backup without user data), in bytes
+ */
+function report_coursemanager_get_course_sizes($courseid) {
+    global $DB;
+
+    $context = context_course::instance($courseid);
+    [$mbzwhere, $params] = report_coursemanager_get_mbz_conditions();
+    $params += ['contextid' => $context->id, 'path' => $context->path . '/%', 'backup' => 'backup'];
+
+    $sql = 'SELECT SUM(content.filesize) AS disk,
+                   SUM(content.filesize * content.incourse) AS course,
+                   SUM(content.filesize * content.inmbz) AS mbz
+              FROM (SELECT f.contenthash, f.filesize,
+                           MAX(CASE WHEN f.component <> :backup THEN 1 ELSE 0 END) AS incourse,
+                           MAX(CASE WHEN ' . implode(' AND ', $mbzwhere) . ' THEN 1 ELSE 0 END) AS inmbz
+                      FROM {files} f
+                      JOIN {context} ctx ON ctx.id = f.contextid
+                     WHERE (f.contextid = :contextid OR ctx.path LIKE :path)
+                       AND f.filename <> \'.\'
+                  GROUP BY f.contenthash, f.filesize) content';
+    $sizes = $DB->get_record_sql($sql, $params);
+
+    return [
+        'disk' => (int)($sizes->disk ?? 0),
+        'course' => (int)($sizes->course ?? 0),
+        'mbz' => (int)($sizes->mbz ?? 0),
+    ];
 }
 
 /**
