@@ -480,6 +480,7 @@ $string['backup_title_error'] = 'Backup not possible';
 // File aliases converted into real files (alias_files.php, "Downloads and exports" tab).
 $string['coursemanager:convertaliases'] = 'Convert the file aliases of a course into real files';
 $string['table_alias'] = 'Aliases';
+$string['table_alias_help'] = 'Files inserted in the course as aliases, which would potentially be removed when the course is restored on another site. Click "Fix" to turn them into real files.';
 $string['enablecolumnalias'] = 'File aliases column';
 $string['enablecolumnalias_desc'] = 'Displays, as the second column of the "Downloads and exports" tab, the number of file aliases that a backup without user data would lose (counted by the nightly course content task), with a link to the page of the course that converts them into real files.';
 $string['aliasmaxrows'] = 'Files listed on the alias page';

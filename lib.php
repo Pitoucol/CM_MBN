@@ -842,7 +842,8 @@ function report_coursemanager_render_exports_tab($userid) {
     $table->head = [$namehead];
     if ($showalias) {
         // File aliases lost by a backup, counted by the nightly course content task.
-        $table->head[] = get_string('table_alias', 'report_coursemanager');
+        $table->head[] = get_string('table_alias', 'report_coursemanager') .
+            $OUTPUT->help_icon('table_alias', 'report_coursemanager');
         $aliasreports = report_coursemanager_get_alias_reports(array_map(function($course) {
             return $course->id;
         }, $courses));

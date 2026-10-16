@@ -499,6 +499,7 @@ $string['backup_title_error'] = 'Sauvegarde impossible';
 // File aliases converted into real files (alias_files.php, "Downloads and exports" tab).
 $string['coursemanager:convertaliases'] = 'Convertir les alias de fichiers d\'un cours en vrais fichiers';
 $string['table_alias'] = 'Alias';
+$string['table_alias_help'] = 'Fichiers intégrés au cours par alias, qui seraient potentiellement supprimés lors d\'une restauration sur une autre plateforme. Cliquez sur « Corriger » pour les transformer en vrais fichiers.';
 $string['enablecolumnalias'] = 'Colonne « Alias »';
 $string['enablecolumnalias_desc'] = 'Affiche, en deuxième colonne de l\'onglet « Téléchargements et exports », le nombre d\'alias de fichiers qu\'une sauvegarde sans données utilisateurs perdrait (compté par la tâche nocturne sur le contenu des cours), avec un lien vers la page du cours qui les convertit en vrais fichiers.';
 $string['aliasmaxrows'] = 'Fichiers listés sur la page des alias';
