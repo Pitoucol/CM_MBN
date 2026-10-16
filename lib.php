@@ -786,12 +786,13 @@ function report_coursemanager_render_exports_tab($userid) {
     }
 
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
-    $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
+    // Size of each backup archive, compared with the split threshold (MB, 0 = no split : no colour).
+    $splitthreshold = (int)get_config('report_coursemanager', 'backup_split_threshold') * 1024 * 1024;
     $showprogress = report_coursemanager_is_enabled('enable_column_progress');
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
 
-    // Columns : course name, last backup, backup size, download, action, progress.
+    // Columns : course name, last backup, download (size and link of each archive), action, progress.
     $table = new html_table();
     $table->id = 'courseexports';
     $table->attributes['class'] = 'admintable generaltable browse_courses w-100 coursemanager-exports';
@@ -801,9 +802,6 @@ function report_coursemanager_render_exports_tab($userid) {
     $table->head = [$namehead];
     if ($showlastbackup) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
-    }
-    if ($showbackupsize) {
-        $table->head[] = get_string('table_backup_size', 'report_coursemanager');
     }
     // Download and action columns are not sortable (class read by coursetable.js).
     $nosort = function($text) {
@@ -836,17 +834,6 @@ function report_coursemanager_render_exports_tab($userid) {
                 html_writer::tag('i', get_string('no_backup', 'report_coursemanager')), 0);
         }
 
-        // Size of the most recent backup : all the parts of a split backup.
-        $backupsize = 0;
-        foreach ($files as $partfile) {
-            $backupsize += $partfile->get_filesize();
-        }
-        if ($files && !$failed) {
-            $sizecell = report_coursemanager_sortable_cell(display_size($backupsize), $backupsize);
-        } else {
-            $sizecell = report_coursemanager_sortable_cell('', -1);
-        }
-
         // Progress of the backups in progress, updated in the page by backupprogress.js
         // with the Moodle asynchronous backup progress web service.
         $pending = $failed ? [] : $manager->get_pending_backups($course->id);
@@ -877,17 +864,25 @@ function report_coursemanager_render_exports_tab($userid) {
             // The last backup launched has failed or is blocked : shown instead of the download link.
             $downloadcell = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
                 . get_string('backup_potential_error', 'report_coursemanager'), 'text-danger');
-        } else if ($files && has_capability('moodle/backup:downloadfile', $context)) {
-            // One link, or one link per part of a split backup.
-            $links = [];
+        } else if ($files) {
+            // For each archive (one, or one per part of a split backup) : its size, red over the split threshold
+            // and green under it, then its download button.
+            $candownload = has_capability('moodle/backup:downloadfile', $context);
+            $parts = [];
             foreach ($files as $index => $partfile) {
-                $label = (count($files) > 1) ? get_string('download_part', 'report_coursemanager', $index + 1)
-                    : get_string('download_backup', 'report_coursemanager');
-                $links[] = html_writer::link(\report_coursemanager\local\backup\manager::get_download_url($partfile),
-                    '<i class="fa fa-download" aria-hidden="true"></i> ' . $label,
-                    ['class' => 'btn btn-outline-primary btn-sm rounded mb-1', 'title' => $partfile->get_filename()]);
+                $size = $partfile->get_filesize();
+                $sizeclass = !$splitthreshold ? '' : (($size > $splitthreshold) ? 'text-danger' : 'text-success');
+                $part = html_writer::div(display_size($size), 'small font-weight-bold fw-bold ' . $sizeclass);
+                if ($candownload) {
+                    $label = (count($files) > 1) ? get_string('download_part', 'report_coursemanager', $index + 1)
+                        : get_string('download_backup', 'report_coursemanager');
+                    $part .= html_writer::link(\report_coursemanager\local\backup\manager::get_download_url($partfile),
+                        '<i class="fa fa-download" aria-hidden="true"></i> ' . $label,
+                        ['class' => 'btn btn-outline-primary btn-sm rounded', 'title' => $partfile->get_filename()]);
+                }
+                $parts[] = html_writer::div($part, 'mb-2');
             }
-            $downloadcell = implode(' ', $links);
+            $downloadcell = implode('', $parts);
         } else {
             $downloadcell = '';
         }
@@ -928,9 +923,6 @@ function report_coursemanager_render_exports_tab($userid) {
         $row = [$namecell];
         if ($showlastbackup) {
             $row[] = $lastbackupcell;
-        }
-        if ($showbackupsize) {
-            $row[] = $sizecell;
         }
         $row[] = $downloadcell;
         $row[] = $actioncell;
