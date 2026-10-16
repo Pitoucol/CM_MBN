@@ -452,3 +452,87 @@ $string['dt_first'] = '«';
 $string['dt_last'] = '»';
 $string['dt_next'] = '›';
 $string['dt_previous'] = '‹';
+
+// Export and import of the settings in JSON (cli/config.php).
+$string['configjson_categoryambiguous'] = 'Plusieurs catégories correspondent à {$a} : indiquez plutôt le numéro d\'identification de la catégorie.';
+$string['configjson_categoryformat'] = 'La catégorie doit être indiquée sous la forme {"idnumber": "..."} ou {"path": "Catégorie / Sous-catégorie"}.';
+$string['configjson_categoryidnotfound'] = 'La catégorie {$a} de ce réglage n\'existe plus sur ce site.';
+$string['configjson_categorynotfound'] = 'Catégorie introuvable sur ce site : {$a}';
+$string['configjson_cli_aborted'] = 'Erreurs trouvées : rien n\'a été écrit.';
+$string['configjson_cli_applied'] = '{$a} réglage(s) modifié(s).';
+$string['configjson_cli_cannotread'] = 'Impossible de lire le fichier {$a}.';
+$string['configjson_cli_cannotwrite'] = 'Impossible d\'écrire le fichier {$a}.';
+$string['configjson_cli_change'] = '{$a->name} : {$a->old} -> {$a->new}';
+$string['configjson_cli_dryrun'] = 'Simulation : {$a} réglage(s) seraient modifiés, rien n\'a été écrit.';
+$string['configjson_cli_error'] = 'Erreur : {$a}';
+$string['configjson_cli_exported'] = 'Configuration écrite dans {$a}.';
+$string['configjson_cli_help'] = 'Exporte ou importe les réglages de Course Manager en JSON.
+
+Les rôles sont écrits avec leur nom abrégé, et la catégorie corbeille avec son numéro d\'identification s\'il existe,
+sinon avec son chemin (« Catégorie / Sous-catégorie »), pour pouvoir appliquer une configuration à d\'autres sites.
+Un import peut ne contenir que certains réglages : les autres ne sont pas modifiés. Toutes les valeurs sont d\'abord
+vérifiées : si l\'une est incorrecte, rien n\'est écrit. Chaque modification est inscrite dans le rapport des
+modifications de configuration.
+
+Options :
+-e, --export         Exporte la configuration (sur la sortie standard, ou dans --file)
+-f, --file=CHEMIN    Fichier dans lequel écrire l\'export
+-i, --import=CHEMIN  Importe la configuration d\'un fichier JSON
+-n, --dry-run        Avec --import : affiche les modifications sans les écrire
+-h, --help           Affiche cette aide
+
+Codes de retour : 0 succès, 1 erreur, 2 options incorrectes.
+
+Exemples :
+$ php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+$ php report/coursemanager/cli/config.php --import=/tmp/correctif.json --dry-run
+$ php report/coursemanager/cli/config.php --import=/tmp/correctif.json
+
+Exemple de fichier qui corrige seulement la catégorie corbeille :
+{"category_bin": {"path": "Archives / Corbeille"}}';
+$string['configjson_cli_invalidjson'] = 'JSON incorrect : {$a}';
+$string['configjson_cli_nochange'] = 'Aucun réglage à modifier.';
+$string['configjson_cli_partial'] = 'Erreurs pendant l\'écriture : {$a} réglage(s) ont été écrits, vérifiez la configuration.';
+$string['configjson_cli_warning'] = 'Attention : {$a}';
+$string['configjson_cli_wrongoptions'] = 'Utilisez soit --export, soit --import=CHEMIN.';
+$string['configjson_invalidchoice'] = 'Valeur non autorisée : {$a}';
+$string['configjson_notalist'] = 'Une liste de valeurs est attendue.';
+$string['configjson_notavalue'] = 'Une seule valeur est attendue.';
+$string['configjson_roleidnotfound'] = 'Le rôle {$a} de ce réglage n\'existe plus sur ce site.';
+$string['configjson_rolenotfound'] = 'Rôle introuvable sur ce site : {$a}';
+$string['configjson_unknownsetting'] = 'Réglage inconnu ignoré : {$a}';
+$string['configjson_wrongplugin'] = 'Ce fichier est la configuration d\'un autre plugin : {$a}';
+$string['configjson_settings_heading'] = 'Export et import de cette configuration (ligne de commande)';
+$string['configjson_settings_doc'] = '<p>Les réglages de cette page peuvent être exportés dans un fichier JSON et importés sur d\'autres sites avec le script en ligne de commande <code>report/coursemanager/cli/config.php</code>, par exemple pour copier une configuration sur des sites identiques, ou pour corriger un réglage erroné (comme la catégorie corbeille) sur de nombreux sites à la fois.</p>
+<p>Lancez le script depuis le répertoire de Moodle (le répertoire <code>public</code> depuis Moodle 5.1), avec l\'utilisateur du serveur web :</p>
+<pre>sudo -u www-data php report/coursemanager/cli/config.php --help</pre>
+<p><strong>Options</strong></p>
+<ul>
+<li><code>--export</code> : écrit toute la configuration en JSON, à l\'écran ou, avec <code>--file=CHEMIN</code>, dans un fichier.</li>
+<li><code>--import=CHEMIN</code> : applique un fichier JSON.</li>
+<li><code>--dry-run</code> : avec <code>--import</code>, liste les modifications (ancienne valeur -&gt; nouvelle valeur) sans rien écrire.</li>
+</ul>
+<p><strong>Exemples</strong></p>
+<pre>php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+php report/coursemanager/cli/config.php --import=/tmp/correctif.json --dry-run
+php report/coursemanager/cli/config.php --import=/tmp/correctif.json</pre>
+<p><strong>Fichier JSON</strong></p>
+<ul>
+<li>Un import peut ne contenir que certains réglages : les autres ne sont pas modifiés. Fichier qui corrige seulement la catégorie corbeille :
+<pre>{"category_bin": {"path": "Archives / Corbeille"}}</pre></li>
+<li>Les noms des réglages sont ceux affichés sous chaque réglage de cette page (sans « report_coursemanager | »). Le plus simple pour connaître le format est d\'exporter la configuration d\'un site.</li>
+<li>Les identifiants ne sont pas les mêmes d\'un site à l\'autre : les rôles sont indiqués par leur nom abrégé (<code>"editingteacher"</code>, <code>"student"</code>...), et la catégorie corbeille par son numéro d\'identification <code>{"idnumber": "CORBEILLE"}</code> ou par son chemin <code>{"path": "Catégorie / Sous-catégorie"}</code>, tel qu\'il apparaît dans la liste de cette page. Chaque site retrouve ses propres identifiants.</li>
+<li>Les cases à cocher prennent <code>"1"</code> (cochée) ou <code>"0"</code>.</li>
+</ul>
+<p><strong>Vérifications</strong></p>
+<ul>
+<li>Toutes les valeurs sont vérifiées comme dans cette page avant toute écriture. Si une seule est incorrecte (rôle ou catégorie introuvable, chemin correspondant à plusieurs catégories, valeur non autorisée), rien n\'est écrit.</li>
+<li>Chaque modification est inscrite dans Rapports &gt; Modifications de configuration.</li>
+<li>Les réglages inconnus sont signalés et ignorés.</li>
+<li>Codes de retour, pour les scripts : 0 succès, 1 erreur, 2 options incorrectes.</li>
+</ul>
+<p><strong>Plusieurs sites</strong> : par exemple, avec un répertoire Moodle par site :</p>
+<pre>for dir in /var/www/moodle-*/; do
+  sudo -u www-data php "$dir/report/coursemanager/cli/config.php" --import=/tmp/correctif.json || echo "Échec : $dir"
+done</pre>
+<p>Lancez-le d\'abord avec <code>--dry-run</code> pour vérifier ce qui changera sur chaque site.</p>';
