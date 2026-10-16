@@ -452,3 +452,53 @@ $string['dt_first'] = '«';
 $string['dt_last'] = '»';
 $string['dt_next'] = '›';
 $string['dt_previous'] = '‹';
+
+// Export and import of the settings in JSON (cli/config.php).
+$string['configjson_categoryambiguous'] = 'Plusieurs catégories correspondent à {$a} : indiquez plutôt le numéro d\'identification de la catégorie.';
+$string['configjson_categoryformat'] = 'La catégorie doit être indiquée sous la forme {"idnumber": "..."} ou {"path": "Catégorie / Sous-catégorie"}.';
+$string['configjson_categoryidnotfound'] = 'La catégorie {$a} de ce réglage n\'existe plus sur ce site.';
+$string['configjson_categorynotfound'] = 'Catégorie introuvable sur ce site : {$a}';
+$string['configjson_cli_aborted'] = 'Erreurs trouvées : rien n\'a été écrit.';
+$string['configjson_cli_applied'] = '{$a} réglage(s) modifié(s).';
+$string['configjson_cli_cannotread'] = 'Impossible de lire le fichier {$a}.';
+$string['configjson_cli_cannotwrite'] = 'Impossible d\'écrire le fichier {$a}.';
+$string['configjson_cli_change'] = '{$a->name} : {$a->old} -> {$a->new}';
+$string['configjson_cli_dryrun'] = 'Simulation : {$a} réglage(s) seraient modifiés, rien n\'a été écrit.';
+$string['configjson_cli_error'] = 'Erreur : {$a}';
+$string['configjson_cli_exported'] = 'Configuration écrite dans {$a}.';
+$string['configjson_cli_help'] = 'Exporte ou importe les réglages de Course Manager en JSON.
+
+Les rôles sont écrits avec leur nom abrégé, et la catégorie corbeille avec son numéro d\'identification s\'il existe,
+sinon avec son chemin (« Catégorie / Sous-catégorie »), pour pouvoir appliquer une configuration à d\'autres sites.
+Un import peut ne contenir que certains réglages : les autres ne sont pas modifiés. Toutes les valeurs sont d\'abord
+vérifiées : si l\'une est incorrecte, rien n\'est écrit. Chaque modification est inscrite dans le rapport des
+modifications de configuration.
+
+Options :
+-e, --export         Exporte la configuration (sur la sortie standard, ou dans --file)
+-f, --file=CHEMIN    Fichier dans lequel écrire l\'export
+-i, --import=CHEMIN  Importe la configuration d\'un fichier JSON
+-n, --dry-run        Avec --import : affiche les modifications sans les écrire
+-h, --help           Affiche cette aide
+
+Codes de retour : 0 succès, 1 erreur, 2 options incorrectes.
+
+Exemples :
+$ php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+$ php report/coursemanager/cli/config.php --import=/tmp/correctif.json --dry-run
+$ php report/coursemanager/cli/config.php --import=/tmp/correctif.json
+
+Exemple de fichier qui corrige seulement la catégorie corbeille :
+{"category_bin": {"path": "Archives / Corbeille"}}';
+$string['configjson_cli_invalidjson'] = 'JSON incorrect : {$a}';
+$string['configjson_cli_nochange'] = 'Aucun réglage à modifier.';
+$string['configjson_cli_partial'] = 'Erreurs pendant l\'écriture : {$a} réglage(s) ont été écrits, vérifiez la configuration.';
+$string['configjson_cli_warning'] = 'Attention : {$a}';
+$string['configjson_cli_wrongoptions'] = 'Utilisez soit --export, soit --import=CHEMIN.';
+$string['configjson_invalidchoice'] = 'Valeur non autorisée : {$a}';
+$string['configjson_notalist'] = 'Une liste de valeurs est attendue.';
+$string['configjson_notavalue'] = 'Une seule valeur est attendue.';
+$string['configjson_roleidnotfound'] = 'Le rôle {$a} de ce réglage n\'existe plus sur ce site.';
+$string['configjson_rolenotfound'] = 'Rôle introuvable sur ce site : {$a}';
+$string['configjson_unknownsetting'] = 'Réglage inconnu ignoré : {$a}';
+$string['configjson_wrongplugin'] = 'Ce fichier est la configuration d\'un autre plugin : {$a}';

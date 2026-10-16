@@ -433,3 +433,52 @@ $string['dt_first']        = '«';
 $string['dt_last']         = '»';
 $string['dt_next']         = '›';
 $string['dt_previous']     = '‹';
+
+// Export and import of the settings in JSON (cli/config.php).
+$string['configjson_categoryambiguous'] = 'Several categories match {$a}: give the id number of the category instead.';
+$string['configjson_categoryformat'] = 'The category must be given as {"idnumber": "..."} or {"path": "Category / Subcategory"}.';
+$string['configjson_categoryidnotfound'] = 'The category {$a} of this setting does not exist any more on this site.';
+$string['configjson_categorynotfound'] = 'Category not found on this site: {$a}';
+$string['configjson_cli_aborted'] = 'Errors found: nothing has been written.';
+$string['configjson_cli_applied'] = '{$a} setting(s) changed.';
+$string['configjson_cli_cannotread'] = 'Cannot read the file {$a}.';
+$string['configjson_cli_cannotwrite'] = 'Cannot write the file {$a}.';
+$string['configjson_cli_change'] = '{$a->name}: {$a->old} -> {$a->new}';
+$string['configjson_cli_dryrun'] = 'Dry run: {$a} setting(s) would be changed, nothing has been written.';
+$string['configjson_cli_error'] = 'Error: {$a}';
+$string['configjson_cli_exported'] = 'Configuration written to {$a}.';
+$string['configjson_cli_help'] = 'Exports or imports the settings of Course Manager in JSON.
+
+Roles are written with their short name, and the trash category with its id number when it has one, otherwise with
+its path ("Category / Subcategory"), so that a configuration can be applied to other sites.
+An import may contain only some settings: the other settings are not changed. Every value is checked first: if one
+is wrong, nothing is written. Each change is recorded in the config changes report.
+
+Options:
+-e, --export         Export the configuration (to the standard output, or to --file)
+-f, --file=PATH      File to write the export to
+-i, --import=PATH    Import the configuration of a JSON file
+-n, --dry-run        With --import: show the changes without writing them
+-h, --help           Print this help
+
+Exit codes: 0 success, 1 error, 2 wrong options.
+
+Examples:
+$ php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+$ php report/coursemanager/cli/config.php --import=/tmp/fix.json --dry-run
+$ php report/coursemanager/cli/config.php --import=/tmp/fix.json
+
+Example of a file fixing only the trash category:
+{"category_bin": {"path": "Archives / Trash"}}';
+$string['configjson_cli_invalidjson'] = 'Invalid JSON: {$a}';
+$string['configjson_cli_nochange'] = 'No setting to change.';
+$string['configjson_cli_partial'] = 'Errors found while writing: {$a} setting(s) have been written, check the configuration.';
+$string['configjson_cli_warning'] = 'Warning: {$a}';
+$string['configjson_cli_wrongoptions'] = 'Use either --export or --import=PATH.';
+$string['configjson_invalidchoice'] = 'Value not allowed: {$a}';
+$string['configjson_notalist'] = 'A list of values is expected.';
+$string['configjson_notavalue'] = 'A single value is expected.';
+$string['configjson_roleidnotfound'] = 'The role {$a} of this setting does not exist any more on this site.';
+$string['configjson_rolenotfound'] = 'Role not found on this site: {$a}';
+$string['configjson_unknownsetting'] = 'Unknown setting ignored: {$a}';
+$string['configjson_wrongplugin'] = 'This file is the configuration of another plugin: {$a}';
