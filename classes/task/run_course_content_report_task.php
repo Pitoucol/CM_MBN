@@ -66,7 +66,8 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                     return;
                 }
 
-            $listcourses = get_courses();
+            // Only the fields used by the task, front page excluded.
+            $listcourses = $DB->get_records_select('course', 'id <> :siteid', ['siteid' => SITEID], 'sortorder', 'id, category');
             foreach ($listcourses as $course) {
                 if ($course->id > 1) {
                     $coursecontext = \context_course::instance($course->id);
@@ -81,61 +82,15 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                         // Start reports calculation.
 
                         // 0 CALCULATE TOTAL COURSE SIZE.
-                        // Size of course files on disk, user data included.
+                        // The three sizes of the course, in one query : size on disk (user data included), course size
+                        // (without the course backups) and size of a backup without user data (.mbz).
                         // Courses without files keep an empty weight, excluded from median and average.
-                        $filesize = report_coursemanager_get_course_size($course->id) ?: null;
-
-                        // Check if course weight information exist in database.
-                        $existsweight = $DB->get_record('report_coursemanager_reports',
-                            ['course' => $course->id, 'report' => 'weight']);
-                        // Create or update weight general information.
-                        $dataweight = new \stdClass();
-                        $dataweight->course = $course->id;
-                        $dataweight->report = 'weight';
-                        $dataweight->detail = $filesize;
-                        if (empty($existsweight)) {
-                            $res = $DB->insert_record($table, $dataweight);
-                        } else {
-                            // If alert existe, update total filesize.
-                            $dataweight->id = $existsweight->id;
-                            $res = $DB->update_record($table, $dataweight);
-                        }
-                        unset($dataweight);
-                        unset($existsweight);
-
-                        // Course size : disk usage without the course backups.
-                        $coursesize = report_coursemanager_get_course_size_without_backups($course->id) ?: null;
-                        $existscoursesize = $DB->get_record('report_coursemanager_reports',
-                            ['course' => $course->id, 'report' => 'course_weight']);
-                        $datacoursesize = new \stdClass();
-                        $datacoursesize->course = $course->id;
-                        $datacoursesize->report = 'course_weight';
-                        $datacoursesize->detail = $coursesize;
-                        if (empty($existscoursesize)) {
-                            $res = $DB->insert_record($table, $datacoursesize);
-                        } else {
-                            $datacoursesize->id = $existscoursesize->id;
-                            $res = $DB->update_record($table, $datacoursesize);
-                        }
-                        unset($datacoursesize);
-                        unset($existscoursesize);
-
-                        // Size of a course backup (.mbz) without user data.
-                        $mbzsize = report_coursemanager_get_course_backup_size($course->id) ?: null;
-                        $existsmbz = $DB->get_record('report_coursemanager_reports',
-                            ['course' => $course->id, 'report' => 'mbz_weight']);
-                        $datambz = new \stdClass();
-                        $datambz->course = $course->id;
-                        $datambz->report = 'mbz_weight';
-                        $datambz->detail = $mbzsize;
-                        if (empty($existsmbz)) {
-                            $res = $DB->insert_record($table, $datambz);
-                        } else {
-                            $datambz->id = $existsmbz->id;
-                            $res = $DB->update_record($table, $datambz);
-                        }
-                        unset($datambz);
-                        unset($existsmbz);
+                        $sizes = report_coursemanager_get_course_sizes($course->id);
+                        $coursesize = $sizes['course'] ?: null;
+                        // Each value is written only when it has changed.
+                        $this->save_detail($course->id, 'weight', $sizes['disk'] ?: null);
+                        $this->save_detail($course->id, 'course_weight', $coursesize);
+                        $this->save_detail($course->id, 'mbz_weight', $sizes['mbz'] ?: null);
 
                         // File aliases that a backup without user data would lose, for the
                         // "Downloads and exports" tab.
@@ -153,13 +108,10 @@ class run_course_content_report_task extends \core\task\scheduled_task {
                             $data->course = $course->id;
                             $data->report = 'heavy';
 
-                            // If size alert doesn't exist for this course, create it in DB.
+                            // If size alert doesn't exist for this course, create it in DB (an existing alert
+                            // has nothing to update).
                             if (empty($existsheavy)) {
                                 $res = $DB->insert_record($table, $data);
-                            } else {
-                                // If alert existe, possibily change total filesize.
-                                $data->id = $existsheavy->id;
-                                $res = $DB->update_record($table, $data);
                             }
                             unset($data);
                         } else if (!empty($existsheavy)) {
@@ -210,5 +162,23 @@ class run_course_content_report_task extends \core\task\scheduled_task {
             mtrace("...... Reports for empty and heavy courses is not enabled !");
         }
         mtrace("... End coursemanager report for empty and heavy courses.");
+    }
+
+    /**
+     * Creates or updates the detail of a report of a course, only when its value has changed.
+     *
+     * @param int $courseid Course ID.
+     * @param string $report Report name.
+     * @param mixed $detail New value (null when empty).
+     */
+    protected function save_detail($courseid, $report, $detail) {
+        global $DB;
+        $table = 'report_coursemanager_reports';
+        $existing = $DB->get_record($table, ['course' => $courseid, 'report' => $report], 'id, detail', IGNORE_MULTIPLE);
+        if (!$existing) {
+            $DB->insert_record($table, (object)['course' => $courseid, 'report' => $report, 'detail' => $detail]);
+        } else if ((string)$existing->detail !== (string)$detail) {
+            $DB->update_record($table, (object)['id' => $existing->id, 'detail' => $detail]);
+        }
     }
 }

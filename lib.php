@@ -537,16 +537,14 @@ function report_coursemanager_get_course_size_without_backups($courseid) {
 }
 
 /**
- * SQL conditions selecting the files of a course backup (.mbz) without user data.
+ * Conditions excluding the files that are not part of a course backup (.mbz) without user data:
+ * course backups, recycle bin, grades and user data (submissions, feedbacks, forum posts...).
  *
- * Files of the course context and of all its children (activities, blocks...), except
- * files that are not part of such a backup: course backups, recycle bin and user data
- * (submissions, feedbacks, forum posts...). To be used with "{files} f JOIN {context} ctx".
+ * The conditions apply to the files table, aliased "f".
  *
- * @param context_course $context Course context.
- * @return array SQL conditions and their parameters.
+ * @return array [string[] $conditions, array $params] conditions to join with AND, and their named parameters
  */
-function report_coursemanager_get_backup_files_where($context) {
+function report_coursemanager_get_mbz_conditions() {
     global $DB;
 
     // Components that are never in a backup without user data.
@@ -562,30 +560,44 @@ function report_coursemanager_get_backup_files_where($context) {
             'overallfeedback_content', 'overallfeedback_attachment'],
     ];
 
-    // Files of the course context and of all its children (activities, blocks...).
-    $where = ['(f.contextid = :contextid OR ctx.path LIKE :path)', "f.filename <> '.'"];
-    $params = ['contextid' => $context->id, 'path' => $context->path . '/%'];
-
-    [$insql, $inparams] = $DB->get_in_or_equal($excludedcomponents, SQL_PARAMS_NAMED, 'comp', false);
-    $where[] = 'f.component ' . $insql;
-    $params += $inparams;
+    [$insql, $params] = $DB->get_in_or_equal($excludedcomponents, SQL_PARAMS_NAMED, 'mbzcomp', false);
+    $where = ['f.component ' . $insql];
 
     // Assign submissions and feedbacks, and question attempts responses.
-    $where[] = $DB->sql_like('f.component', ':assignsub', true, true, true);
-    $params['assignsub'] = 'assignsubmission\_%';
-    $where[] = $DB->sql_like('f.component', ':assignfeed', true, true, true);
-    $params['assignfeed'] = 'assignfeedback\_%';
-    $where[] = '(f.component <> :question OR ' . $DB->sql_like('f.filearea', ':response', true, true, true) . ')';
-    $params['question'] = 'question';
-    $params['response'] = 'response\_%';
+    $where[] = $DB->sql_like('f.component', ':mbzassignsub', true, true, true);
+    $params['mbzassignsub'] = 'assignsubmission\_%';
+    $where[] = $DB->sql_like('f.component', ':mbzassignfeed', true, true, true);
+    $params['mbzassignfeed'] = 'assignfeedback\_%';
+    $where[] = '(f.component <> :mbzquestion OR ' . $DB->sql_like('f.filearea', ':mbzresponse', true, true, true) . ')';
+    $params['mbzquestion'] = 'question';
+    $params['mbzresponse'] = 'response\_%';
 
     foreach ($excludedfileareas as $component => $fileareas) {
-        [$insql, $inparams] = $DB->get_in_or_equal($fileareas, SQL_PARAMS_NAMED, 'area', false);
-        $key = 'excl' . count($params);
+        [$insql, $inparams] = $DB->get_in_or_equal($fileareas, SQL_PARAMS_NAMED, 'mbzarea', false);
+        $key = 'mbzexcl' . count($params);
         $where[] = "(f.component <> :{$key} OR f.filearea {$insql})";
         $params[$key] = $component;
         $params += $inparams;
     }
+
+    return [$where, $params];
+}
+
+/**
+ * SQL conditions selecting the files of a course backup (.mbz) without user data.
+ *
+ * Files of the course context and of all its children (activities, blocks...), except
+ * files that are not part of such a backup (see report_coursemanager_get_mbz_conditions()).
+ * To be used with "{files} f JOIN {context} ctx".
+ *
+ * @param context_course $context Course context.
+ * @return array SQL conditions and their parameters.
+ */
+function report_coursemanager_get_backup_files_where($context) {
+    [$where, $params] = report_coursemanager_get_mbz_conditions();
+    $where[] = '(f.contextid = :contextid OR ctx.path LIKE :path)';
+    $where[] = "f.filename <> '.'";
+    $params += ['contextid' => $context->id, 'path' => $context->path . '/%'];
 
     return [implode(' AND ', $where), $params];
 }
@@ -612,6 +624,45 @@ function report_coursemanager_get_course_backup_size($courseid) {
                      WHERE ' . $where . ') content';
 
     return (int) $DB->get_field_sql($sql, $params);
+}
+
+/**
+ * Calculates in one query the three sizes of a course, for the nightly task : the same values as
+ * report_coursemanager_get_course_size(), report_coursemanager_get_course_size_without_backups()
+ * and report_coursemanager_get_course_backup_size().
+ *
+ * The files of the course are read once and grouped by content (each content is counted once). For each
+ * content, the query records whether it is used outside the course backups and in a backup without user data,
+ * then adds up the sizes.
+ *
+ * @param int $courseid Course ID.
+ * @return array disk (size on disk), course (without the backups), mbz (backup without user data), in bytes
+ */
+function report_coursemanager_get_course_sizes($courseid) {
+    global $DB;
+
+    $context = context_course::instance($courseid);
+    [$mbzwhere, $params] = report_coursemanager_get_mbz_conditions();
+    $params += ['contextid' => $context->id, 'path' => $context->path . '/%', 'backup' => 'backup'];
+
+    $sql = 'SELECT SUM(content.filesize) AS disk,
+                   SUM(content.filesize * content.incourse) AS course,
+                   SUM(content.filesize * content.inmbz) AS mbz
+              FROM (SELECT f.contenthash, f.filesize,
+                           MAX(CASE WHEN f.component <> :backup THEN 1 ELSE 0 END) AS incourse,
+                           MAX(CASE WHEN ' . implode(' AND ', $mbzwhere) . ' THEN 1 ELSE 0 END) AS inmbz
+                      FROM {files} f
+                      JOIN {context} ctx ON ctx.id = f.contextid
+                     WHERE (f.contextid = :contextid OR ctx.path LIKE :path)
+                       AND f.filename <> \'.\'
+                  GROUP BY f.contenthash, f.filesize) content';
+    $sizes = $DB->get_record_sql($sql, $params);
+
+    return [
+        'disk' => (int)($sizes->disk ?? 0),
+        'course' => (int)($sizes->course ?? 0),
+        'mbz' => (int)($sizes->mbz ?? 0),
+    ];
 }
 
 /**
@@ -1199,4 +1250,40 @@ function report_coursemanager_extend_navigation_course($navigation, $course, $co
             new moodle_url('/report/coursemanager/wiris_files.php', ['id' => $course->id]),
             navigation_node::TYPE_SETTING, null, 'report_coursemanager_wiris', new pix_icon('i/settings', ''));
     }
+}
+
+/**
+ * Counts, in one query, the users having some roles in a course and those of them who visited the course recently.
+ *
+ * Used by the nightly visit tasks. A user visited the course when their last access is less than $days full days old
+ * (same rule as before : floor((now - last access) / 86400) <= $days). Users who never accessed the course have no
+ * last access and are not visitors.
+ *
+ * @param int $courseid Course ID.
+ * @param int[] $roleids Roles to count (role assignments in the course context, as get_role_users()).
+ * @param int $days Number of days.
+ * @param int $now Current time.
+ * @return stdClass users (number of users with these roles), visitors (number of them who visited the course)
+ */
+function report_coursemanager_count_visitors($courseid, array $roleids, $days, $now) {
+    global $DB;
+
+    $context = context_course::instance($courseid);
+    [$insql, $params] = $DB->get_in_or_equal($roleids, SQL_PARAMS_NAMED, 'visitrole');
+    $params += [
+        'contextid' => $context->id,
+        'courseid' => $courseid,
+        'limit' => $now - ($days + 1) * DAYSECS,
+    ];
+
+    $sql = "SELECT COUNT(DISTINCT ra.userid) AS users,
+                   COUNT(DISTINCT CASE WHEN ula.timeaccess > :limit THEN ra.userid END) AS visitors
+              FROM {role_assignments} ra
+              JOIN {user} u ON u.id = ra.userid AND u.deleted = 0
+         LEFT JOIN {user_lastaccess} ula ON ula.userid = ra.userid AND ula.courseid = :courseid
+             WHERE ra.contextid = :contextid
+               AND ra.roleid $insql";
+    $counts = $DB->get_record_sql($sql, $params);
+
+    return (object)['users' => (int)$counts->users, 'visitors' => (int)$counts->visitors];
 }

@@ -70,21 +70,18 @@ class run_teacher_visit_report_task extends \core\task\scheduled_task {
                     return;
                 }
 
-            $listcourses = get_courses();
+            require_once($CFG->dirroot . '/report/coursemanager/lib.php');
+            // Main teacher role and other teacher roles, counted together.
+            $roleids = [(int)get_config('report_coursemanager', 'teacher_role_dashboard')];
+            if (!empty(get_config('report_coursemanager', 'other_teacher_role_dashboard'))) {
+                $otherroles = explode(',', get_config('report_coursemanager', 'other_teacher_role_dashboard'));
+                $roleids = array_unique(array_merge($roleids, array_map('intval', $otherroles)));
+            }
+            $days = (int)get_config('report_coursemanager', 'last_access_teacher');
+            // Only the fields used by the task, front page excluded.
+            $listcourses = $DB->get_records_select('course', 'id <> :siteid', ['siteid' => SITEID], 'sortorder', 'id, category');
             foreach ($listcourses as $course) {
                 if ($course->id > 1) {
-                    $coursecontext = \context_course::instance($course->id);
-
-                    // Let's count teachers and students enrolled in course.
-                    $allteachers = get_role_users(get_config('report_coursemanager', 'teacher_role_dashboard'), $coursecontext);
-                    $otherteachersconfig = explode(',', get_config('report_coursemanager', 'other_teacher_role_dashboard'));
-                    $otherteachers = [];
-                    if (!empty(get_config('report_coursemanager', 'other_teacher_role_dashboard'))) {
-                        foreach ($otherteachersconfig as $teacher) {
-                            $otherteachers = $otherteachers + get_role_users($teacher, $coursecontext);
-                        }
-                    }
-
                     // If course is in trash category, delete all reports.
                     if ($course->category == get_config('report_coursemanager', 'category_bin')) {
                         $exists = $DB->get_records('report_coursemanager_reports', ['course' => $course->id]);
@@ -93,92 +90,14 @@ class run_teacher_visit_report_task extends \core\task\scheduled_task {
                         }
                     } else {
                         // Start reports calculation.
-                        // REPORTS FOR TEACHERS - VISITS AND COURSES WITHOUT TEACHERS
-                        // Check if teachers reports exist.
-                        $existsnoteacherincourse = $DB->get_record('report_coursemanager_reports',
-                        ['course' => $course->id, 'report' => 'no_teacher_in_course']);
-                        $existsnovisitteacher = $DB->get_record('report_coursemanager_reports',
-                        ['course' => $course->id, 'report' => 'no_visit_teacher']);
+                        // REPORTS FOR TEACHERS - VISITS AND COURSES WITHOUT TEACHERS.
+                        // Teachers of the course and those who visited it recently, in one query.
+                        $counts = report_coursemanager_count_visitors($course->id, $roleids, $days, $now);
 
-                        // CASE 1 : if teachers are enrolled in course, test for visit.
-                        if (count($allteachers + $otherteachers) > 0) {
-                            // As there are teachers in course, first delete "no teacher in course" report if exists.
-                            if ($existsnoteacherincourse) {
-                                $res = $DB->delete_records($table, ['id' => $existsnoteacherincourse->id]);
-                            }
-
-                            // Now check for teachers visits.
-                            $countteachervisit = [];
-                            // For each enrolled teacher, check last visit in course.
-                            foreach ($allteachers as $teacher) {
-                                $lastaccess = $DB->get_field('user_lastaccess', 'timeaccess',
-                                ['courseid' => $course->id, 'userid' => $teacher->id]);
-                                // Difference between now and last access.
-                                $diff = $now - $lastaccess;
-                                // Calculate number of days without connection in course (86 400 equals number of seconds per day).
-                                $timeteacher = floor($diff / 86400);
-                                // If limit is under last_access_teacher, teacher has visited course.
-                                if ($timeteacher <= get_config('report_coursemanager', 'last_access_teacher')) {
-                                    // Let's count a visit.
-                                    array_push($countteachervisit, 'visited_teacher');
-                                }
-                            }
-                            $rescountteachervisit = array_count_values($countteachervisit);
-
-                            // Now check for other teachers visits.
-                            $countotherteachervisit = [];
-                            // For each other enrolled teacher, check last visit in course.
-                            foreach ($otherteachers as $teacher) {
-                                $lastaccess = $DB->get_field('user_lastaccess', 'timeaccess',
-                                ['courseid' => $course->id, 'userid' => $teacher->id]);
-                                // Difference between now and last access.
-                                $diff = $now - $lastaccess;
-                                // Calculate number of days without connection in course (86 400 equals number of seconds per day).
-                                $timeteacher = floor($diff / 86400);
-                                // If limit is under last_access_teacher, teacher has visited course.
-                                if ($timeteacher <= get_config('report_coursemanager', 'last_access_teacher')) {
-                                    // Let's count a visit.
-                                    array_push($countotherteachervisit, 'visited_teacher');
-                                }
-                            }
-                            $rescountotherteachervisit = array_count_values($countotherteachervisit);
-
-                            // If result is empty, no teacher has visited course.
-                            if (!isset($rescountteachervisit['visited_teacher'])
-                                && !isset($rescountotherteachervisit['visited_teacher'])) {
-                                $data = new \stdClass();
-                                $data->course = $course->id;
-                                $data->report = 'no_visit_teacher';
-
-                                // If no teacher visit alert doesn't exist for this course, create it in DB.
-                                if (empty($existsnovisitteacher)) {
-                                    $res = $DB->insert_record($table, $data);
-                                }
-                                unset($data);
-                            } else if (!empty($existsnovisitteacher)) {
-                                // In this case, at least one teacher has visited course. If alert exists, delete it.
-                                $res = $DB->delete_records($table, ['id' => $existsnovisitteacher->id]);
-                                unset($data);
-                            }
-                            unset($existsnovisitteacher);
-                        } else {
-                            // CASE 2 : if no teachers are enrolled in course, add this report.
-
-                            // As there are no teacher in course, first delete "no visit teacher" report if exists.
-                            if ($existsnovisitteacher) {
-                                $res = $DB->delete_records($table, ['id' => $existsnovisitteacher->id]);
-                            }
-
-                            $data = new \stdClass();
-                            $data->course = $course->id;
-                            $data->report = 'no_teacher_in_course';
-
-                            if (empty($existsnoteacherincourse)) {
-                                $res = $DB->insert_record($table, $data);
-                            }
-                            unset($data);
-                            unset($existsnoteacherincourse);
-                        }
+                        // CASE 1 : teachers are enrolled in course ; report when none visited the course.
+                        // CASE 2 : no teacher enrolled in course.
+                        $this->set_report($course->id, 'no_teacher_in_course', $counts->users == 0);
+                        $this->set_report($course->id, 'no_visit_teacher', $counts->users > 0 && $counts->visitors == 0);
                     }
                     // Tests end.
                 }
@@ -188,5 +107,23 @@ class run_teacher_visit_report_task extends \core\task\scheduled_task {
             mtrace("...... Reports for teachers is not enabled !");
         }
         mtrace("... End coursemanager teachers reports.");
+    }
+
+    /**
+     * Creates or deletes a report of a course, only when its state changes.
+     *
+     * @param int $courseid Course ID.
+     * @param string $report Report name.
+     * @param bool $active True when the report must exist.
+     */
+    protected function set_report($courseid, $report, $active) {
+        global $DB;
+        $table = 'report_coursemanager_reports';
+        $exists = $DB->record_exists($table, ['course' => $courseid, 'report' => $report]);
+        if ($active && !$exists) {
+            $DB->insert_record($table, (object)['course' => $courseid, 'report' => $report]);
+        } else if (!$active && $exists) {
+            $DB->delete_records($table, ['course' => $courseid, 'report' => $report]);
+        }
     }
 }

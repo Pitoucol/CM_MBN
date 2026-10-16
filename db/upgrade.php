@@ -236,5 +236,14 @@ function xmldb_report_coursemanager_upgrade($oldversion) {
         }
         upgrade_plugin_savepoint(true, 2026101320, 'report', 'coursemanager');
     }
+    if ($oldversion < 2026101324) {
+        // Index on the reports table : each task and the dashboard look for the reports of a course.
+        $table = new xmldb_table('report_coursemanager_reports');
+        $index = new xmldb_index('course-report', XMLDB_INDEX_NOTUNIQUE, ['course', 'report']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        upgrade_plugin_savepoint(true, 2026101324, 'report', 'coursemanager');
+    }
     return true;
 }
