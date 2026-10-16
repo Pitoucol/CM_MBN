@@ -480,7 +480,12 @@ $string['backup_title_error'] = 'Backup not possible';
 // Wiris formulas converted into LaTeX (wiris_files.php, "Downloads and exports" tab).
 $string['coursemanager:convertwiris'] = 'Convert the Wiris formulas of a course into LaTeX';
 $string['table_wiris'] = 'Wiris';
-$string['table_wiris_help'] = 'Checks whether the course contains formulas written with Wiris, to be converted into LaTeX. Click "Check" to open the Wiris page of the course.';
+$string['table_wiris_status'] = 'Wiris';
+$string['table_wiris_status_help'] = 'Result of the last check of the Wiris page of the course. Green tick: no Wiris formula is left (already converted into LaTeX, or none). Red cross: Wiris formulas are left to convert. The date is the date of the last check: contents added since then are not taken into account. "Check" or "Check again" opens the Wiris page of the course, which checks the course and updates this column.';
+$string['wiris_checked_on'] = 'Checked on {$a}';
+$string['wiris_recheck'] = 'Check again';
+$string['wiris_status_ok'] = 'No Wiris formula left';
+$string['wiris_status_todo'] = 'Wiris formulas to convert';
 $string['enablecolumnwiris'] = 'Wiris column';
 $string['enablecolumnwiris_desc'] = 'Displays, in the "Downloads and exports" tab, a link to the page of each course that checks its Wiris formulas and converts them into LaTeX. Nothing is checked when the tab is displayed.';
 $string['wirismaxrows'] = 'Formulas listed on the Wiris page';

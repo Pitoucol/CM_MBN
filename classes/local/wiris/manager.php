@@ -25,6 +25,9 @@ namespace report_coursemanager\local\wiris;
  */
 class manager {
 
+    /** Name of the report storing the result of the last check of a course (report_coursemanager_reports). */
+    const REPORT = 'wiris';
+
     /** @var text_converter */
     protected $converter;
 
@@ -195,6 +198,52 @@ class manager {
             }
         }
         return $s;
+    }
+
+    /**
+     * Stores the result of a check of a course, done when the Wiris page of the course is displayed :
+     * number of formulas left to convert and date of the check, for the "Downloads and exports" tab.
+     *
+     * @param int $courseid
+     * @param int $formulas number of formulas found (converted or not convertible)
+     */
+    public static function save_check(int $courseid, int $formulas): void {
+        global $DB;
+        $detail = json_encode(['formulas' => $formulas, 'time' => time()]);
+        $existing = $DB->get_record('report_coursemanager_reports', ['course' => $courseid, 'report' => self::REPORT],
+            'id', IGNORE_MULTIPLE);
+        if ($existing) {
+            $DB->update_record('report_coursemanager_reports', (object)['id' => $existing->id, 'detail' => $detail]);
+        } else {
+            $DB->insert_record('report_coursemanager_reports',
+                (object)['course' => $courseid, 'report' => self::REPORT, 'detail' => $detail]);
+        }
+    }
+
+    /**
+     * Results of the last checks of several courses.
+     *
+     * @param int[] $courseids
+     * @return \stdClass[] formulas, time ; indexed by course id, courses never checked are missing
+     */
+    public static function get_checks(array $courseids): array {
+        global $DB;
+        if (!$courseids) {
+            return [];
+        }
+        [$insql, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+        $params['report'] = self::REPORT;
+        $checks = [];
+        $records = $DB->get_recordset_select('report_coursemanager_reports', "course $insql AND report = :report",
+            $params, '', 'id, course, detail');
+        foreach ($records as $record) {
+            $detail = json_decode((string)$record->detail);
+            if (isset($detail->formulas, $detail->time)) {
+                $checks[$record->course] = (object)['formulas' => (int)$detail->formulas, 'time' => (int)$detail->time];
+            }
+        }
+        $records->close();
+        return $checks;
     }
 
     /**

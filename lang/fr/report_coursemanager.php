@@ -499,7 +499,12 @@ $string['backup_title_error'] = 'Sauvegarde impossible';
 // Wiris formulas converted into LaTeX (wiris_files.php, "Downloads and exports" tab).
 $string['coursemanager:convertwiris'] = 'Convertir les formules Wiris d\'un cours en LaTeX';
 $string['table_wiris'] = 'Wiris';
-$string['table_wiris_help'] = 'Teste la présence de formules Wiris à transformer en LaTeX. Cliquez sur « Vérifier » pour ouvrir la page Wiris du cours.';
+$string['table_wiris_status'] = 'Wiris';
+$string['table_wiris_status_help'] = 'Résultat de la dernière vérification de la page Wiris du cours. Coche verte : il ne reste aucune formule Wiris (déjà converties en LaTeX, ou aucune). Croix rouge : des formules Wiris restent à convertir. La date est celle de la dernière vérification : les contenus ajoutés depuis ne sont pas pris en compte. « Vérifier » ou « Revérifier » ouvre la page Wiris du cours, qui vérifie le cours et met à jour cette colonne.';
+$string['wiris_checked_on'] = 'Vérifié le {$a}';
+$string['wiris_recheck'] = 'Revérifier';
+$string['wiris_status_ok'] = 'Aucune formule Wiris restante';
+$string['wiris_status_todo'] = 'Formules Wiris à convertir';
 $string['enablecolumnwiris'] = 'Colonne « Wiris »';
 $string['enablecolumnwiris_desc'] = 'Affiche, dans l\'onglet « Téléchargements et exports », un lien vers la page de chaque cours qui vérifie ses formules Wiris et les convertit en LaTeX. Rien n\'est vérifié à l\'affichage de l\'onglet.';
 $string['wirismaxrows'] = 'Formules listées sur la page Wiris';
