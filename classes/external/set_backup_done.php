@@ -48,7 +48,7 @@ class set_backup_done extends external_api {
      *
      * @param int $courseid
      * @param bool $done
-     * @return array done, info (date and user, empty when not done)
+     * @return array done, date and user (empty when not done)
      */
     public static function execute(int $courseid, bool $done): array {
         global $USER;
@@ -59,10 +59,7 @@ class set_backup_done extends external_api {
 
         tracking::set_done($params['courseid'], $params['done'], $USER->id);
         $states = tracking::get_states([$params['courseid']]);
-        return [
-            'done' => $params['done'],
-            'info' => tracking::get_info($states[$params['courseid']] ?? null),
-        ];
+        return ['done' => $params['done']] + tracking::get_info($states[$params['courseid']] ?? null);
     }
 
     /**
@@ -73,7 +70,8 @@ class set_backup_done extends external_api {
     public static function execute_returns(): external_single_structure {
         return new external_single_structure([
             'done' => new external_value(PARAM_BOOL, 'New state'),
-            'info' => new external_value(PARAM_TEXT, 'Date and user of the state, empty when not done'),
+            'date' => new external_value(PARAM_TEXT, 'Date of the state, empty when not done'),
+            'user' => new external_value(PARAM_TEXT, 'User who set the state, empty when not done'),
         ]);
     }
 }

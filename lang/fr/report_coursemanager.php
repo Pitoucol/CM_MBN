@@ -507,7 +507,6 @@ $string['exports_intro_plugins'] = 'Vérifiez les activités qui risquent de ne 
 $string['coursemanager:markexportdone'] = 'Marquer le processus de sauvegarde d\'un cours comme terminé';
 $string['table_backup_done'] = 'Sauvegarde terminée';
 $string['table_backup_done_help'] = 'Cochez cette case lorsque vous avez téléchargé la sauvegarde du cours et que vous l\'avez vérifiée : le processus de sauvegarde du cours est alors terminé. L\'état est partagé par tous les enseignants du cours. Il est remis à zéro quand une nouvelle sauvegarde est lancée.';
-$string['backup_done_info'] = '{$a->date} par {$a->user}';
 $string['backup_filter_done'] = 'Terminée';
 $string['backup_filter_todo'] = 'Non terminée';
 $string['backup_done_privacy_path'] = 'Processus de sauvegarde marqué terminé';

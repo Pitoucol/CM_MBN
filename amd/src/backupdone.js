@@ -30,15 +30,20 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
      *
      * @param {HTMLInputElement} checkbox
      * @param {boolean} done
-     * @param {string} info Date and user, empty when not done.
+     * @param {string} date Date of the state, empty when not done.
+     * @param {string} user User who set the state, empty when not done.
      */
-    var showState = function(checkbox, done, info) {
+    var showState = function(checkbox, done, date, user) {
         checkbox.checked = done;
         var cell = checkbox.closest('td');
         var row = checkbox.closest('tr');
-        var infoEl = cell ? cell.querySelector('.coursemanager-backupdone-info') : null;
-        if (infoEl) {
-            infoEl.textContent = info;
+        var dateEl = cell ? cell.querySelector('.coursemanager-backupdone-date') : null;
+        var userEl = cell ? cell.querySelector('.coursemanager-backupdone-user') : null;
+        if (dateEl) {
+            dateEl.textContent = date;
+        }
+        if (userEl) {
+            userEl.textContent = user;
         }
         if (row) {
             row.classList.toggle('backup-done', done);
@@ -70,7 +75,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     methodname: 'report_coursemanager_set_backup_done',
                     args: {courseid: parseInt(checkbox.dataset.courseid, 10), done: done},
                 }])[0].then(function(result) {
-                    showState(checkbox, result.done, result.info);
+                    showState(checkbox, result.done, result.date, result.user);
                     checkbox.disabled = false;
                     return result;
                 }).catch(function(error) {

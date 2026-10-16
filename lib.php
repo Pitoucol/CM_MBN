@@ -718,18 +718,18 @@ function report_coursemanager_is_enabled($name) {
 
 /**
  * Cell of the "Backup done" column of the "Downloads and exports" tab : a checkbox saved by
- * report_coursemanager/backupdone, with the date and the user of the state under it.
+ * report_coursemanager/backupdone, then the date and the user of the state, each on its own line.
  *
  * @param stdClass $course Course.
  * @param bool $done True when the backup process of the course is marked done.
- * @param string $info Date and user of the state, empty when not done.
+ * @param array $info Date and user of the state (keys date, user), empty strings when not done.
  * @param bool $canedit Whether the user can change the state (otherwise the checkbox is disabled).
  * @return html_table_cell
  */
 function report_coursemanager_backup_done_cell($course, $done, $info, $canedit) {
     $attributes = [
         'type' => 'checkbox',
-        'class' => 'coursemanager-backupdone form-check-input',
+        'class' => 'coursemanager-backupdone',
         'data-courseid' => $course->id,
         'id' => 'coursemanager-backupdone-' . $course->id,
     ];
@@ -739,10 +739,11 @@ function report_coursemanager_backup_done_cell($course, $done, $info, $canedit) 
     if (!$canedit) {
         $attributes['disabled'] = 'disabled';
     }
-    $content = html_writer::empty_tag('input', $attributes)
+    $content = html_writer::div(html_writer::empty_tag('input', $attributes)
         . html_writer::label(get_string('table_backup_done', 'report_coursemanager'), $attributes['id'], false,
-            ['class' => 'sr-only visually-hidden'])
-        . html_writer::div(s($info), 'small text-muted coursemanager-backupdone-info');
+            ['class' => 'sr-only visually-hidden']))
+        . html_writer::div(s($info['date']), 'small text-muted text-nowrap coursemanager-backupdone-date')
+        . html_writer::div(s($info['user']), 'small text-muted coursemanager-backupdone-user');
     // Sorted on the state.
     return report_coursemanager_sortable_cell($content, $done ? 1 : 0);
 }

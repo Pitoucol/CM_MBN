@@ -84,18 +84,18 @@ class tracking {
     }
 
     /**
-     * Text shown under the checkbox : date and user of the state, when the backup is marked done.
+     * Lines shown under the checkbox : date and user of the state, when the backup is marked done.
      *
      * @param \stdClass|null $state Record from get_states().
-     * @return string
+     * @return array date, user ; empty strings when the backup is not marked done
      */
-    public static function get_info(?\stdClass $state): string {
+    public static function get_info(?\stdClass $state): array {
         if (!$state || empty($state->done)) {
-            return '';
+            return ['date' => '', 'user' => ''];
         }
-        return get_string('backup_done_info', 'report_coursemanager', (object)[
+        return [
             'date' => userdate($state->timemodified, get_string('strftimedatetimeshort', 'langconfig')),
             'user' => fullname($state),
-        ]);
+        ];
     }
 }
