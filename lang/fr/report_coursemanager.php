@@ -459,6 +459,8 @@ $string['enabletabexports'] = 'Onglet « Téléchargements et exports »';
 $string['enabletabexports_desc'] = 'Affiche un second onglet dans le tableau de bord enseignant, pour lancer des sauvegardes de cours (.mbz) avec les réglages de sauvegarde par défaut du site et les télécharger.';
 $string['enablecolumnlastbackup'] = 'Colonne « Dernière sauvegarde »';
 $string['enablecolumnlastbackup_desc'] = 'Affiche la date de la sauvegarde la plus récente de chaque cours dans l\'onglet « Téléchargements et exports ».';
+$string['enablecolumnprogress'] = 'Colonne « Progression »';
+$string['enablecolumnprogress_desc'] = 'Affiche l\'avancement des sauvegardes en cours de chaque cours dans l\'onglet « Téléchargements et exports ». Quand la colonne est masquée, la page est quand même rechargée à la fin des sauvegardes.';
 $string['enablecolumnbackupsize'] = 'Colonne « Poids de la sauvegarde »';
 $string['enablecolumnbackupsize_desc'] = 'Affiche le poids de la sauvegarde la plus récente de chaque cours (toutes ses parties pour une sauvegarde découpée), à droite de la colonne de téléchargement.';
 $string['tab_reports'] = 'Rapports sur les cours';
@@ -595,3 +597,11 @@ $string['alias_where_question'] = 'Question : {$a}';
 $string['alias_where_questionother'] = 'Banque de questions ({$a})';
 $string['alias_where_section'] = 'Section : {$a}';
 $string['alias_where_unknown'] = 'Emplacement inconnu';
+
+// Downloads and exports tab : checks before exporting a course.
+$string['destpfpluginsspecs'] = 'Plugins de la plateforme de destination';
+$string['destpfpluginsspecs_desc'] = 'Informations sur les activités et plugins disponibles, ou absents, sur la plateforme où les cours seront restaurés. Quand ce champ est rempli, l\'onglet « Téléchargements et exports » invite les enseignants à vérifier les activités qui risquent de ne pas y être présentes.';
+$string['exports_intro'] = 'Ce tableau permet de procéder à quelques vérifications de base avant d\'exporter votre parcours.';
+$string['exports_intro_alias'] = 'La présence d\'alias est testée et signalée. Vous devez corriger en cliquant sur le lien, au risque de perdre des données lors de la future restauration de votre mbz sur une autre plateforme.';
+$string['exports_intro_wiris'] = 'Si vous avez utilisé des formules mathématiques à l\'aide de Wiris, vérifiez votre parcours et transformez vos formules en LaTeX, qui est interopérable.';
+$string['exports_intro_plugins'] = 'Vérifiez les activités qui risquent de ne pas être présentes sur la plateforme de destination.';

@@ -155,6 +155,12 @@ define([
             },
         });
 
+        // Text block of the table (element "<table id>-intro"), shown under the page length menu.
+        var intro = document.getElementById(tableId + '-intro');
+        if (intro) {
+            $(tableEl).before(intro);
+        }
+
         // Message shown above the table when the active filter matches no course.
         var filterMessage = document.createElement('div');
         filterMessage.className = 'alert alert-warning';
