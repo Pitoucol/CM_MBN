@@ -517,3 +517,10 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^=col-]:last-
 .coursemanager-backup-steps .coursemanager-step-line {
     margin-bottom: 0.25rem;
 }
+
+/* "Downloads and exports" tab : every cell centered. */
+#courseexports th,
+#courseexports td {
+    text-align: center;
+    vertical-align: middle;
+}

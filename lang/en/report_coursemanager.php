@@ -429,6 +429,8 @@ $string['enabletabexports'] = '"Downloads and exports" tab';
 $string['enabletabexports_desc'] = 'Displays a second tab on the teachers dashboard, to launch course backups (.mbz) with the site default backup settings and download them.';
 $string['enablecolumnlastbackup'] = 'Last backup column';
 $string['enablecolumnlastbackup_desc'] = 'Displays the date of the most recent backup of each course in the "Downloads and exports" tab.';
+$string['enablecolumnprogress'] = 'Backup progress column';
+$string['enablecolumnprogress_desc'] = 'Displays the progress of the backups in progress of each course in the "Downloads and exports" tab. When the column is hidden, the page is still reloaded when the backups are finished.';
 $string['enablecolumnbackupsize'] = 'Backup size column';
 $string['enablecolumnbackupsize_desc'] = 'Displays the size of the most recent backup of each course (all its parts for a split backup), to the right of the download column.';
 $string['tab_reports'] = 'Course reports';
@@ -476,3 +478,11 @@ $string['backup_title_split'] = 'Split in {$a} archives';
 $string['backup_title_launch'] = 'Launch';
 $string['backup_title_restore'] = 'Restore';
 $string['backup_title_error'] = 'Backup not possible';
+
+// Downloads and exports tab : checks before exporting a course.
+$string['destpfpluginsspecs'] = 'Plugins of the destination site';
+$string['destpfpluginsspecs_desc'] = 'Information about the activities and plugins available, or missing, on the site where courses will be restored. When this field is filled, the "Downloads and exports" tab asks teachers to check the activities that may be missing there.';
+$string['exports_intro'] = 'This table lets you do some basic checks before exporting your course.';
+$string['exports_intro_alias'] = 'The presence of aliases is tested and reported. Correct them by clicking the link, otherwise data may be lost when your mbz is later restored on another site.';
+$string['exports_intro_wiris'] = 'If you used mathematical formulas made with Wiris, check your course and convert your formulas into LaTeX, which is interoperable.';
+$string['exports_intro_plugins'] = 'Check the activities that may not be available on the destination site.';

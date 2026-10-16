@@ -761,6 +761,17 @@ function report_coursemanager_render_exports_tab($userid) {
     ]);
     $output .= html_writer::end_div();
 
+    // Checks to do before exporting a course, shown under the search and the page length menu (coursetable.js).
+    $checks = [get_string('exports_intro_alias', 'report_coursemanager'),
+        get_string('exports_intro_wiris', 'report_coursemanager')];
+    // Only when the administrator has described the plugins of the destination site.
+    if (trim((string)get_config('report_coursemanager', 'dest_pf_plugins_specs')) !== '') {
+        $checks[] = get_string('exports_intro_plugins', 'report_coursemanager');
+    }
+    $output .= html_writer::div(html_writer::tag('p', get_string('exports_intro', 'report_coursemanager'), ['class' => 'mb-1'])
+        . html_writer::alist($checks, ['class' => 'mb-0']), 'alert alert-info coursemanager-tableintro',
+        ['id' => 'courseexports-intro']);
+
     // Same courses as in the reports tab : courses where the user has the dashboard teacher role.
     $teacherrole = get_config('report_coursemanager', 'teacher_role_dashboard');
     $courses = [];
@@ -776,17 +787,24 @@ function report_coursemanager_render_exports_tab($userid) {
 
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     $showbackupsize = report_coursemanager_is_enabled('enable_column_backupsize');
+    $showprogress = report_coursemanager_is_enabled('enable_column_progress');
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
 
+    // Columns : course name, last backup, backup size, download, action, progress.
     $table = new html_table();
     $table->id = 'courseexports';
-    $table->attributes['class'] = 'admintable generaltable browse_courses w-100';
-    $table->head = [get_string('table_course_name', 'report_coursemanager')];
+    $table->attributes['class'] = 'admintable generaltable browse_courses w-100 coursemanager-exports';
+    // The table is sorted by course name when the page opens (class read by coursetable.js).
+    $namehead = new html_table_cell(get_string('table_course_name', 'report_coursemanager'));
+    $namehead->attributes['class'] = 'coursemanager-defaultorder';
+    $table->head = [$namehead];
     if ($showlastbackup) {
         $table->head[] = get_string('table_last_backup', 'report_coursemanager');
     }
-    $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
+    if ($showbackupsize) {
+        $table->head[] = get_string('table_backup_size', 'report_coursemanager');
+    }
     // Download and action columns are not sortable (class read by coursetable.js).
     $nosort = function($text) {
         $cell = new html_table_cell($text);
@@ -794,33 +812,40 @@ function report_coursemanager_render_exports_tab($userid) {
         return $cell;
     };
     $table->head[] = $nosort(get_string('table_download', 'report_coursemanager'));
-    if ($showbackupsize) {
-        $table->head[] = get_string('table_backup_size', 'report_coursemanager');
-    }
     $table->head[] = $nosort(get_string('table_backup_action', 'report_coursemanager'));
+    if ($showprogress) {
+        $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
+    }
 
     foreach ($courses as $course) {
         $context = context_course::instance($course->id);
         // Most recent backup : one file, or all the parts of a split backup.
         $files = $manager->get_last_backup_files($course->id);
         $file = $files ? reset($files) : null;
-        $row = [];
+        $failed = $manager->is_backup_failed($course->id);
 
-        $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
+        $namecell = html_writer::link(new moodle_url('/course/view.php', ['id' => $course->id]),
             format_string($course->fullname, true, ['context' => $context]));
 
-        if ($showlastbackup) {
-            if ($file) {
-                $row[] = report_coursemanager_sortable_cell(
-                    userdate($file->get_timecreated(), get_string('strftimedatetimeshort', 'langconfig')),
-                    $file->get_timecreated());
-            } else {
-                $row[] = report_coursemanager_sortable_cell(
-                    html_writer::tag('i', get_string('no_backup', 'report_coursemanager')), 0);
-            }
+        if ($file) {
+            $lastbackupcell = report_coursemanager_sortable_cell(
+                userdate($file->get_timecreated(), get_string('strftimedatetimeshort', 'langconfig')),
+                $file->get_timecreated());
+        } else {
+            $lastbackupcell = report_coursemanager_sortable_cell(
+                html_writer::tag('i', get_string('no_backup', 'report_coursemanager')), 0);
         }
 
-        $failed = $manager->is_backup_failed($course->id);
+        // Size of the most recent backup : all the parts of a split backup.
+        $backupsize = 0;
+        foreach ($files as $partfile) {
+            $backupsize += $partfile->get_filesize();
+        }
+        if ($files && !$failed) {
+            $sizecell = report_coursemanager_sortable_cell(display_size($backupsize), $backupsize);
+        } else {
+            $sizecell = report_coursemanager_sortable_cell('', -1);
+        }
 
         // Progress of the backups in progress, updated in the page by backupprogress.js
         // with the Moodle asynchronous backup progress web service.
@@ -834,9 +859,9 @@ function report_coursemanager_render_exports_tab($userid) {
             $progresscell = new html_table_cell($percent . ' %');
             $progresscell->id = 'coursemanager-progress-' . $course->id;
             $progresscell->attributes['data-order'] = $percent;
-            $row[] = $progresscell;
             // Backups to follow, given to backupprogress.js outside the table (rows of other table pages
-            // are not in the page).
+            // are not in the page). Followed even when the progress column is hidden, to reload the page
+            // when they are finished.
             $pendingbackups[] = [
                 'cellid' => $progresscell->id,
                 'contextid' => $context->id,
@@ -845,11 +870,12 @@ function report_coursemanager_render_exports_tab($userid) {
                 }, $pending),
             ];
         } else {
-            $row[] = report_coursemanager_sortable_cell('', -1);
+            $progresscell = report_coursemanager_sortable_cell('', -1);
         }
+
         if ($failed) {
             // The last backup launched has failed or is blocked : shown instead of the download link.
-            $row[] = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
+            $downloadcell = html_writer::span('<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> '
                 . get_string('backup_potential_error', 'report_coursemanager'), 'text-danger');
         } else if ($files && has_capability('moodle/backup:downloadfile', $context)) {
             // One link, or one link per part of a split backup.
@@ -859,28 +885,15 @@ function report_coursemanager_render_exports_tab($userid) {
                     : get_string('download_backup', 'report_coursemanager');
                 $links[] = html_writer::link(\report_coursemanager\local\backup\manager::get_download_url($partfile),
                     '<i class="fa fa-download" aria-hidden="true"></i> ' . $label,
-                    ['class' => 'btn btn-outline-primary btn-sm mb-1', 'title' => $partfile->get_filename()]);
+                    ['class' => 'btn btn-outline-primary btn-sm rounded mb-1', 'title' => $partfile->get_filename()]);
             }
-            $row[] = implode(' ', $links);
+            $downloadcell = implode(' ', $links);
         } else {
-            $row[] = '';
-        }
-
-        if ($showbackupsize) {
-            // Size of the most recent backup : all the parts of a split backup.
-            $backupsize = 0;
-            foreach ($files as $partfile) {
-                $backupsize += $partfile->get_filesize();
-            }
-            if ($files && !$failed) {
-                $row[] = report_coursemanager_sortable_cell(display_size($backupsize), $backupsize);
-            } else {
-                $row[] = report_coursemanager_sortable_cell('', -1);
-            }
+            $downloadcell = '';
         }
 
         if (!has_capability('moodle/backup:backupcourse', $context)) {
-            $row[] = '';
+            $actioncell = '';
         } else if ($failed) {
             // After a potential error : relaunch the backup, or go to the Moodle backup page.
             // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
@@ -888,7 +901,7 @@ function report_coursemanager_render_exports_tab($userid) {
                 ['courseid' => $course->id, 'sesskey' => sesskey()]);
             $relaunchurl = new moodle_url($backupurl, ['action' => 'relaunch']);
             $manualurl = new moodle_url($backupurl, ['action' => 'manual']);
-            $row[] = '
+            $actioncell = '
                 <div class="dropdown">
                     <a class="btn btn-outline-danger dropdown-toggle" href="#" role="button"
                     data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -903,12 +916,26 @@ function report_coursemanager_render_exports_tab($userid) {
                 </div>
             ';
         } else if ($manager->is_backup_pending($course->id)) {
-            $row[] = html_writer::span('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> '
+            $actioncell = html_writer::span('<i class="fa fa-spinner fa-spin" aria-hidden="true"></i> '
                 . get_string('backup_in_progress', 'report_coursemanager'), 'text-info');
         } else {
-            $row[] = $OUTPUT->single_button(
+            $actioncell = $OUTPUT->single_button(
                 new moodle_url('/report/coursemanager/backup_course.php', ['courseid' => $course->id]),
                 get_string('launch_backup', 'report_coursemanager'), 'post');
+        }
+
+        // Same order as the headers.
+        $row = [$namecell];
+        if ($showlastbackup) {
+            $row[] = $lastbackupcell;
+        }
+        if ($showbackupsize) {
+            $row[] = $sizecell;
+        }
+        $row[] = $downloadcell;
+        $row[] = $actioncell;
+        if ($showprogress) {
+            $row[] = $progresscell;
         }
 
         $table->rowclasses[] = 'filterrow';

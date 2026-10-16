@@ -182,6 +182,13 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
     $settings->hide_if('report_coursemanager/enable_column_lastbackup', 'report_coursemanager/enable_tab_exports');
 
+    // Checkbox for backup progress column, in "Downloads and exports" tab.
+    $name = 'report_coursemanager/enable_column_progress';
+    $title = get_string('enablecolumnprogress', 'report_coursemanager');
+    $description = get_string('enablecolumnprogress_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
+    $settings->hide_if('report_coursemanager/enable_column_progress', 'report_coursemanager/enable_tab_exports');
+
     // Checkbox for backup size column, in "Downloads and exports" tab.
     $name = 'report_coursemanager/enable_column_backupsize';
     $title = get_string('enablecolumnbackupsize', 'report_coursemanager');
@@ -202,6 +209,14 @@ if ($ADMIN->fulltree) {
     $description = get_string('backupsplitthreshold_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configtext($name, $title, $description, 250, PARAM_INT, '5'));
     $settings->hide_if('report_coursemanager/backup_split_threshold', 'report_coursemanager/enable_tab_exports');
+
+    // Plugins of the destination site : when filled, the "Downloads and exports" tab asks teachers
+    // to check the activities that may be missing there.
+    $name = 'report_coursemanager/dest_pf_plugins_specs';
+    $title = get_string('destpfpluginsspecs', 'report_coursemanager');
+    $description = get_string('destpfpluginsspecs_desc', 'report_coursemanager');
+    $settings->add(new admin_setting_configtextarea($name, $title, $description, ''));
+    $settings->hide_if('report_coursemanager/dest_pf_plugins_specs', 'report_coursemanager/enable_tab_exports');
 
     // Settings for trash category.
     $settings->add(new admin_setting_heading('trashsettingsheading',

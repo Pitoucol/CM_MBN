@@ -101,6 +101,9 @@ define([
         // sets it, otherwise the last two (recommendations and actions).
         var noSortTargets = $(tableEl).find('thead th.coursemanager-nosort').length
             ? ['coursemanager-nosort'] : [-1, -2];
+        // Column sorted when the page opens : header with the class coursemanager-defaultorder, otherwise the first.
+        var headers = $(tableEl).find('thead th');
+        var defaultOrder = Math.max(0, headers.index(headers.filter('.coursemanager-defaultorder')));
 
         // Initialise DataTables.
         var dt = $(tableEl).DataTable({
@@ -109,7 +112,7 @@ define([
                 {orderable: false, targets: noSortTargets},
             ],
             stripeClasses: ['dt-odd', 'dt-even'],
-            order: [[0, 'asc']],
+            order: [[defaultOrder, 'asc']],
             pageLength: 25,
             lengthMenu: [10, 25, 50, 100],
             dom:
@@ -151,6 +154,12 @@ define([
                     .addClass('admintable generaltable browse_courses w-100');
             },
         });
+
+        // Text block of the table (element "<table id>-intro"), shown under the page length menu.
+        var intro = document.getElementById(tableId + '-intro');
+        if (intro) {
+            $(tableEl).before(intro);
+        }
 
         // Message shown above the table when the active filter matches no course.
         var filterMessage = document.createElement('div');
