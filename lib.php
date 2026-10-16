@@ -717,6 +717,37 @@ function report_coursemanager_is_enabled($name) {
 }
 
 /**
+ * Cell of the "Backup done" column of the "Downloads and exports" tab : a checkbox saved by
+ * report_coursemanager/backupdone, with the date and the user of the state under it.
+ *
+ * @param stdClass $course Course.
+ * @param bool $done True when the backup process of the course is marked done.
+ * @param string $info Date and user of the state, empty when not done.
+ * @param bool $canedit Whether the user can change the state (otherwise the checkbox is disabled).
+ * @return html_table_cell
+ */
+function report_coursemanager_backup_done_cell($course, $done, $info, $canedit) {
+    $attributes = [
+        'type' => 'checkbox',
+        'class' => 'coursemanager-backupdone form-check-input',
+        'data-courseid' => $course->id,
+        'id' => 'coursemanager-backupdone-' . $course->id,
+    ];
+    if ($done) {
+        $attributes['checked'] = 'checked';
+    }
+    if (!$canedit) {
+        $attributes['disabled'] = 'disabled';
+    }
+    $content = html_writer::empty_tag('input', $attributes)
+        . html_writer::label(get_string('table_backup_done', 'report_coursemanager'), $attributes['id'], false,
+            ['class' => 'sr-only visually-hidden'])
+        . html_writer::div(s($info), 'small text-muted coursemanager-backupdone-info');
+    // Sorted on the state.
+    return report_coursemanager_sortable_cell($content, $done ? 1 : 0);
+}
+
+/**
  * Generates the "Downloads and exports" tab of the teachers dashboard.
  *
  * For each course of the teacher : last backup date, download link of this backup,
@@ -759,6 +790,25 @@ function report_coursemanager_render_exports_tab($userid) {
         'class'       => 'form-control w-50',
         'placeholder' => get_string('text_filter', 'report_coursemanager'),
     ]);
+    $output .= html_writer::end_div();
+
+    // Filter buttons on the "Backup done" state, as in the reports tab (row classes read by coursetable.js).
+    $output .= html_writer::start_div('coursemanager-toolbar mb-3 d-flex flex-wrap gap-2 align-items-center');
+    $filters = [
+        'filterrow' => ['icon' => 'fa-list', 'class' => '', 'label' => get_string('all_courses', 'report_coursemanager')],
+        'backup-done' => ['icon' => 'fa-check-square-o', 'class' => 'text-success',
+            'label' => get_string('backup_filter_done', 'report_coursemanager')],
+        'backup-todo' => ['icon' => 'fa-square-o', 'class' => 'text-danger',
+            'label' => get_string('backup_filter_todo', 'report_coursemanager')],
+    ];
+    foreach ($filters as $token => $def) {
+        $icon = html_writer::tag('i', '', ['class' => "fa fa-lg {$def['icon']} {$def['class']}"]);
+        $output .= html_writer::tag('button', $icon . ' ' . $def['label'], [
+            'type' => 'button',
+            'class' => 'btn btn-outline-primary coursemanager-filter-btn' . ($token === 'filterrow' ? ' active' : ''),
+            'data-filter' => $token,
+        ]);
+    }
     $output .= html_writer::end_div();
 
     // Checks to do before exporting a course, shown under the search and the page length menu (coursetable.js).
@@ -814,6 +864,13 @@ function report_coursemanager_render_exports_tab($userid) {
     if ($showprogress) {
         $table->head[] = get_string('table_backup_progress', 'report_coursemanager');
     }
+    // "Backup done" state, set by the teachers : always shown (no setting), sortable.
+    $table->head[] = get_string('table_backup_done', 'report_coursemanager') .
+        $OUTPUT->help_icon('table_backup_done', 'report_coursemanager');
+    $donestates = \report_coursemanager\local\backup\tracking::get_states(array_map(function($course) {
+        return $course->id;
+    }, $courses));
+    $PAGE->requires->js_call_amd('report_coursemanager/backupdone', 'init');
 
     foreach ($courses as $course) {
         $context = context_course::instance($course->id);
@@ -929,8 +986,14 @@ function report_coursemanager_render_exports_tab($userid) {
         if ($showprogress) {
             $row[] = $progresscell;
         }
+        $state = $donestates[$course->id] ?? null;
+        $done = $state && !empty($state->done);
+        $row[] = report_coursemanager_backup_done_cell($course, $done,
+            \report_coursemanager\local\backup\tracking::get_info($state),
+            has_capability('report/coursemanager:markexportdone', $context));
 
-        $table->rowclasses[] = 'filterrow';
+        // Classes read by the filter buttons (coursetable.js).
+        $table->rowclasses[] = 'filterrow ' . ($done ? 'backup-done' : 'backup-todo');
         $table->data[] = $row;
     }
 

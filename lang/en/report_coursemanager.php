@@ -483,3 +483,16 @@ $string['exports_intro'] = 'This table lets you do some basic checks before expo
 $string['exports_intro_alias'] = 'The presence of aliases is tested and reported. Correct them by clicking the link, otherwise data may be lost when your mbz is later restored on another site.';
 $string['exports_intro_wiris'] = 'If you used mathematical formulas made with Wiris, check your course and convert your formulas into LaTeX, which is interoperable.';
 $string['exports_intro_plugins'] = 'Check the activities that may not be available on the destination site.';
+
+// Downloads and exports tab : backup process marked done.
+$string['coursemanager:markexportdone'] = 'Mark the backup process of a course as done';
+$string['table_backup_done'] = 'Backup done';
+$string['table_backup_done_help'] = 'Tick this box when you have downloaded the backup of the course and checked it: the backup process of the course is then done. The state is shared by all the teachers of the course. It is cleared when a new backup is launched.';
+$string['backup_done_info'] = '{$a->date} by {$a->user}';
+$string['backup_filter_done'] = 'Done';
+$string['backup_filter_todo'] = 'Not done';
+$string['backup_done_privacy_path'] = 'Backup process marked done';
+$string['privacy:metadata:backupdone'] = 'State of the backup process of each course, set in the "Downloads and exports" tab.';
+$string['privacy:metadata:backupdone:userid'] = 'The ID of the user who last set the state.';
+$string['privacy:metadata:backupdone:courseid'] = 'The ID of the course.';
+$string['privacy:metadata:backupdone:timemodified'] = 'The time when the state was last set.';

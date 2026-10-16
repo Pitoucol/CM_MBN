@@ -80,6 +80,9 @@ $event = \report_coursemanager\event\course_backup_launched::create([
 ]);
 $event->trigger();
 
+// A new backup starts the backup process again : the course is no longer marked "Backup done".
+\report_coursemanager\local\backup\tracking::reset($course->id, $USER->id);
+
 $message = $result->inbackground ? 'backup_launched' : 'backup_done';
 redirect($returnurl, get_string($message, 'report_coursemanager', format_string($course->fullname)),
     null, \core\output\notification::NOTIFY_SUCCESS);

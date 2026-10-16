@@ -41,4 +41,14 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ],
     ],
+    // Mark the backup process of a course as done ("Downloads and exports" tab).
+    'report/coursemanager:markexportdone' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/backup:backupcourse',
+    ],
 ];
