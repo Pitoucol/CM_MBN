@@ -96,8 +96,9 @@ class checker {
         }
         [$incourses, $courseparams] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED, 'course');
 
-        // Course contexts of the courses, and contexts below them (activities, blocks).
-        $below = "(ctx.id = cc.id OR " . $DB->sql_like('ctx.path', $DB->sql_concat('cc.path', "'/%'")) . ")";
+        // Course contexts of the courses, and contexts below them (activities, blocks). Plain LIKE between two
+        // columns : sql_like() only accepts a bound parameter as pattern.
+        $below = "(ctx.id = cc.id OR ctx.path LIKE " . $DB->sql_concat('cc.path', "'/%'") . ")";
 
         // Activities.
         if ($names['mod']) {
