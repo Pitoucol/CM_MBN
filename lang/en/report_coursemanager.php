@@ -38,7 +38,8 @@ $string['studentrolereport'] = 'Student role in courses';
 $string['studentrolereport_desc'] = 'Defines student role for reports calculation. Default role is Moodle student.';
 $string['category_bin_desc'] = 'If teacher deletes a course through dashboard, it is moved in this category before real deletion by admin.';
 $string['total_filesize_threshold'] = 'Max course size (MB)';
-$string['total_filesize_threshold_desc'] = 'If the course size (files of the course without the course backups) exceeds this limit, a report will be calculated for concerned courses.';
+$string['total_filesize_threshold_desc'] = 'If total files size exceeds this limit, a report will be calculated for concerned courses.';
+$string['coursesize_threshold_desc'] = 'If the course size (files of the course without the course backups) exceeds this limit, a report will be calculated for concerned courses.';
 $string['unique_filesize_threshold'] = 'Max file size (MB)';
 $string['unique_filesize_threshold_desc'] = 'If a file size exceeds this limit, it will be displayed in the list of heavy files in total course files report.';
 $string['last_access_teacher'] = 'Limit for last teacher access (in days)';
@@ -83,8 +84,10 @@ $string['enablecolumnstudents'] = 'Show Students column';
 $string['enablecolumnstudents_desc'] = 'If checked, shows column containing number of students enrolled in course.';
 $string['enablecolumnteachers'] = 'Show Teachers column';
 $string['enablecolumnteachers_desc'] = 'If checked, shows column containing number of teachers enrolled in course.';
-$string['enablecolumncoursesize'] = 'Show Disk size column';
-$string['enablecolumncoursesize_desc'] = 'If checked, shows the column with the disk space used by the files of the course, backups and recycle bin included.';
+$string['enablecolumncoursesize'] = 'Show Course size column';
+$string['enablecolumndisksize'] = 'Show Disk size column';
+$string['enablecolumncoursesize_desc'] = 'If checked, shows column containing total filsize for course.';
+$string['enablecolumndisksize_desc'] = 'If checked, shows the column with the disk space used by the files of the course, backups and recycle bin included.';
 $string['enablecolumncourseweight'] = 'Show Course size column';
 $string['enablecolumncourseweight_desc'] = 'If checked, shows the column with the size of the course: disk size without the course backups.';
 $string['configmenuactions'] = 'Actions Menu';
@@ -114,8 +117,9 @@ $string['trash'] = 'This course is in the category for deleted courses.';
 // Dashboard.
 $string['table_course_name'] = 'Course name';
 $string['table_course_state'] = 'Visibility';
-$string['table_files_weight'] = 'Disk size';
-$string['table_files_weight_help'] = 'Disk space used by all the files of the course and of its activities, participants data, <b>course backups</b> and files in the recycle bin included, each file counted once. The thermometer colour compares this size with the maximum course size; the heavy course alert uses the course size, without the backups.';
+$string['table_files_weight'] = 'Total files size';
+$string['table_disk_size'] = 'Disk size';
+$string['table_disk_size_help'] = 'Disk space used by all the files of the course and of its activities, participants data, <b>course backups</b> and files in the recycle bin included, each file counted once. The thermometer colour compares this size with the maximum course size; the heavy course alert uses the course size, without the backups.';
 $string['table_course_weight'] = 'Course size';
 $string['table_course_weight_help'] = 'Size of the files of the course and of its activities, participants data included, <b>without the course backups</b>. Files in the recycle bin are included.';
 $string['table_size_comparison_median'] = 'Comparison - Median course size';
@@ -207,7 +211,8 @@ $string['select_restore_category'] = 'Choose category to move course';
 
 // Page - Files information.
 $string['coursesize'] = 'Course size';
-$string['totalsize'] = 'Total files size (on disk, user data included) : ';
+$string['totalsize'] = 'Total files size : ';
+$string['totalsize_disk'] = 'Total files size (on disk, user data included) : ';
 $string['watchedfilessize'] = 'Total size for most watched files : ';
 $string['watchedfilessizedetails'] = 'These files come from most used activities : Assign, Resource, Forum, Folder and Label.';
 $string['plugin'] = 'Activity type';
@@ -380,7 +385,8 @@ $string['runteachervisitreporttask'] = 'Course Manager report for teachers visit
 $string['runcleanreportstask'] = 'Course manager reports cleaner';
 
 // Warning displays in courses.
-$string['course_alert_heavy'] = 'The size of this course (without its backups) is actually <b>{$a->size}</b>. Consider sorting files or reseting this course.<br /><b>{$a->heavy_link}</b>';
+$string['course_alert_heavy'] = 'Total files size in this course is actually <b>{$a->size}</b>. Consider sorting files or reseting this course.<br /><b>{$a->heavy_link}</b>';
+$string['course_alert_heavy_coursesize'] = 'The size of this course (without its backups) is actually <b>{$a->size}</b>. Consider sorting files or reseting this course.<br /><b>{$a->heavy_link}</b>';
 $string['course_alert_no_visit_teacher'] = 'No teacher has visited this course since more than {$a->no_teacher_time} days</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link}</b>';
 $string['course_alert_no_visit_student'] = 'No student has visited this course since more than {$a->no_teacher_time} days</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link} | {$a->reset_link}</b>';
 $string['course_alert_no_student'] = '<b>No student enrolled in this course</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link}</b>';

@@ -161,7 +161,7 @@ print html_writer::div('
 ');
 print $OUTPUT->heading(get_string('coursesize', 'report_coursemanager'). " - ". format_string($course->fullname));
 if (array_sum($total) > 0) {
-    print html_writer::tag('h4',  get_string('totalsize', 'report_coursemanager').$filesize.' Mo');
+    print html_writer::tag('h4',  get_string('totalsize_disk', 'report_coursemanager').$filesize.' Mo');
     print html_writer::tag('h4', get_string('watchedfilessize', 'report_coursemanager').array_sum($total).' Mo');
     print html_writer::tag('div', get_string('watchedfilessizedetails', 'report_coursemanager'));
     // If recyclebin is enabled.
