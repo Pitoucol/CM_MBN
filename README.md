@@ -1,123 +1,79 @@
-# moodle-report_coursemanager
-Moodle report for helping teachers to clean and manage courses and contents
+##Course Manager, version MBN GE##
 
-Course Manager report is intended for teachers as a tool for managing their courses. Based on native functions as well as other functions specifically developed for this report, its main goal is to raise awarness among teachers of what they store in their courses, if their courses are alive or not… and encourage them to clean Moodle by :
+Ce dépôt est une version dérivée du plugin Course Manager, créé et maintenu par Olivier Valentin. Le plugin d'origine, sa conception et ses fonctionnalités de départ sont son travail. Son dépôt de référence se trouve sur GitHub, sous le nom moodle-report_coursemanager, et contient la documentation complète du plugin.
 
-•	opening functions which don’t  go against system permissions (such a trash category) ;
-•	giving shortcuts function to clean course (reports, bulk uneroll cohorts, simple reinit) ;
-•	offering visualization tools to encourage to clean courses.
-
-
-## How does it work ? ##
-Every night, an automatic task will calculate a serial of reports concerning courses storings and courses log actvity. Those reports are shown to teachers in a dashboard, and can be added in each course if chosen.
-
-There are 6 reports :
-•	Heavy courses : fix a limit for what will be considered as heavy (in Mo)
-•	Empty courses : courses with only native forum
-•	No students : courses wihtout any students enrolled
-•	No visits : courses with no visits by students, but by teachers too !
-•	Orphan submissions : warns teachers if some assigns contain submissions from unenrolled students.
-
-The total weight of course files will also be calculated.
+Nous avons repris ce plugin pour nos plateformes Moodle du Grand-Est, dans une perspective de migration vers Eléa. 
+Nous avons stabilisé en premier lieu le fonctionnement du plugin, en corrigeant certains points et ajouté de nouvelles fonctionnalités. 
+Ce plugin s'appuie sur Claude Code en très grande partie pour la partie développement, cela nous a permis de gagner en rapidité devant les échéances.
 
 
-## How are displayed reports ? ##
+##Organisation du dépôt##
 
-Teachers can become acquainted with these reports :
-•	By seeing them in the Course manager Teacher Dashboard ;
-•	By seeing them directly in courses (if enabled by admin) ;
-•	By receiving every month a mailing recapitulating courses concerned by reports (if enabled by admin).
+Le dépôt contient trois branches principales.
 
+- La branche main est une copie exacte du plugin d'Olivier Valentin, dans sa version de juin 2026. Nous n'y avons rien modifié. Elle sert de point de comparaison : tout ce qui diffère de main est notre travail.
+- La branche stabilisation reprend main et y ajoute uniquement des corrections et des améliorations de performance. Elle ne change pas le fonctionnement du plugin pour les enseignants, à l'exception de nouvelles colonnes qui affichent mieux le poids des cours. C'est la version à choisir pour avoir le plugin d'origine, corrigé et plus rapide.
+- La branche ameliorations reprend stabilisation et y ajoute les nouvelles fonctionnalités, regroupées dans un nouvel onglet du tableau de bord des enseignants, « Téléchargements et exports ». C'est la version à choisir pour avoir toutes nos fonctionnalités. Elle est encore en phase de test.
 
-## What is the Course Manager Teacher Dashboard ? ##
-This tool offers a view of every course a teacher is enrolled in. Each course display informations (visible course, files weight, number of studens and teachers enrolled…), reports list, and offers tool such as shortcuts for :
-•	Moving a course in a trash category ;
-•	Seeing files weight in course and most heavy activities ;
-•	Resetting course with a simplified tool ;
-•	Unenrolling cohorts.
+Chaque modification a d'abord été faite dans une branche qui lui est propre, puis versée dans stabilisation ou dans ameliorations. Ces branches individuelles sont conservées.
 
-The dashboard can easily be filtered for each reports, and a search tool can help to find courses.
+Le plugin nécessite Moodle 4.5 ou une version plus récente, et fonctionne aussi avec Moodle 5.1.
 
 
-## Are there tools for Moodle admin ? ##
+##Le tableau de bord des enseignants##
 
-The plugin is completed with special tools for admins in Site admin > Report section :
-
-•	Filearea report : calculates files weight according to their file area, that can help to detect problems.
-•	Orphan submissions : this report offers possibility to clean assigns from submissions uploaded by enrolled students in a course which is not reinitialized. Those files can represent a very heavy weight !
-•	Courses without teachers : this report lists all courses without teachers, and offers a tool to move them in trash category.
-•	Stats pages : this page will display statistics about your Moodle instance, based on reports calculted by this plugin.
+Le tableau de bord présente désormais deux tableaux, dans deux onglets séparés.
 
 
-## How to give access to teacher dashbord ? ##
+###Premier tableau : les rapports sur les cours.###
 
-If you want to give access to dashboard, you must add in navigation, in a block or any other way a direct link to this tool : /report/coursemanager/view.php file. This plugin doesn’t add automatically a link in dashboard or course admin navigation !
-Suggestion : simply use the custom menu items setting in Admin > Appearance > Theme settings to add an element in main navigation.
+C'est le tableau d'origine du plugin, amélioré dans la branche stabilisation. Il présente les cours de l'enseignant. Les informations sont calculées chaque nuit. L'administrateur choisit les colonnes affichées.
 
+On y trouve le nom et l'état du cours (visible ou caché), puis trois mesures de poids. La taille sur le disque compte tous les fichiers du cours, y compris les travaux des étudiants, les sauvegardes et la corbeille. Le poids du cours est la même mesure sans les sauvegardes : c'est lui qui déclenche l'alerte « cours lourd ». Le poids de la sauvegarde estime la taille d'une sauvegarde du cours sans les données des étudiants.
 
-## Reports displayed in course and templates ##
+Viennent ensuite la comparaison avec la médiane et la moyenne de la plateforme, le nombre de cohortes, d'étudiants et d'enseignants inscrits, les recommandations (cours lourd, vide, sans étudiant, sans visite, avec des devoirs d'étudiants désinscrits) et les actions rapides (mise à la corbeille, fichiers du cours, réinitialisation, cohortes, paramètres).
 
-Reports displayed in course can be added in two ways :
--	By displaying a serial of icons next to course title ;
--	By adding a collapsed button right under course navigation.
-
-Those two ways has been tested with several Moodle templates such as Almond, Boost, Boost Union, Classic, Moove and Trema.
-Other templates has been tested too, with several behaviors :
-•	Themes Academi, Degrade, Eguru and Klass : the icon display mode works, showing a small gap for icons
-•	Theme Adaptable : icon display mode doesn’t work, because targetted zone doesn’t exist in this template.
+Toutes les colonnes peuvent être triées, et des boutons de filtre permettent d'afficher les cours concernés par un rapport précis.
 
 
-## Settings for admin ##
+###Second tableau : les téléchargements et exports###
 
-This plugin offers possibility to set every threshold that will trigger a report :
-•	Limit weight for a file or course ;
-•	Roles concerned (teacher and student)
-•	Number of days without visit for teachers and students
+Ce tableau n'existe que dans la branche ameliorations. Il aide les enseignants à préparer le transfert de leurs cours vers une autre plateforme. L'administrateur peut l'activer ou non, et choisit la plupart des colonnes affichées.
 
-You can also set settings for :
--	Defining trash category ;
--	Activating or not reports mailing ;
--	Modifying mail content ;
--	Selecting the way reports are displayed in courses (next to course title, under course title or none).
-
-All comments are welcome to help improve this plugin. Please use GitHub issues for improvements, bug or others ideas.
-
-
-## Steps for making Course Manager work ##
-
-1. Install plugin in report directory (see below for more information)
-2. Create a category called "Trash" or another name : this category will be used to move and store all courses that teachers want to delete.
-3. Defined all settings in plugin settings page. You must define thresholds for course weight, file weight, number of days without visits for teacher and for students. Without these, Course Manager won't be able to calculate reports.
-4. Add a link to teacher dashboard (see "How to give access to teacher dashbord ?" section above)
-5. If you can, manually run the scheduled task "Reports calculation for Course Manager" (\report_coursemanager\task\run_reports_task) in admin to generate course reports. If you can't, task is automatically trigerred during the night. Then, reports can be displayed in teacher dashboard and/or directly in courses if enabled.
+- La colonne Alias signale les fichiers qui ne sont que des liens vers d'autres fichiers et qui seraient perdus lors d'une sauvegarde. Une croix rouge et un lien « Corriger » mènent à une page qui transforme ces liens en vrais fichiers, avec possibilité d'annuler. Une coche verte indique qu'il n'y a rien à corriger.
+- La colonne Wiris concerne les formules mathématiques écrites avec l'outil Wiris, qui ne sont pas lisibles sur toutes les plateformes. Un lien « Vérifier » ouvre une page qui recherche ces formules dans le cours et les convertit au format LaTeX, avec possibilité d'annuler. Après une vérification, la colonne affiche une coche verte s'il ne reste aucune formule à convertir, ou une croix rouge dans le cas contraire, avec la date de la vérification et un lien pour vérifier à nouveau.
+- La colonne Pertes potentielles signale les activités et les blocs du cours qui n'existent pas sur la plateforme de destination. L'administrateur déclare ces éléments dans les réglages du plugin, avec le nom qu'il souhaite montrer aux enseignants. La colonne indique, pour chaque élément présent dans le cours, son nom et son nombre d'utilisations.
+- La colonne Dernière sauvegarde indique la date de la dernière sauvegarde faite depuis ce tableau.
+- La colonne Téléchargement présente, pour chaque archive de sauvegarde, son poids et un bouton de téléchargement. Le poids s'affiche en rouge au-dessus du seuil de découpage fixé par l'administrateur, en vert en dessous. Sous les archives, la date du dernier téléchargement et le nom de la personne qui l'a fait.
+- La colonne Action lance une sauvegarde du cours en un clic, avec les réglages de la plateforme. Les cours trop lourds sont automatiquement découpés en plusieurs archives. En cas d'échec, l'enseignant peut relancer la sauvegarde ou passer à une sauvegarde manuelle.
+- La colonne Progression, facultative, montre l'avancement des sauvegardes en cours.
+- La colonne Sauvegarde terminée est une case que l'enseignant coche lorsqu'il a téléchargé et vérifié la sauvegarde de son cours. Elle est commune à tous les enseignants du cours et se décoche automatiquement si une nouvelle sauvegarde est lancée. Cette colonne est toujours affichée. Des boutons de filtre permettent d'afficher tous les cours, les cours terminés ou les cours restant à traiter.
+- Un texte au-dessus du tableau rappelle les vérifications à faire avant d'exporter un cours.
 
 
-## Installing via uploaded ZIP file ##
+##Ce que contient la branche stabilisation##
 
-Log in to your Moodle site as an admin and go to Site administration > Plugins > Install plugins.
-Upload the ZIP file with the plugin code. You should only be prompted to add extra details if your plugin type is not automatically detected.
-Check the plugin validation report and finish the installation.
+- Les tâches de calcul nocturnes démarrent à une minute choisie au hasard, pour éviter que toutes les plateformes ne les lancent au même instant. Elles ne s'interrompent plus brutalement lorsqu'un réglage est manquant.
+- La page des fichiers du cours prend en compte les travaux remis dans tous les devoirs, ainsi que les fichiers lourds et les vidéos de toutes les activités. Elle n'affiche plus de nom erroné pour les fichiers propres à Moodle, et les fichiers liés aux notes y sont libellés « Notes ».
+- Le tableau des rapports a gagné le tri sur toutes les colonnes, un message lorsqu'un filtre ne donne aucun résultat, et un filtre « cours lourd » qui tient compte du seuil en vigueur.
+- Le calcul du poids des cours a été corrigé : les poids de plus de 1000 Mo étaient mal lus. Le poids est désormais présenté sous trois formes, décrites plus haut, et l'alerte « cours lourd » ne tient plus compte des sauvegardes.
+- Le plugin s'affiche correctement avec les thèmes de Moodle 4.5 comme avec ceux de Moodle 5.
+- Le courrier envoyé aux enseignants a été revu : destinataires mieux ciblés, envois tracés, mise en forme soignée, envoi le 15 et le 30 de chaque mois, et seuil de poids à jour.
+- Les tâches nocturnes ont été allégées pour les plateformes comptant des milliers de cours : la table des rapports est désormais indexée, les trois poids d'un cours sont calculés en une seule lecture, les rapports ne sont réécrits que lorsqu'ils changent, les visites sont comptées en une seule interrogation par cours au lieu d'une par inscrit, et seules les informations utiles des cours sont lues. Deux erreurs liées aux devoirs d'étudiants désinscrits ont aussi été corrigées.
+- Enfin, la configuration du plugin peut être exportée et importée à l'aide d'une commande sur le serveur. Cela permet de copier une configuration d'une plateforme à une autre, ou de corriger un réglage mal défini, comme la catégorie corbeille, sur des centaines de plateformes à la fois. Le mode d'emploi figure en bas de la page des réglages du plugin.
 
+##Ce que contient la branche ameliorations##
 
-## Installing manually ##
-
-The plugin can be also installed by putting the contents of this directory to
-
-{your/moodle/dirroot}/report/coursemanager
-
-Afterwards, log in to your Moodle site as an admin and go to Site administration > Notifications to complete the installation.
-
-Alternatively, you can run
-
-php admin/cli/upgrade.php
-
-to complete the installation from the command line.
+- Elle contient tout ce qui précède, plus l'onglet « Téléchargements et exports » décrit plus haut, avec ses outils : la sauvegarde en un clic et le découpage des cours lourds, le suivi des téléchargements, la correction des alias de fichiers, la conversion des formules Wiris, le signalement des activités absentes de la plateforme de destination et le suivi des sauvegardes terminées.
+- L'outil de conversion des formules Wiris est adapté d'un plugin séparé, wiris2tex, intégré à Course Manager.
 
 
-## License ##
+##Pour reprendre une fonctionnalité##
 
-2022 Olivier VALENTIN
+- Chaque modification se trouve dans sa propre branche, et chaque étape est accompagnée d'une explication qui en donne la raison, pas seulement le contenu.
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+- Les corrections de la branche stabilisation portent sur le code d'origine. La plupart sont courtes et indépendantes les unes des autres : elles peuvent être reprises séparément, ou proposées une par une au dépôt d'origine.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+- Les nouvelles fonctionnalités de la branche ameliorations reposent toutes sur le nouvel onglet « Téléchargements et exports ». Reprendre l'une d'elles suppose de reprendre aussi cet onglet, ou de l'adapter.
+
+- Sur GitHub, la fonction de comparaison entre la branche main et une autre branche montre exactement ce qui a été ajouté ou modifié.
