@@ -600,6 +600,7 @@ $string['exports_intro_plugins'] = 'Check the activities that may not be availab
 // Wiris formulas converted into LaTeX (wiris_files.php, "Downloads and exports" tab).
 $string['coursemanager:convertwiris'] = 'Convert the Wiris formulas of a course into LaTeX';
 $string['table_wiris'] = 'Wiris';
+$string['table_wiris_help'] = 'Checks whether the course contains formulas written with Wiris, to be converted into LaTeX. Click "Check" to open the Wiris page of the course.';
 $string['enablecolumnwiris'] = 'Wiris column';
 $string['enablecolumnwiris_desc'] = 'Displays, in the "Downloads and exports" tab, a link to the page of each course that checks its Wiris formulas and converts them into LaTeX. Nothing is checked when the tab is displayed.';
 $string['wirismaxrows'] = 'Formulas listed on the Wiris page';
