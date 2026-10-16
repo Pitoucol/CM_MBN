@@ -500,5 +500,5 @@ $string['destpfpluginsspecs'] = 'Plugins de la plateforme de destination';
 $string['destpfpluginsspecs_desc'] = 'Informations sur les activités et plugins disponibles, ou absents, sur la plateforme où les cours seront restaurés. Quand ce champ est rempli, l\'onglet « Téléchargements et exports » invite les enseignants à vérifier les activités qui risquent de ne pas y être présentes.';
 $string['exports_intro'] = 'Ce tableau permet de procéder à quelques vérifications de base avant d\'exporter votre parcours.';
 $string['exports_intro_alias'] = 'La présence d\'alias est testée et signalée. Vous devez corriger en cliquant sur le lien, au risque de perdre des données lors de la future restauration de votre mbz sur une autre plateforme.';
-$string['exports_intro_wiris'] = 'Si vous avez utilisé des formules mathématiques à l\'aide de Wiris, vérifiez votre parcours et transformez vos formules en LaTeX, qui est interopérable.';
-$string['exports_intro_plugins'] = 'Vérifiez les activités qui risquent de ne pas être présentes sur la plateforme de destination.';
+$string['exports_intro_wiris'] = 'Si vous avez utilisé des formules mathématiques à l\'aide de Wiris, vérifiez votre parcours et transformez vos formules en LaTeX.';
+$string['exports_intro_plugins'] = 'Prenez connaissance des activités qui risquent de ne pas être présentes sur la plateforme de destination.';
