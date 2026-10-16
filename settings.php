@@ -364,6 +364,11 @@ if ($ADMIN->fulltree) {
             PARAM_RAW
         )
     );
+
+    // How to export and import this configuration with cli/config.php (documentation only, no setting).
+    $settings->add(new admin_setting_heading('configjsonheading',
+        get_string('configjson_settings_heading', 'report_coursemanager'),
+        get_string('configjson_settings_doc', 'report_coursemanager')));
 }
 
 $ADMIN->add('reports', new admin_externalpage('report_coursemanager',

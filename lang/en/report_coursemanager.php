@@ -721,3 +721,86 @@ $string['privacy:metadata:backupdone'] = 'State of the backup process of each co
 $string['privacy:metadata:backupdone:userid'] = 'The ID of the user who last set the state.';
 $string['privacy:metadata:backupdone:courseid'] = 'The ID of the course.';
 $string['privacy:metadata:backupdone:timemodified'] = 'The time when the state was last set.';
+
+// Export and import of the settings in JSON (cli/config.php).
+$string['configjson_categoryambiguous'] = 'Several categories match {$a}: give the id number of the category instead.';
+$string['configjson_categoryformat'] = 'The category must be given as {"idnumber": "..."} or {"path": "Category / Subcategory"}.';
+$string['configjson_categoryidnotfound'] = 'The category {$a} of this setting does not exist any more on this site.';
+$string['configjson_categorynotfound'] = 'Category not found on this site: {$a}';
+$string['configjson_cli_aborted'] = 'Errors found: nothing has been written.';
+$string['configjson_cli_applied'] = '{$a} setting(s) changed.';
+$string['configjson_cli_cannotread'] = 'Cannot read the file {$a}.';
+$string['configjson_cli_cannotwrite'] = 'Cannot write the file {$a}.';
+$string['configjson_cli_change'] = '{$a->name}: {$a->old} -> {$a->new}';
+$string['configjson_cli_dryrun'] = 'Dry run: {$a} setting(s) would be changed, nothing has been written.';
+$string['configjson_cli_error'] = 'Error: {$a}';
+$string['configjson_cli_exported'] = 'Configuration written to {$a}.';
+$string['configjson_cli_help'] = 'Exports or imports the settings of Course Manager in JSON.
+
+Roles are written with their short name, and the trash category with its id number when it has one, otherwise with
+its path ("Category / Subcategory"), so that a configuration can be applied to other sites.
+An import may contain only some settings: the other settings are not changed. Every value is checked first: if one
+is wrong, nothing is written. Each change is recorded in the config changes report.
+
+Options:
+-e, --export         Export the configuration (to the standard output, or to --file)
+-f, --file=PATH      File to write the export to
+-i, --import=PATH    Import the configuration of a JSON file
+-n, --dry-run        With --import: show the changes without writing them
+-h, --help           Print this help
+
+Exit codes: 0 success, 1 error, 2 wrong options.
+
+Examples:
+$ php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+$ php report/coursemanager/cli/config.php --import=/tmp/fix.json --dry-run
+$ php report/coursemanager/cli/config.php --import=/tmp/fix.json
+
+Example of a file fixing only the trash category:
+{"category_bin": {"path": "Archives / Trash"}}';
+$string['configjson_cli_invalidjson'] = 'Invalid JSON: {$a}';
+$string['configjson_cli_nochange'] = 'No setting to change.';
+$string['configjson_cli_partial'] = 'Errors found while writing: {$a} setting(s) have been written, check the configuration.';
+$string['configjson_cli_warning'] = 'Warning: {$a}';
+$string['configjson_cli_wrongoptions'] = 'Use either --export or --import=PATH.';
+$string['configjson_invalidchoice'] = 'Value not allowed: {$a}';
+$string['configjson_notalist'] = 'A list of values is expected.';
+$string['configjson_notavalue'] = 'A single value is expected.';
+$string['configjson_roleidnotfound'] = 'The role {$a} of this setting does not exist any more on this site.';
+$string['configjson_rolenotfound'] = 'Role not found on this site: {$a}';
+$string['configjson_unknownsetting'] = 'Unknown setting ignored: {$a}';
+$string['configjson_wrongplugin'] = 'This file is the configuration of another plugin: {$a}';
+$string['configjson_settings_heading'] = 'Export and import of this configuration (command line)';
+$string['configjson_settings_doc'] = '<p>The settings of this page can be exported to a JSON file and imported on other sites with the command line script <code>report/coursemanager/cli/config.php</code>, for example to copy a configuration to identical sites, or to fix a wrong setting (such as the trash category) on many sites at once.</p>
+<p>Run the script from the Moodle directory (the <code>public</code> directory since Moodle 5.1), as the user of the web server:</p>
+<pre>sudo -u www-data php report/coursemanager/cli/config.php --help</pre>
+<p><strong>Options</strong></p>
+<ul>
+<li><code>--export</code>: writes the whole configuration in JSON, to the screen or, with <code>--file=PATH</code>, to a file.</li>
+<li><code>--import=PATH</code>: applies a JSON file.</li>
+<li><code>--dry-run</code>: with <code>--import</code>, lists the changes (old value -&gt; new value) without writing anything.</li>
+</ul>
+<p><strong>Examples</strong></p>
+<pre>php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+php report/coursemanager/cli/config.php --import=/tmp/fix.json --dry-run
+php report/coursemanager/cli/config.php --import=/tmp/fix.json</pre>
+<p><strong>JSON file</strong></p>
+<ul>
+<li>An import may contain only some settings: the other settings are not changed. A file fixing only the trash category:
+<pre>{"category_bin": {"path": "Archives / Trash"}}</pre></li>
+<li>The names of the settings are the names shown under each setting of this page (without "report_coursemanager | "). The easiest way to get the format is to export the configuration of a site.</li>
+<li>Ids are not the same on every site: roles are given with their short name (<code>"editingteacher"</code>, <code>"student"</code>...), and the trash category with its id number <code>{"idnumber": "TRASH"}</code> or its path <code>{"path": "Category / Subcategory"}</code>, as shown in the list of this page. Each site finds its own ids.</li>
+<li>Checkboxes take <code>"1"</code> (checked) or <code>"0"</code>.</li>
+</ul>
+<p><strong>Checks</strong></p>
+<ul>
+<li>Every value is checked as in this page before anything is written. If one value is wrong (role or category not found, path matching several categories, value not allowed), nothing is written.</li>
+<li>Each change is recorded in Reports &gt; Config changes.</li>
+<li>Unknown settings are reported and ignored.</li>
+<li>Exit codes, for scripts: 0 success, 1 error, 2 wrong options.</li>
+</ul>
+<p><strong>Several sites</strong>: for example, with one Moodle directory per site:</p>
+<pre>for dir in /var/www/moodle-*/; do
+  sudo -u www-data php "$dir/report/coursemanager/cli/config.php" --import=/tmp/fix.json || echo "Failed: $dir"
+done</pre>
+<p>Run it first with <code>--dry-run</code> to check what will change on each site.</p>';
