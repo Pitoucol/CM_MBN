@@ -723,3 +723,16 @@ $string['wiris_where_block'] = 'Bloc HTML';
 $string['wiris_where_course'] = 'Résumé du cours';
 $string['wiris_where_question'] = 'Question n° {$a}';
 $string['wiris_where_section'] = 'Section : {$a}';
+
+// Downloads and exports tab : backup process marked done.
+$string['coursemanager:markexportdone'] = 'Marquer le processus de sauvegarde d\'un cours comme terminé';
+$string['table_backup_done'] = 'Sauvegarde terminée';
+$string['table_backup_done_help'] = 'Cochez cette case lorsque vous avez téléchargé la sauvegarde du cours et que vous l\'avez vérifiée : le processus de sauvegarde du cours est alors terminé. L\'état est partagé par tous les enseignants du cours. Il est remis à zéro quand une nouvelle sauvegarde est lancée.';
+$string['backup_done_info'] = '{$a->date} par {$a->user}';
+$string['backup_filter_done'] = 'Terminée';
+$string['backup_filter_todo'] = 'Non terminée';
+$string['backup_done_privacy_path'] = 'Processus de sauvegarde marqué terminé';
+$string['privacy:metadata:backupdone'] = 'État du processus de sauvegarde de chaque cours, défini dans l\'onglet « Téléchargements et exports ».';
+$string['privacy:metadata:backupdone:userid'] = 'L\'identifiant de l\'utilisateur qui a défini l\'état en dernier.';
+$string['privacy:metadata:backupdone:courseid'] = 'L\'identifiant du cours.';
+$string['privacy:metadata:backupdone:timemodified'] = 'La date à laquelle l\'état a été défini en dernier.';
