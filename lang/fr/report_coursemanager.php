@@ -58,6 +58,7 @@ $string['show_report_in_course_choices_popover'] = 'Icônes à côté du titre';
 $string['enablemailing'] = 'Activer l\'envoi du mailing aux enseignants';
 $string['enablemailing_desc'] = 'Si coché, active l\'envoi des rapports de cours à chaque enseignant. La périodicité du mailing est définie par défaut
 tous les 30 jours, et peut être modifiée dans les tâches programmées.';
+$string['enablemailing_desc_fortnightly'] = 'Si coché, active l\'envoi des rapports de cours à chaque enseignant. Par défaut, le mailing est envoyé le 1er et le 15 de chaque mois. Cette périodicité peut être modifiée dans les tâches programmées.';
 $string['enablecoursecontenttask'] = 'Activer le rapport des cours vides ou lourds';
 $string['enablecoursecontenttask_desc'] = 'Si coché, active la tâche permettant de détecter les cours lourds ou sans contenus.';
 $string['enableteacherstask'] = 'Activer le rapport sur les inscriptions et visites d\'enseignants';
