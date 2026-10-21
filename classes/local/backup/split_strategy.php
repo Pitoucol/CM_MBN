@@ -182,10 +182,17 @@ class split_strategy extends base_strategy {
                 'size' => display_size($part->size),
                 'file' => s($part->filename),
             ]), ['class' => 'coursemanager-step-part']);
-            if ($part->questionbank && $this->sizes->questionbank > 0) {
-                $html .= \html_writer::div($this->format_content_line(
-                    get_string('backup_step_questionbank', 'report_coursemanager'), $this->sizes->questionbank),
-                    'coursemanager-step-group');
+            // Question bank, in part 1 only : shown as soon as the course has questions, even without files
+            // (its size is then 0 and not shown).
+            if ($part->questionbank && ($this->sizes->questions > 0 || $this->sizes->questionbank > 0)) {
+                $name = $this->sizes->questions > 0
+                    ? get_string('backup_step_questionbank_detail', 'report_coursemanager', (object) [
+                        'categories' => $this->sizes->categories,
+                        'questions' => $this->sizes->questions,
+                    ])
+                    : get_string('backup_step_questionbank', 'report_coursemanager');
+                $html .= \html_writer::div($this->format_content_line($name,
+                    $this->sizes->questionbank > 0 ? $this->sizes->questionbank : null), 'coursemanager-step-group');
             }
             $lines = '';
             foreach ($part->sections as $section) {

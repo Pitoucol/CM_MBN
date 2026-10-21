@@ -38,7 +38,8 @@ class size_estimator {
      * Estimate the sizes of a course backup.
      *
      * @param int $courseid Course ID.
-     * @return \stdClass With common, questionbank and total sizes in bytes, and sections : list of objects
+     * @return \stdClass With common, questionbank and total sizes in bytes, questions and categories (numbers of
+     *         questions and of question categories of the question bank), and sections : list of objects
      *         (id, number, name, size, hasqbank, delegated : ids of delegated sections included), in course order.
      */
     public static function get_sizes(int $courseid): \stdClass {
@@ -117,9 +118,28 @@ class size_estimator {
             }
         }
 
+        // Number of questions of the question bank : most questions have no file, so the size alone does not tell
+        // whether the course has a question bank. Question categories of the course (Moodle 4.x) and of its question
+        // bank activities (Moodle 5.x).
+        $qbankcontextids = [context_course::instance($courseid)->id];
+        foreach ($cms as $cm) {
+            if ($cm->modname === 'qbank') {
+                $qbankcontextids[] = \context_module::instance($cm->id)->id;
+            }
+        }
+        [$insql, $inparams] = $DB->get_in_or_equal($qbankcontextids, SQL_PARAMS_NAMED);
+        $questions = $DB->count_records_sql("SELECT COUNT(qbe.id)
+                                               FROM {question_bank_entries} qbe
+                                               JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                                              WHERE qc.contextid $insql", $inparams);
+        // Categories and subcategories, without the hidden "top" category of each context.
+        $categories = $DB->count_records_select('question_categories', "contextid $insql AND parent <> 0", $inparams);
+
         $result = (object) [
             'common' => array_sum($common),
             'questionbank' => array_sum($questionbank),
+            'questions' => (int)$questions,
+            'categories' => (int)$categories,
             'sections' => [],
             'total' => 0,
         ];
