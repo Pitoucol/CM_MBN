@@ -489,6 +489,7 @@ $string['backup_step_size'] = 'Poids estimé de la sauvegarde (sans données uti
 $string['backup_step_onearchive'] = 'Le cours est sauvegardé en une seule archive.';
 $string['backup_step_part'] = 'Partie {$a->number} (environ {$a->size}) → {$a->file}';
 $string['backup_step_questionbank'] = 'Banque de questions';
+$string['backup_step_questionbank_detail'] = 'Banque de questions : {$a->categories} catégorie(s), {$a->questions} question(s)';
 $string['backup_step_file'] = 'Fichier : {$a}';
 $string['backup_step_background'] = 'La sauvegarde s\'effectue en arrière-plan avec les réglages de sauvegarde par défaut du site. Le lien de téléchargement apparaîtra dans le tableau une fois terminée.';
 $string['backup_step_done'] = 'La sauvegarde est terminée. Vous pouvez la télécharger dans le tableau.';

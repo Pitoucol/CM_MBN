@@ -167,13 +167,13 @@ abstract class base_strategy implements strategy {
      * Line of the backup popup : name (dark blue) and size (light orange), with the Moodle theme colours.
      *
      * @param string $name Name (question bank, section...).
-     * @param int $size Size in bytes.
+     * @param int|null $size Size in bytes, null to show the name only.
      * @return string HTML.
      */
-    protected function format_content_line(string $name, int $size): string {
+    protected function format_content_line(string $name, ?int $size): string {
         return \html_writer::div(
-            \html_writer::span(s($name), 'text-primary font-weight-bold fw-bold') . ' '
-            . \html_writer::span('(' . display_size($size) . ')', 'text-warning'),
+            \html_writer::span(s($name), 'text-primary font-weight-bold fw-bold')
+            . ($size === null ? '' : ' ' . \html_writer::span('(' . display_size($size) . ')', 'text-warning')),
             'coursemanager-step-line');
     }
 }

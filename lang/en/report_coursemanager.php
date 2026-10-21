@@ -470,6 +470,7 @@ $string['backup_step_size'] = 'Estimated size of the backup (without user data):
 $string['backup_step_onearchive'] = 'The course is backed up in one archive.';
 $string['backup_step_part'] = 'Part {$a->number} (about {$a->size}) → {$a->file}';
 $string['backup_step_questionbank'] = 'Question bank';
+$string['backup_step_questionbank_detail'] = 'Question bank: {$a->categories} category(ies), {$a->questions} question(s)';
 $string['backup_step_file'] = 'File: {$a}';
 $string['backup_step_background'] = 'The backup runs in background with the site default backup settings. The download link will appear in the table once it is done.';
 $string['backup_step_done'] = 'The backup is done. You can download it from the table.';
