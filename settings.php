@@ -235,7 +235,7 @@ if ($ADMIN->fulltree) {
     // Checkbox for enabling reports mailing.
     $name = 'report_coursemanager/enable_mailing';
     $title = get_string('enablemailing', 'report_coursemanager');
-    $description = get_string('enablemailing_desc', 'report_coursemanager');
+    $description = get_string('enablemailing_desc_fortnightly', 'report_coursemanager');
     $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
 
     // Subject of the email for report mailing.

@@ -57,6 +57,7 @@ $string['show_report_in_course_choices_collapse'] = 'Scrolling menu under course
 $string['show_report_in_course_choices_popover'] = 'Icons next to course title';
 $string['enablemailing'] = 'Activate reports mailing';
 $string['enablemailing_desc'] = 'If checked, activates automated task for reports mailing. Default periodicity is every 30 days.';
+$string['enablemailing_desc_fortnightly'] = 'If checked, sends the course reports to each teacher. By default, the mailing is sent on the 1st and the 15th of each month. This can be changed in the scheduled tasks.';
 $string['enablecoursecontenttask'] = 'Activate empty or heavy courses reports';
 $string['enablecoursecontenttask_desc'] = 'If checked, activates automated task to detect heavy courses or courses without contents.';
 $string['enableteacherstask'] = 'Activate reports concerning teachers visits and enrolments';
