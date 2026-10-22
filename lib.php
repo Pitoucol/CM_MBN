@@ -994,6 +994,7 @@ function report_coursemanager_render_exports_tab($userid) {
     ]);
     $output .= html_writer::end_div();
 
+<<<<<<< HEAD
     // Filter buttons on the "Backup done" state, as in the reports tab (row classes read by coursetable.js).
     $output .= html_writer::start_div('coursemanager-toolbar mb-3 d-flex flex-wrap gap-2 align-items-center');
     $filters = [
@@ -1026,9 +1027,17 @@ function report_coursemanager_render_exports_tab($userid) {
         ['id' => 'courseexports-intro']);
 
     // Same courses as in the reports tab : courses where the user has the dashboard teacher role.
+=======
+    // Same courses as in the reports tab : courses where the user has the dashboard teacher role, except the
+    // courses in the trash category, which are not to be exported (they stay in the reports tab, to be restored).
+>>>>>>> export_mbz
     $teacherrole = get_config('report_coursemanager', 'teacher_role_dashboard');
+    $bin = (int)get_config('report_coursemanager', 'category_bin');
     $courses = [];
     foreach (enrol_get_users_courses($userid, false, '', 'fullname ASC') as $course) {
+        if ($bin && $course->category == $bin) {
+            continue;
+        }
         $roles = get_user_roles(context_course::instance($course->id), $userid, false);
         if (!empty($roles) && reset($roles)->roleid == $teacherrole) {
             $courses[] = $course;
