@@ -44,7 +44,8 @@ class report_coursemanager_form_restore extends moodleform {
         $mform = $this->_form;
         $datas = $this->_customdata['post'];
 
-        $displaylist = core_course_category::make_categories_list();
+        // Only the categories where the user can put the course, computed by restore_course.php.
+        $displaylist = $this->_customdata['categories'];
         $mform->addElement('select', 'restore_category', get_string('select_restore_category', 'report_coursemanager'),
         $displaylist);
 

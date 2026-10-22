@@ -213,6 +213,7 @@ hors de la catégorie Corbeille de Moodle.</p>
 <p class="alert alert-info"><i class="fa fa-info-circle"></i> NOTE : ne restaurez pas votre cours dans la catégorie <b>"{$a->trash_category}"</b> : cette catégorie sert précisément de corbeille et son contenu sera définitivement supprimé <b>{$a->delete_period}</b>.</p>';
 $string['button_restore_confirm'] = 'Confirmer la restauration';
 $string['restore_already_moved'] = 'Ce cours n\'est pas dans la catégorie Corbeille !.';
+$string['restore_norights'] = 'Vous n\'avez pas le droit de déplacer ce cours dans une autre catégorie. Contactez un gestionnaire de la plateforme pour le restaurer.';
 $string['error_category'] = 'Mauvaise catégorie sélectionnée';
 $string['noteachers_invalidcourse'] = 'Ce cours ne fait pas partie de la liste des cours sans enseignant.';
 $string['noteachers_notrash'] = 'La catégorie corbeille n\'est pas définie dans les réglages du plugin.';
