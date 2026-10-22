@@ -476,6 +476,7 @@ $string['backup_step_background'] = 'The backup runs in background with the site
 $string['backup_step_done'] = 'The backup is done. You can download it from the table.';
 $string['backup_step_restore'] = 'To restore the course: restore part 1 in a new course, then restore the other parts in this course with "Merge the backup into this course".';
 $string['backup_error_questionbank'] = 'The question bank alone (with the content common to all parts) is {$a->size}, over the maximum size of an archive ({$a->threshold}). No backup was created. Please use the <a href="{$a->link}">manual backup of the whole course</a>.';
+$string['backup_error_part'] = 'The backup of part {$a->number} could not be launched ({$a->message}). The backup is incomplete: the parts already launched are marked as failed. Please relaunch the backup, or use the manual backup.';
 $string['backup_error_section'] = 'The section "{$a->name}" alone is {$a->size}, over the maximum size of an archive ({$a->threshold}). No backup was created. Please use the <a href="{$a->link}">manual backup of the whole course</a>.';
 $string['table_backup_progress'] = 'Progress';
 $string['backup_title_estimate'] = 'Estimation';

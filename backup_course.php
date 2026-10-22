@@ -28,9 +28,10 @@ $courseid = required_param('courseid', PARAM_INT);
 // Action : "backup" (start a backup), "relaunch" or "manual" (after a potential error).
 $action = optional_param('action', 'backup', PARAM_ALPHA);
 
-$course = get_course($courseid);
+// Login first : the course is only read for a logged in user.
 require_login();
 require_sesskey();
+$course = get_course($courseid);
 // Launching or relaunching a backup changes data : only by POST (buttons of the exports tab).
 if (!data_submitted()) {
     throw new moodle_exception('invalidrequest');
