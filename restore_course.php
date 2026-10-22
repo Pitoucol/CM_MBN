@@ -67,9 +67,18 @@ $a->trash_category = $nametrash->name;
 $post = new stdClass();
 $post->courseid = $id;
 
+// Native Moodle rights, as on the course settings page : changing the category of a course requires
+// moodle/course:changecategory in the course, and the course can only go to a category where the user
+// can create courses (moodle/course:create). The trash category itself is not a destination.
+$bin = (int)get_config('report_coursemanager', 'category_bin');
+$categories = core_course_category::make_categories_list('moodle/course:create');
+unset($categories[$bin]);
+$canrestore = has_capability('moodle/course:changecategory', $context) && !empty($categories);
+
 $formarray = [
     'post' => $post,
     'sesskey' => sesskey(),
+    'categories' => $categories,
 ];
 
 $mform = new report_coursemanager_form_restore('restore_course.php', $formarray, 'post');
@@ -79,11 +88,18 @@ if ($mform->is_cancelled()) {
 
 } else if ($data = $mform->get_data()) {
     require_sesskey();
-    move_courses([$data->courseid], $data->restore_category);
+    // Checked again when saving : the course must be in the trash, and the user must have the rights.
+    if ($infocourse->category != $bin) {
+        throw new moodle_exception('restore_already_moved', 'report_coursemanager');
+    }
+    require_capability('moodle/course:changecategory', $context);
+    if (!array_key_exists((int)$data->restore_category, $categories)) {
+        throw new moodle_exception('error_category', 'report_coursemanager');
+    }
+    move_courses([$id], (int)$data->restore_category);
 
     // Add event for course resetting.
-    $context = context_course::instance($data->courseid);
-    $eventparams = ['context' => $context, 'courseid' => $data->courseid];
+    $eventparams = ['context' => $context, 'courseid' => $id];
     $event = \report_coursemanager\event\course_restored::create($eventparams);
     $event->trigger();
 
@@ -97,8 +113,10 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('title_restore_confirm', 'report_coursemanager')." "
     .format_string($infocourse->fullname, true, ['context' => $context]));
 
-if ($infocourse->category != get_config('report_coursemanager', 'category_bin')) {
+if ($infocourse->category != $bin) {
     echo html_writer::tag('h5', get_string('restore_already_moved', 'report_coursemanager'), ['class' => 'alert alert-warning']);
+} else if (!$canrestore) {
+    echo html_writer::tag('h5', get_string('restore_norights', 'report_coursemanager'), ['class' => 'alert alert-warning']);
 } else {
     echo html_writer::div(get_string('restore_confirm', 'report_coursemanager', $a));
     $mform->display();
