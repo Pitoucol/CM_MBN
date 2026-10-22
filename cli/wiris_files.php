@@ -23,7 +23,8 @@
 
 define('CLI_SCRIPT', true);
 
-require(__DIR__ . '/../../../config.php');
+// Configuration, check of the system user, then Moodle setup.
+require(__DIR__ . '/cli_setup.php');
 require_once($CFG->libdir . '/clilib.php');
 
 use report_coursemanager\local\wiris\locator;
@@ -58,11 +59,16 @@ Options:
       --list-runs                 List the conversion runs.
   -h, --help                      Print this help.
 
+Run it as the user of the web server (www-data on Debian and Ubuntu), from the Moodle directory
+(the public directory since Moodle 5.1).
+
+Exit codes: 0 success, 1 at least one formula could not be converted or one text could not be restored.
+
 Examples:
-  php report/coursemanager/cli/wiris_files.php --all --questions-outside-courses            (dry run)
-  php report/coursemanager/cli/wiris_files.php --all --questions-outside-courses --execute
-  php report/coursemanager/cli/wiris_files.php --course=12 --execute --verbose
-  php report/coursemanager/cli/wiris_files.php --undo=5
+  sudo -u www-data php report/coursemanager/cli/wiris_files.php --all --questions-outside-courses            (dry run)
+  sudo -u www-data php report/coursemanager/cli/wiris_files.php --all --questions-outside-courses --execute
+  sudo -u www-data php report/coursemanager/cli/wiris_files.php --course=12 --execute --verbose
+  sudo -u www-data php report/coursemanager/cli/wiris_files.php --undo=5
 ";
 
 if ($options['help']) {
@@ -85,7 +91,7 @@ if ($options['list-runs']) {
 if ($options['undo']) {
     $result = $manager->undo((int)$options['undo']);
     cli_writeln("Restored: {$result['restored']}  Modified since conversion (left untouched): {$result['conflicts']}");
-    exit(0);
+    exit($result['conflicts'] ? 1 : 0);
 }
 
 if ($options['all']) {
@@ -157,3 +163,5 @@ foreach ($jobs as [$courseid, $gettargets]) {
 }
 cli_writeln(sprintf('TOTAL: %d formulas in %d texts, %d failures (%d from LaTeX annotations)',
     $totals['formulas'], $totals['fields'], $totals['failures'], $totals['annotations']));
+// Exit code for scripts : 1 when at least one formula could not be converted.
+exit($totals['failures'] ? 1 : 0);
