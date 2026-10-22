@@ -34,6 +34,14 @@ $confirm = optional_param('confirm', 0, PARAM_INT);
 $context = context_course::instance($courseid, MUST_EXIST);
 
 require_capability('moodle/course:update', $context);
+
+// Native Moodle rights, as for any change of category : moodle/course:changecategory in the course, and
+// moodle/course:create in the trash category, which must be set.
+$bin = (int)get_config('report_coursemanager', 'category_bin');
+$bincontext = $bin ? context_coursecat::instance($bin, IGNORE_MISSING) : false;
+$canmove = $bincontext && has_capability('moodle/course:changecategory', $context)
+    && has_capability('moodle/course:create', $bincontext);
+
 // Get site infos.
 $site = get_site();
 
@@ -79,6 +87,11 @@ if (!$confirm) {
         echo $OUTPUT->footer();
         exit();
     }
+    if (!$canmove) {
+        echo html_writer::tag('h5', get_string('trash_norights', 'report_coursemanager'), ['class' => 'alert alert-warning']);
+        echo $OUTPUT->footer();
+        exit();
+    }
 
     // Text to inform about this function.
     echo html_writer::div(get_string('move_confirm', 'report_coursemanager', $a));
@@ -98,10 +111,11 @@ if (!$confirm) {
     // Add choices : delete course, or direct links to save questions bank or full course.
     echo html_writer::tag('h5', get_string('delete_wish', 'report_coursemanager'),
     ['class' => 'alert alert-warning']);
-    $urlconfirmdelete = new moodle_url('delete_course.php',
-    ['confirm' => 1, 'courseid' => $courseid, 'sesskey' => sesskey()]);
-    echo html_writer::div(html_writer::link($urlconfirmdelete, get_string('button_move_confirm', 'report_coursemanager'),
-    ['class' => 'text-white']), 'btn btn-warning') . " ";
+    // Sent by POST, with the sesskey added by single_button.
+    $urlconfirmdelete = new moodle_url('delete_course.php', ['confirm' => 1, 'courseid' => $courseid]);
+    $confirmbutton = new single_button($urlconfirmdelete, get_string('button_move_confirm', 'report_coursemanager'), 'post');
+    $confirmbutton->class = 'd-inline-block';
+    echo $OUTPUT->render($confirmbutton) . " ";
     $urlquestionbank = new moodle_url('/question/bank/exportquestions/export.php',
     ['courseid' => $courseid]);
     echo html_writer::div(html_writer::link($urlquestionbank, get_string('button_save_questionbank', 'report_coursemanager'),
@@ -114,9 +128,18 @@ if (!$confirm) {
     echo $OUTPUT->footer();
 
 } else if ($confirm) {
-    // If confirmed : course is moved in trash category.
+    // If confirmed : course is moved in trash category. Rights and state checked again.
     require_sesskey();
-    move_courses([$courseid], get_config('report_coursemanager', 'category_bin'));
+    if (!data_submitted()) {
+        throw new moodle_exception('invalidrequest');
+    }
+    if (!$canmove) {
+        throw new moodle_exception('trash_norights', 'report_coursemanager');
+    }
+    if ($infocourse->category == $bin) {
+        throw new moodle_exception('delete_already_moved', 'report_coursemanager');
+    }
+    move_courses([$courseid], $bin);
 
     // Course parameters updated : course is hidden.
     $datahide = new stdClass;
