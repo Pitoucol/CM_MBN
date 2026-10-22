@@ -78,7 +78,8 @@ function report_coursemanager_get_assign_comment($courseid) {
 
         // If file crosses limit, add information.
         if ($roundedassignsize > get_config('report_coursemanager', 'unique_filesize_threshold')) {
-            $heavyassigns[] = (['weight' => $roundedassignsize, 'name' => $cm->name]);
+            $heavyassigns[] = (['weight' => $roundedassignsize,
+                'name' => format_string($cm->name, true, ['context' => $context])]);
         }
     }
     $comment = '';
@@ -136,7 +137,8 @@ function report_coursemanager_get_assign_comment($courseid) {
         .$OUTPUT->help_icon('warn_orphans', 'report_coursemanager', '');
         $comment .= "<ul>";
         foreach ($dbresultassignsorphans as $dbresultassignorphans) {
-            $comment .= "<li>". $dbresultassignorphans->assign ."</li>";
+            $comment .= "<li>". format_string($dbresultassignorphans->assign, true,
+                ['context' => context_course::instance($courseid)]) ."</li>";
         }
         $comment .= "</ul>";
     }
@@ -203,7 +205,7 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
 
         // For each video, show name and size.
         foreach ($videos as $video) {
-            $comment .= "<li>". $video['name'] ." (".$video['weight']."Mo)</li>";
+            $comment .= "<li>". s($video['name']) ." (".$video['weight']."Mo)</li>";
         }
         $comment .= "</ul>";
     }
@@ -216,7 +218,7 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
 
         // For each heavy file, show name and size.
         foreach ($heavyfiles as $heavyfile) {
-            $comment .= "<li>". $heavyfile['name'] ." (".$heavyfile['weight']."Mo)</li>";
+            $comment .= "<li>". s($heavyfile['name']) ." (".$heavyfile['weight']."Mo)</li>";
         }
         $comment .= "</ul>";
     }

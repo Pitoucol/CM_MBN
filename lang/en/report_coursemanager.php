@@ -211,6 +211,8 @@ $string['restore_confirm'] = '<p>This page will take a course out of bin categor
 $string['button_restore_confirm'] = 'Confirm course restore';
 $string['restore_already_moved'] = 'This course is not in bin category !.';
 $string['error_category'] = 'Wrong category selected';
+$string['noteachers_invalidcourse'] = 'This course is not in the list of courses without teachers.';
+$string['noteachers_notrash'] = 'The trash category is not set in the settings of the plugin.';
 $string['select_restore_category'] = 'Choose category to move course';
 
 // Page - Files information.

@@ -94,7 +94,8 @@ if ($mform->is_cancelled()) {
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('title_restore_confirm', 'report_coursemanager')." ".$infocourse->fullname." V2");
+echo $OUTPUT->heading(get_string('title_restore_confirm', 'report_coursemanager')." "
+    .format_string($infocourse->fullname, true, ['context' => $context]));
 
 if ($infocourse->category != get_config('report_coursemanager', 'category_bin')) {
     echo html_writer::tag('h5', get_string('restore_already_moved', 'report_coursemanager'), ['class' => 'alert alert-warning']);
