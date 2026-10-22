@@ -163,8 +163,10 @@ foreach ($selectedassigns as $assign) {
         $assigninfos = $DB->get_record('assign', ['id' => $cm->instance]);
 
         $row = [];
-        $row[] = html_writer::link("/course/view.php?id=".$assign->course, $course->fullname);
-        $row[] = html_writer::link("/mod/assign/view.php?id=".$assign->cmid, $cm->name);
+        $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $assign->course]),
+            format_string($course->fullname, true, ['context' => context_course::instance($assign->course)]));
+        $row[] = html_writer::link(new moodle_url('/mod/assign/view.php', ['id' => $assign->cmid]),
+            format_string($cm->name, true, ['context' => context_module::instance($assign->cmid)]));
         $row[] = html_writer::label($assign->files, null);
         $row[] = html_writer::label(userdate($dbresultlastsubmission->lastsubmission), null);
         $row[] = html_writer::label(display_size($assign->weight, 0, 'MB'), null);

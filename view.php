@@ -244,7 +244,7 @@ if (count($listusercourses) == 0) {
             // Course name column.
             $row[] = html_writer::link(
                 new moodle_url('/course/view.php', ['id' => $course->id]),
-                $course->fullname
+                format_string($course->fullname, true, ['context' => $coursecontext])
             );
 
             // Courses in trash.
@@ -495,7 +495,8 @@ if (count($listusercourses) == 0) {
                     <div class="modal-content">
                       <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">' .
-                            get_string('advices_for_course', 'report_coursemanager') . $course->fullname . '</h5>
+                            get_string('advices_for_course', 'report_coursemanager')
+                            . format_string($course->fullname, true, ['context' => $coursecontext]) . '</h5>
                         <button type="button" class="btn btn-link p-0 float-right float-end ml-auto ms-auto" data-dismiss="modal" data-bs-dismiss="modal" aria-label="' . get_string('closebuttontitle') . '"><i class="fa fa-times" aria-hidden="true"></i></button>
                       </div>
                       <div class="modal-body">

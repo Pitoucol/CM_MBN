@@ -186,7 +186,7 @@ if (count($existsnoteacherincourse) > 0) {
 
             if ($dbresultlastteacherlog) {
                 $lastteacher = $DB->get_record('user', ['id' => $dbresultlastteacherlog->teacher]);
-                $namelastteacher = $lastteacher->lastname.' '.$lastteacher->firstname;
+                $namelastteacher = s($lastteacher->lastname.' '.$lastteacher->firstname);
                 $lastlog = userdate($dbresultlastteacherlog->lastlog);
             } else {
                 $namelastteacher = get_string('unknown', 'report_coursemanager');
@@ -195,7 +195,8 @@ if (count($existsnoteacherincourse) > 0) {
 
             // Now start to build table rows.
             $row = [];
-            $row[] = html_writer::link("/course/view.php?id=".$courseinfo->id, $courseinfo->fullname);
+            $row[] = html_writer::link(new moodle_url('/course/view.php', ['id' => $courseinfo->id]),
+                format_string($courseinfo->fullname, true, ['context' => context_course::instance($courseinfo->id)]));
             $row[] = html_writer::label($allstudents, null);
             $row[] = html_writer::label(($lastaccess), null);
             $row[] = html_writer::label($dbresultemptycourse, null);

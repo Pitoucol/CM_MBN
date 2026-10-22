@@ -72,7 +72,8 @@ if (!$confirm) {
     <i class="fa fa-arrow-left"></i>  '.get_string('back').'</a></div><br /><br />
     ');
 
-    echo $OUTPUT->heading(get_string('title_move_confirm', 'report_coursemanager')." ".$infocourse->fullname);
+    echo $OUTPUT->heading(get_string('title_move_confirm', 'report_coursemanager')." "
+        .format_string($infocourse->fullname, true, ['context' => $context]));
     if ($infocourse->category == get_config('report_coursemanager', 'category_bin')) {
         echo html_writer::tag('h5', get_string('delete_already_moved'), ['class' => 'alert alert-warning']);
         echo $OUTPUT->footer();
@@ -87,7 +88,7 @@ if (!$confirm) {
 
         $listteachers = '';
         foreach ($allteachers as $teacher) {
-            $listteachers .= '<li>'.$teacher->firstname.' '.$teacher->lastname. '</li>';
+            $listteachers .= '<li>'.s($teacher->firstname.' '.$teacher->lastname). '</li>';
         }
         $textwarnseveralteachers .= $listteachers;
         $textwarnseveralteachers .= "</ul>";
