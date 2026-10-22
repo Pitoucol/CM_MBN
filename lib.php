@@ -914,10 +914,16 @@ function report_coursemanager_render_exports_tab($userid) {
         } else if ($failed) {
             // After a potential error : relaunch the backup, or go to the Moodle backup page.
             // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
-            $backupurl = new moodle_url('/report/coursemanager/backup_course.php',
-                ['courseid' => $course->id, 'sesskey' => sesskey()]);
-            $relaunchurl = new moodle_url($backupurl, ['action' => 'relaunch']);
-            $manualurl = new moodle_url($backupurl, ['action' => 'manual']);
+            // Each choice is a small form sent by POST with the sesskey.
+            $actionform = function($action, $label) use ($course) {
+                return html_writer::tag('form',
+                    html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'courseid', 'value' => $course->id])
+                    . html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => $action])
+                    . html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()])
+                    . html_writer::tag('button', $label, ['type' => 'submit', 'class' => 'dropdown-item']),
+                    ['method' => 'post', 'action' => (new moodle_url('/report/coursemanager/backup_course.php'))->out(false),
+                        'class' => 'm-0']);
+            };
             $row[] = '
                 <div class="dropdown">
                     <a class="btn btn-outline-danger dropdown-toggle" href="#" role="button"
@@ -925,10 +931,8 @@ function report_coursemanager_render_exports_tab($userid) {
                     ' . get_string('backup_error_actions', 'report_coursemanager') . '
                     </a>
                     <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
-                        <a class="dropdown-item" href="' . $relaunchurl->out() . '">'
-                            . get_string('relaunch_backup', 'report_coursemanager') . '</a>
-                        <a class="dropdown-item" href="' . $manualurl->out() . '">'
-                            . get_string('manual_backup', 'report_coursemanager') . '</a>
+                        ' . $actionform('relaunch', get_string('relaunch_backup', 'report_coursemanager')) . '
+                        ' . $actionform('manual', get_string('manual_backup', 'report_coursemanager')) . '
                     </div>
                 </div>
             ';

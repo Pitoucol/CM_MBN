@@ -31,6 +31,10 @@ $action = optional_param('action', 'backup', PARAM_ALPHA);
 $course = get_course($courseid);
 require_login();
 require_sesskey();
+// Launching or relaunching a backup changes data : only by POST (buttons of the exports tab).
+if (!data_submitted()) {
+    throw new moodle_exception('invalidrequest');
+}
 
 $context = context_course::instance($course->id);
 // Page context and URL, needed by format_string() and by the redirect page.
