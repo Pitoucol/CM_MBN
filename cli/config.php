@@ -27,13 +27,14 @@
 
 define('CLI_SCRIPT', true);
 
-require(__DIR__ . '/../../../config.php');
+// Configuration, check of the system user, then Moodle setup.
+require(__DIR__ . '/cli_setup.php');
 require_once($CFG->libdir . '/clilib.php');
 
 use report_coursemanager\local\config\settings_json;
 
 [$options, $unrecognised] = cli_get_params(
-    ['export' => false, 'import' => '', 'file' => '', 'dry-run' => false, 'help' => false],
+    ['export' => false, 'import' => '', 'file' => '', 'force' => false, 'dry-run' => false, 'help' => false],
     ['e' => 'export', 'i' => 'import', 'f' => 'file', 'n' => 'dry-run', 'h' => 'help']
 );
 
@@ -60,6 +61,10 @@ if ($options['export']) {
     }
     if ($options['file'] === '') {
         echo $json . "\n";
+    } else if (file_exists($options['file']) && !$options['force']) {
+        // An existing file is only replaced with --force.
+        cli_problem(get_string('configjson_cli_fileexists', 'report_coursemanager', $options['file']));
+        exit(1);
     } else if (file_put_contents($options['file'], $json . "\n") === false) {
         cli_problem(get_string('configjson_cli_cannotwrite', 'report_coursemanager', $options['file']));
         exit(1);
