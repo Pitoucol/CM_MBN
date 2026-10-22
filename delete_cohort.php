@@ -29,12 +29,14 @@ global $COURSE, $DB, $USER, $CFG;
 $courseid = optional_param('id', 0, PARAM_INT);
 $confirm = optional_param('confirm', 0, PARAM_INT);
 
+// Login first : the course is only read for a logged in user.
+require_login();
+
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 
 $systemcontext = context_system::instance();
 $coursecontext = context_course::instance($course->id, MUST_EXIST);
 
-require_login();
 require_capability('enrol/cohort:config', $coursecontext);
 
 // Get site infos.
