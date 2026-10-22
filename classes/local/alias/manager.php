@@ -57,6 +57,11 @@ class manager {
             'timereverted' => 0,
         ];
         $failed = [];
+        // Synchronise the external aliases first, outside the transaction : it may call an external repository,
+        // which can be slow, and must not keep a database transaction open.
+        foreach ($aliases as $alias) {
+            $this->sync_alias($alias);
+        }
         $transaction = $DB->start_delegated_transaction();
         $run->id = $DB->insert_record('report_coursemanager_arun', $run);
         foreach ($aliases as $alias) {
@@ -73,6 +78,24 @@ class manager {
         $transaction->allow_commit();
         $run->failed = $failed;
         return $run;
+    }
+
+    /**
+     * Best effort : takes the content currently served for an alias from its repository (done by convert() before
+     * opening the transaction).
+     *
+     * @param \stdClass $alias
+     */
+    protected function sync_alias(\stdClass $alias): void {
+        try {
+            $file = get_file_storage()->get_file_by_id($alias->id);
+            if ($file && $file->is_external_file()) {
+                $file->sync_external_file();
+            }
+        } catch (\Throwable $e) {
+            debugging('report_coursemanager: synchronisation failed for file ' . $alias->id . ': ' . $e->getMessage(),
+                DEBUG_DEVELOPER);
+        }
     }
 
     /**
@@ -99,16 +122,6 @@ class manager {
         }
         if ($file && !$file->is_external_file()) {
             return 'alias_err_notalias';
-        }
-        if ($file) {
-            // Best effort: take the content currently served for the alias.
-            try {
-                $file->sync_external_file();
-            } catch (\Throwable $e) {
-                debugging('report_coursemanager: synchronisation failed for file ' . $record->id . ': ' . $e->getMessage(),
-                    DEBUG_DEVELOPER);
-            }
-            $record = $DB->get_record('files', ['id' => $record->id], '*', MUST_EXIST);
         }
 
         // The content must exist in the file pool, otherwise the copy would be empty.

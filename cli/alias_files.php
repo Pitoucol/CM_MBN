@@ -24,7 +24,8 @@
 
 define('CLI_SCRIPT', true);
 
-require(__DIR__ . '/../../../config.php');
+// Configuration, check of the system user, then Moodle setup.
+require(__DIR__ . '/cli_setup.php');
 require_once($CFG->libdir . '/clilib.php');
 
 use report_coursemanager\local\alias\manager;
@@ -62,11 +63,16 @@ Options:
       --list-runs           List the conversion runs.
   -h, --help                Print this help.
 
+Run it as the user of the web server (www-data on Debian and Ubuntu), from the Moodle directory
+(the public directory since Moodle 5.1).
+
+Exit codes: 0 success, 1 at least one alias could not be converted or restored.
+
 Examples:
-  php report/coursemanager/cli/alias_files.php --all                      (dry run)
-  php report/coursemanager/cli/alias_files.php --course=12 --verbose
-  php report/coursemanager/cli/alias_files.php --all --execute
-  php report/coursemanager/cli/alias_files.php --undo=5
+  sudo -u www-data php report/coursemanager/cli/alias_files.php --all                      (dry run)
+  sudo -u www-data php report/coursemanager/cli/alias_files.php --course=12 --verbose
+  sudo -u www-data php report/coursemanager/cli/alias_files.php --all --execute
+  sudo -u www-data php report/coursemanager/cli/alias_files.php --undo=5
 ";
 
 if ($options['help']) {
@@ -94,7 +100,7 @@ if ($options['undo']) {
         scanner::save_report((int)$courseid);
     }
     cli_writeln("Restored as aliases: {$result['restored']}  Modified since conversion (left untouched): {$result['conflicts']}");
-    exit(0);
+    exit($result['conflicts'] ? 1 : 0);
 }
 
 if ($options['all']) {
@@ -150,3 +156,5 @@ foreach ($courseids as $courseid) {
 }
 cli_writeln(sprintf('TOTAL: %d aliases found, %d selected, %d converted, %d failure(s), %d with a deleted source',
     $totals['found'], $totals['selected'], $totals['converted'], $totals['failures'], $totals['missingsource']));
+// Exit code for scripts : 1 when at least one alias could not be converted.
+exit($totals['failures'] ? 1 : 0);
