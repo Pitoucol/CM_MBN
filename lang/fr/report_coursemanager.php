@@ -215,6 +215,7 @@ $string['button_restore_confirm'] = 'Confirmer la restauration';
 $string['restore_already_moved'] = 'Ce cours n\'est pas dans la catégorie Corbeille !.';
 $string['restore_norights'] = 'Vous n\'avez pas le droit de déplacer ce cours dans une autre catégorie. Contactez un gestionnaire de la plateforme pour le restaurer.';
 $string['error_category'] = 'Mauvaise catégorie sélectionnée';
+$string['orphans_invalidassign'] = 'Ce devoir ne fait pas partie de la liste des devoirs avec des remises orphelines.';
 $string['noteachers_invalidcourse'] = 'Ce cours ne fait pas partie de la liste des cours sans enseignant.';
 $string['noteachers_notrash'] = 'La catégorie corbeille n\'est pas définie dans les réglages du plugin.';
 $string['select_restore_category'] = 'Choisissez la catégorie de restauration du cours';

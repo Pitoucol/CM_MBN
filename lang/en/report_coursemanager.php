@@ -211,6 +211,7 @@ $string['button_restore_confirm'] = 'Confirm course restore';
 $string['restore_already_moved'] = 'This course is not in bin category !.';
 $string['restore_norights'] = 'You do not have the right to move this course to another category. Please contact a manager of the site to restore it.';
 $string['error_category'] = 'Wrong category selected';
+$string['orphans_invalidassign'] = 'This assignment is not in the list of assignments with orphaned submissions.';
 $string['noteachers_invalidcourse'] = 'This course is not in the list of courses without teachers.';
 $string['noteachers_notrash'] = 'The trash category is not set in the settings of the plugin.';
 $string['select_restore_category'] = 'Choose category to move course';
