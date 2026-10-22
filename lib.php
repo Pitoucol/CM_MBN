@@ -883,7 +883,7 @@ function report_coursemanager_last_download($download) {
     // One line for the date, one for the user.
     $date = userdate($download->timedownloaded, get_string('strftimedatetimeshort', 'langconfig'));
     return html_writer::div(get_string('backup_last_download_date', 'report_coursemanager', $date), 'small text-muted mt-1')
-        . html_writer::div(fullname($download), 'small text-muted');
+        . html_writer::div(s(fullname($download)), 'small text-muted');
 }
 
 /**
