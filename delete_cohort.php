@@ -84,15 +84,21 @@ if ($count == 0) {
     echo $OUTPUT->box_start('generalbox', 'notice');
     echo html_writer::tag('p', get_string('delete_cohort_confirm', 'report_coursemanager'));
 
-    $urlconfirmdelete = new moodle_url('delete_cohort.php', ['confirm' => 1, 'id' => $courseid, 'sesskey' => sesskey()]);
-    echo html_writer::div(html_writer::link($urlconfirmdelete,
-    get_string('button_delete_cohort_confirm', 'report_coursemanager'), ['class' => 'text-white']), 'btn btn-info') . " ";
+    // Sent by POST, with the sesskey added by single_button.
+    $urlconfirmdelete = new moodle_url('delete_cohort.php', ['confirm' => 1, 'id' => $courseid]);
+    $confirmbutton = new single_button($urlconfirmdelete,
+        get_string('button_delete_cohort_confirm', 'report_coursemanager'), 'post');
+    $confirmbutton->class = 'd-inline-block';
+    echo $OUTPUT->render($confirmbutton) . " ";
 
     echo $OUTPUT->box_end();
     echo $OUTPUT->footer();
 } else if ($confirm) {
-    // Before delete, check sesskey.
+    // Before delete, check sesskey and that the request is a POST.
     require_sesskey();
+    if (!data_submitted()) {
+        throw new moodle_exception('invalidrequest');
+    }
 
     // CReate ad hoc task.
     $task = new \report_coursemanager\task\delete_cohorts_task();
