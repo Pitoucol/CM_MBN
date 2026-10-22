@@ -466,6 +466,7 @@ $string['configjson_cli_change'] = '{$a->name} : {$a->old} -> {$a->new}';
 $string['configjson_cli_dryrun'] = 'Simulation : {$a} réglage(s) seraient modifiés, rien n\'a été écrit.';
 $string['configjson_cli_error'] = 'Erreur : {$a}';
 $string['configjson_cli_exported'] = 'Configuration écrite dans {$a}.';
+$string['configjson_cli_fileexists'] = 'Le fichier {$a} existe déjà : utilisez --force pour le remplacer.';
 $string['configjson_cli_help'] = 'Exporte ou importe les réglages de Course Manager en JSON.
 
 Les rôles sont écrits avec leur nom abrégé, et la catégorie corbeille avec son numéro d\'identification s\'il existe,
@@ -477,6 +478,7 @@ modifications de configuration.
 Options :
 -e, --export         Exporte la configuration (sur la sortie standard, ou dans --file)
 -f, --file=CHEMIN    Fichier dans lequel écrire l\'export
+    --force          Avec --file : remplace un fichier existant
 -i, --import=CHEMIN  Importe la configuration d\'un fichier JSON
 -n, --dry-run        Avec --import : affiche les modifications sans les écrire
 -h, --help           Affiche cette aide
@@ -484,9 +486,9 @@ Options :
 Codes de retour : 0 succès, 1 erreur, 2 options incorrectes.
 
 Exemples :
-$ php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
-$ php report/coursemanager/cli/config.php --import=/tmp/correctif.json --dry-run
-$ php report/coursemanager/cli/config.php --import=/tmp/correctif.json
+$ sudo -u www-data php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+$ sudo -u www-data php report/coursemanager/cli/config.php --import=/tmp/correctif.json --dry-run
+$ sudo -u www-data php report/coursemanager/cli/config.php --import=/tmp/correctif.json
 
 Exemple de fichier qui corrige seulement la catégorie corbeille :
 {"category_bin": {"path": "Archives / Corbeille"}}';
@@ -506,6 +508,7 @@ $string['configjson_settings_heading'] = 'Export et import de cette configuratio
 $string['configjson_settings_doc'] = '<p>Les réglages de cette page peuvent être exportés dans un fichier JSON et importés sur d\'autres sites avec le script en ligne de commande <code>report/coursemanager/cli/config.php</code>, par exemple pour copier une configuration sur des sites identiques, ou pour corriger un réglage erroné (comme la catégorie corbeille) sur de nombreux sites à la fois.</p>
 <p>Lancez le script depuis le répertoire de Moodle (le répertoire <code>public</code> depuis Moodle 5.1), avec l\'utilisateur du serveur web :</p>
 <pre>sudo -u www-data php report/coursemanager/cli/config.php --help</pre>
+<p>Le script s\'arrête s\'il est lancé par un autre utilisateur que le propriétaire du répertoire de données de Moodle : lancé en root, par exemple, il créerait des fichiers de cache illisibles par le serveur web, et le site tomberait en erreur 500.</p>
 <p><strong>Options</strong></p>
 <ul>
 <li><code>--export</code> : écrit toute la configuration en JSON, à l\'écran ou, avec <code>--file=CHEMIN</code>, dans un fichier.</li>
@@ -513,9 +516,9 @@ $string['configjson_settings_doc'] = '<p>Les réglages de cette page peuvent êt
 <li><code>--dry-run</code> : avec <code>--import</code>, liste les modifications (ancienne valeur -&gt; nouvelle valeur) sans rien écrire.</li>
 </ul>
 <p><strong>Exemples</strong></p>
-<pre>php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
-php report/coursemanager/cli/config.php --import=/tmp/correctif.json --dry-run
-php report/coursemanager/cli/config.php --import=/tmp/correctif.json</pre>
+<pre>sudo -u www-data php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+sudo -u www-data php report/coursemanager/cli/config.php --import=/tmp/correctif.json --dry-run
+sudo -u www-data php report/coursemanager/cli/config.php --import=/tmp/correctif.json</pre>
 <p><strong>Fichier JSON</strong></p>
 <ul>
 <li>Un import peut ne contenir que certains réglages : les autres ne sont pas modifiés. Fichier qui corrige seulement la catégorie corbeille :

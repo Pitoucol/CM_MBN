@@ -447,6 +447,7 @@ $string['configjson_cli_change'] = '{$a->name}: {$a->old} -> {$a->new}';
 $string['configjson_cli_dryrun'] = 'Dry run: {$a} setting(s) would be changed, nothing has been written.';
 $string['configjson_cli_error'] = 'Error: {$a}';
 $string['configjson_cli_exported'] = 'Configuration written to {$a}.';
+$string['configjson_cli_fileexists'] = 'The file {$a} already exists: use --force to replace it.';
 $string['configjson_cli_help'] = 'Exports or imports the settings of Course Manager in JSON.
 
 Roles are written with their short name, and the trash category with its id number when it has one, otherwise with
@@ -457,6 +458,7 @@ is wrong, nothing is written. Each change is recorded in the config changes repo
 Options:
 -e, --export         Export the configuration (to the standard output, or to --file)
 -f, --file=PATH      File to write the export to
+    --force          With --file: replace an existing file
 -i, --import=PATH    Import the configuration of a JSON file
 -n, --dry-run        With --import: show the changes without writing them
 -h, --help           Print this help
@@ -464,9 +466,9 @@ Options:
 Exit codes: 0 success, 1 error, 2 wrong options.
 
 Examples:
-$ php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
-$ php report/coursemanager/cli/config.php --import=/tmp/fix.json --dry-run
-$ php report/coursemanager/cli/config.php --import=/tmp/fix.json
+$ sudo -u www-data php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+$ sudo -u www-data php report/coursemanager/cli/config.php --import=/tmp/fix.json --dry-run
+$ sudo -u www-data php report/coursemanager/cli/config.php --import=/tmp/fix.json
 
 Example of a file fixing only the trash category:
 {"category_bin": {"path": "Archives / Trash"}}';
@@ -486,6 +488,7 @@ $string['configjson_settings_heading'] = 'Export and import of this configuratio
 $string['configjson_settings_doc'] = '<p>The settings of this page can be exported to a JSON file and imported on other sites with the command line script <code>report/coursemanager/cli/config.php</code>, for example to copy a configuration to identical sites, or to fix a wrong setting (such as the trash category) on many sites at once.</p>
 <p>Run the script from the Moodle directory (the <code>public</code> directory since Moodle 5.1), as the user of the web server:</p>
 <pre>sudo -u www-data php report/coursemanager/cli/config.php --help</pre>
+<p>The script stops if it is run by another user than the owner of the Moodle data directory: run as root, for example, it would create cache files that the web server cannot read, and the site would fail with errors 500.</p>
 <p><strong>Options</strong></p>
 <ul>
 <li><code>--export</code>: writes the whole configuration in JSON, to the screen or, with <code>--file=PATH</code>, to a file.</li>
@@ -493,9 +496,9 @@ $string['configjson_settings_doc'] = '<p>The settings of this page can be export
 <li><code>--dry-run</code>: with <code>--import</code>, lists the changes (old value -&gt; new value) without writing anything.</li>
 </ul>
 <p><strong>Examples</strong></p>
-<pre>php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
-php report/coursemanager/cli/config.php --import=/tmp/fix.json --dry-run
-php report/coursemanager/cli/config.php --import=/tmp/fix.json</pre>
+<pre>sudo -u www-data php report/coursemanager/cli/config.php --export --file=/tmp/coursemanager.json
+sudo -u www-data php report/coursemanager/cli/config.php --import=/tmp/fix.json --dry-run
+sudo -u www-data php report/coursemanager/cli/config.php --import=/tmp/fix.json</pre>
 <p><strong>JSON file</strong></p>
 <ul>
 <li>An import may contain only some settings: the other settings are not changed. A file fixing only the trash category:
