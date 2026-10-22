@@ -33,7 +33,7 @@ On y trouve le nom et l'état du cours (visible ou caché), puis trois mesures d
 
 Viennent ensuite la comparaison avec la médiane et la moyenne de la plateforme, le nombre de cohortes, d'étudiants et d'enseignants inscrits, les recommandations (cours lourd, vide, sans étudiant, sans visite, avec des devoirs d'étudiants désinscrits) et les actions rapides (mise à la corbeille, fichiers du cours, réinitialisation, cohortes, paramètres).
 
-Toutes les colonnes peuvent être triées, et des boutons de filtre permettent d'afficher les cours concernés par un rapport précis.
+Toutes les colonnes peuvent être triées, et des boutons de filtre permettent d'afficher les cours concernés par un rapport précis. Les cours placés dans la corbeille n'apparaissent plus dans la liste par défaut : un bouton « Corbeille » permet de les afficher, avec leur action « Restaurer le cours ».
 
 
 ### Second tableau : les téléchargements et exports ###
@@ -61,6 +61,8 @@ Ce tableau n'existe que dans la branche ameliorations. Il aide les enseignants �
 - Le courrier envoyé aux enseignants a été revu : destinataires mieux ciblés, envois tracés, mise en forme soignée, envoi le 1er et le 15 de chaque mois, et seuil de poids à jour.
 - Les tâches nocturnes ont été allégées pour les plateformes comptant des milliers de cours : la table des rapports est désormais indexée, les trois poids d'un cours sont calculés en une seule lecture, les rapports ne sont réécrits que lorsqu'ils changent, les visites sont comptées en une seule interrogation par cours au lieu d'une par inscrit, et seules les informations utiles des cours sont lues. Deux erreurs de la recherche des remises orphelines (travaux d’étudiants désinscrits) ont aussi été corrigées : le nettoyage de ces rapports dépendait du mauvais réglage, et la recherche s’arrêtait sur un devoir dont l’activité n’existait plus.
 - Enfin, la configuration du plugin peut être exportée et importée à l'aide d'une commande sur le serveur. Cela permet de copier une configuration d'une plateforme à une autre, ou de corriger un réglage mal défini, comme la catégorie corbeille, sur des centaines de plateformes à la fois. Le mode d'emploi figure en bas de la page des réglages du plugin.
+- Sécurité, après un audit du code : les noms de cours, d'activités, de personnes et de fichiers sont désormais nettoyés avant d'être affichés (pages d'administration, rapports, mail, tableau de bord), comme le demandent les règles de Moodle. La page « Cours sans enseignant » vérifie que le cours visé fait bien partie de la liste avant de le mettre à la corbeille.
+- Corbeille : la restauration d'un cours respecte maintenant les droits de la plateforme. Il faut le droit de changer la catégorie d'un cours, et seules les catégories où l'on peut créer des cours sont proposées. Avec les rôles par défaut de Moodle, la restauration revient donc à un gestionnaire. Dans le tableau de bord, les cours de la corbeille sont rangés derrière le bouton « Corbeille ».
 
 ## Ce que contient la branche ameliorations ##
 
