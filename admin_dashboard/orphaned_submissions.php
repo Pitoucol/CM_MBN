@@ -53,6 +53,14 @@ $PAGE->blocks->add_region('content');
 $PAGE->set_title($site->fullname);
 
 if (!empty($delete)) {
+    // The assignment must be one of the orphaned submissions reports : its course is taken from the report,
+    // never from the URL.
+    $orphanreport = $DB->get_record('report_coursemanager_orphans', ['cmid' => $instance], '*', IGNORE_MULTIPLE);
+    if (!$orphanreport || !get_coursemodule_from_id('assign', $instance, $orphanreport->course)) {
+        throw new moodle_exception('orphans_invalidassign', 'report_coursemanager');
+    }
+    $course = (int)$orphanreport->course;
+
     // User has confirmed deletion : orphan submissions are deleted.
     if (!empty($confirm) && confirm_sesskey()) {
         $context = context_module::instance($instance);
@@ -97,8 +105,7 @@ if (!empty($delete)) {
         }
         // Now that files are deleted, delete report entry.
         $purgereport = $DB->delete_records('report_coursemanager_orphans', ['cmid' => $instance, 'course' => $course]);
-        $returnurl = "orphaned_submissions.php";
-        redirect($returnurl);
+        redirect(new moodle_url('/report/coursemanager/admin_dashboard/orphaned_submissions.php'));
         exit();
 
         // TO DO : add event when orphan submissions are deleted.
