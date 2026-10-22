@@ -52,6 +52,16 @@ $PAGE->blocks->add_region('content');
 $PAGE->set_title($site->fullname);
 
 if (!empty($delete)) {
+    // The course to move must be one of the courses of this page (no teacher), never the front page, and the
+    // trash category must be set : the course id comes from the URL.
+    if (empty(get_config('report_coursemanager', 'category_bin'))) {
+        throw new moodle_exception('noteachers_notrash', 'report_coursemanager');
+    }
+    if ($instance == SITEID || !$DB->record_exists('course', ['id' => $instance])
+            || !$DB->record_exists('report_coursemanager_reports', ['course' => $instance, 'report' => 'no_teacher_in_course'])) {
+        throw new moodle_exception('noteachers_invalidcourse', 'report_coursemanager');
+    }
+
     // User has confirmed deletion : move course in trash category.
     if (!empty($confirm) && confirm_sesskey()) {
         // If confirmed : course is moved in trash category.
@@ -68,8 +78,7 @@ if (!empty($delete)) {
             $res = $DB->delete_records('report_coursemanager_reports', ['course' => $instance]);
         }
 
-        $returnurl = "courses_without_teachers.php";
-        redirect($returnurl);
+        redirect(new moodle_url('/report/coursemanager/admin_dashboard/courses_without_teachers.php'));
         exit();
 
         // TO DO : add event when course is deleted by admin.

@@ -214,6 +214,8 @@ hors de la catégorie Corbeille de Moodle.</p>
 $string['button_restore_confirm'] = 'Confirmer la restauration';
 $string['restore_already_moved'] = 'Ce cours n\'est pas dans la catégorie Corbeille !.';
 $string['error_category'] = 'Mauvaise catégorie sélectionnée';
+$string['noteachers_invalidcourse'] = 'Ce cours ne fait pas partie de la liste des cours sans enseignant.';
+$string['noteachers_notrash'] = 'La catégorie corbeille n\'est pas définie dans les réglages du plugin.';
 $string['select_restore_category'] = 'Choisissez la catégorie de restauration du cours';
 
 // Page - Files information.
