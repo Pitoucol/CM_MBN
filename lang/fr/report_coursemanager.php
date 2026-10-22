@@ -511,6 +511,7 @@ $string['backup_step_background'] = 'La sauvegarde s\'effectue en arrière-plan 
 $string['backup_step_done'] = 'La sauvegarde est terminée. Vous pouvez la télécharger dans le tableau.';
 $string['backup_step_restore'] = 'Pour restaurer le cours : restaurez la partie 1 dans un nouveau cours, puis les autres parties dans ce cours avec « Fusionner la sauvegarde avec ce cours ».';
 $string['backup_error_questionbank'] = 'La banque de questions seule (avec le contenu commun à toutes les parties) pèse {$a->size}, au-delà du poids maximal d\'une archive ({$a->threshold}). Aucune sauvegarde n\'a été créée. Utilisez la <a href="{$a->link}">sauvegarde manuelle de tout le cours</a>.';
+$string['backup_error_part'] = 'La sauvegarde de la partie {$a->number} n\'a pas pu être lancée ({$a->message}). La sauvegarde est incomplète : les parties déjà lancées sont marquées en échec. Relancez la sauvegarde, ou utilisez la sauvegarde manuelle.';
 $string['backup_error_section'] = 'La section « {$a->name} » pèse à elle seule {$a->size}, au-delà du poids maximal d\'une archive ({$a->threshold}). Aucune sauvegarde n\'a été créée. Utilisez la <a href="{$a->link}">sauvegarde manuelle de tout le cours</a>.';
 $string['table_backup_progress'] = 'Progression';
 $string['backup_title_estimate'] = 'Estimation';
