@@ -799,6 +799,10 @@ function report_coursemanager_render_exports_tab($userid) {
     }, $courses));
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
+    // Backups launched by the user for these courses, read in one query instead of three per course.
+    $manager->preload_controllers(array_map(function($course) {
+        return $course->id;
+    }, $courses));
 
     $table = new html_table();
     $table->id = 'courseexports';
