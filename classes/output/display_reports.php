@@ -85,7 +85,7 @@ class display_reports {
                     var warndiv_coursemanager = document.createElement("div");
                     warndiv_coursemanager.id = "coursemanager_coursetrashwarn";
                     warndiv_coursemanager.className = "alert alert-warning";
-                    warndiv_coursemanager.innerHTML = "'.$warntextcoursetrash.'";
+                    warndiv_coursemanager.innerHTML = '.json_encode($warntextcoursetrash, JSON_HEX_TAG).';
                     container.appendChild(warndiv_coursemanager);
                 }
                 warnCourseInTrash();
@@ -172,7 +172,7 @@ class display_reports {
 
                                 var wrapper = document.createElement("div");
                                 wrapper.id = "coursemanager_collapse";
-                                wrapper.innerHTML = "' . $button . '";
+                                wrapper.innerHTML = ' . json_encode(str_replace('\"', '"', $button), JSON_HEX_TAG) . ';
                                 container.appendChild(wrapper);
                             }, 20);
                             ';
@@ -191,7 +191,7 @@ class display_reports {
                                     .'class=\"report_coursemanager-reportbutton bg-danger heavy\" '
                                     .'data-html=\"true\" data-bs-toggle=\"popover\" data-bs-placement=\"bottom\" '
                                     .'title=\"'.get_string('heavy_course', 'report_coursemanager').'\" '
-                                    .'data-bs-content=\"'.$content
+                                    .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-thermometer-three-quarters\"></i></button></li>';
                                     break;
                                 case $report->report = 'no_visit_teacher':
@@ -200,7 +200,7 @@ class display_reports {
                                     .'class=\"report_coursemanager-reportbutton bg-info no_visit_teacher\" '
                                     .'data-html=\"true\" data-bs-toggle=\"popover\" data-bs-placement=\"bottom\" '
                                     .'title=\"'.get_string('no_visit_teacher', 'report_coursemanager').'\" '
-                                    .'data-bs-content=\"'.$content
+                                    .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-graduation-cap\"></i></button></li>';
                                     break;
                                 case $report->report = 'no_visit_student':
@@ -209,7 +209,7 @@ class display_reports {
                                     .'class=\"report_coursemanager-reportbutton bg-info no_visit_student\" '
                                     .'data-html=\"true\" data-bs-toggle=\"popover\" data-bs-placement=\"bottom\" '
                                     .'title=\"'.get_string('no_visit_student', 'report_coursemanager').'\" '
-                                    .'data-bs-content=\"'.$content
+                                    .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-group\"></i></button></li>';
                                     break;
                                 case $report->report = 'no_student':
@@ -218,7 +218,7 @@ class display_reports {
                                     .'class=\"report_coursemanager-reportbutton bg-warning no_student\" '
                                     .'data-html=\"true\" data-bs-toggle=\"popover\" data-bs-placement=\"bottom\" '
                                     .'title=\"'.get_string('no_student', 'report_coursemanager').'\" '
-                                    .'data-bs-content=\"'.$content
+                                    .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-user-o\"></i></button></li>';
                                     break;
                                 case $report->report = 'empty':
@@ -227,7 +227,7 @@ class display_reports {
                                     .'class=\"report_coursemanager-reportbutton bg-dark empty\" '
                                     .'data-html=\"true\" data-bs-toggle=\"popover\" data-bs-placement=\"bottom\" '
                                     .'title=\"'.get_string('no_content', 'report_coursemanager').'\" '
-                                    .'data-bs-content=\"'.$content
+                                    .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-battery-empty\"></i></button></li>';
                                     break;
                             }
@@ -257,7 +257,7 @@ class display_reports {
                                 container.appendChild(button);
 
                                 var list = document.createElement("ul");
-                                list.innerHTML = "' . $final . '";
+                                list.innerHTML = ' . json_encode(str_replace('\"', '"', $final), JSON_HEX_TAG) . ';
                                 list.id = "coursemanagerbuttons";
                                 button.appendChild(list);
 
@@ -298,7 +298,7 @@ class display_reports {
             var warndiv_coursemanager = document.createElement("div");
             warndiv_coursemanager.id = "coursemanager_trash_warn";
             warndiv_coursemanager.className = "alert alert-warning";
-            warndiv_coursemanager.innerHTML = "'.$warntextcategorytrash.'";
+            warndiv_coursemanager.innerHTML = '.json_encode($warntextcategorytrash, JSON_HEX_TAG).';
             container.appendChild(warndiv_coursemanager);
         }
         warnCategoryTrash();
