@@ -152,10 +152,12 @@ class mailing_task extends \core\task\scheduled_task {
                             if ($report['report'] == 'heavy') {
                                 $reportresult .= '- <a href="'.$CFG->wwwroot
                                 .'/report/coursemanager/course_files.php?courseid='
-                                .$listcourse->courseid.'">'.$listcourse->coursename.'</a><br />';
+                                .$listcourse->courseid.'">'.format_string($listcourse->coursename, true,
+                                    ['context' => \context_course::instance($listcourse->courseid)]).'</a><br />';
                             } else {
                                 $reportresult .= '- <a href="'.$CFG->wwwroot.'/course/view.php?id='
-                                .$listcourse->courseid.'">'.$listcourse->coursename.'</a><br />';
+                                .$listcourse->courseid.'">'.format_string($listcourse->coursename, true,
+                                    ['context' => \context_course::instance($listcourse->courseid)]).'</a><br />';
                             }
                         }
                     }
@@ -180,7 +182,8 @@ class mailing_task extends \core\task\scheduled_task {
                     $a->no_teacher_time = get_config('report_coursemanager', 'last_access_teacher');
                     $mailingintroduction = str_replace(
                         ['%coursemanagerlink%', '%userfirstname%', '%userlastname%'],
-                        [$CFG->wwwroot.'/report/coursemanager/view.php', $teacheruserinfo->firstname, $teacheruserinfo->lastname],
+                        [$CFG->wwwroot.'/report/coursemanager/view.php', s($teacheruserinfo->firstname),
+                            s($teacheruserinfo->lastname)],
                         get_config('report_coursemanager', 'mailing_introduction')
                     );
 

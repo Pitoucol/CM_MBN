@@ -177,7 +177,9 @@ if (!empty($heaviestcourse)) {
                 .get_string('stats_heaviest_course_desc', 'report_coursemanager').'</small>
                 <p class="card-text display-4"><i class="fa fa-trophy"></i>  '.display_size($heaviestcourse->weight).'</p>
                 <p class="card-text text-muted"><i class="fa fa-globe"></i> <a href="'.$CFG->wwwroot.'/course/view.php?id='
-                .$heaviestcourse->course.'">'.$infoheaviest->fullname.'</a></p>
+                .$heaviestcourse->course.'">'
+                .format_string($infoheaviest->fullname, true, ['context' => context_course::instance($heaviestcourse->course)])
+                .'</a></p>
                 </div>
             </div>
     ';
