@@ -75,6 +75,14 @@ class provider implements
             'courseid' => 'privacy:metadata:backupdone:courseid',
             'timemodified' => 'privacy:metadata:backupdone:timemodified',
         ], 'privacy:metadata:backupdone');
+        // Copies of the converted texts, kept for undo. They may be texts written by students (forum posts,
+        // online submissions, feedback comments, glossary entries).
+        $collection->add_database_table('report_coursemanager_wlog', [
+            'tablename' => 'privacy:metadata:wlog:tablename',
+            'recordid' => 'privacy:metadata:wlog:recordid',
+            'oldvalue' => 'privacy:metadata:wlog:oldvalue',
+            'newvalue' => 'privacy:metadata:wlog:newvalue',
+        ], 'privacy:metadata:wlog');
         return $collection;
     }
 
@@ -190,7 +198,8 @@ class provider implements
     }
 
     /**
-     * Deletes (anonymises) the data of all users in a context. The history is kept for undo.
+     * Deletes the data of all users in a context : the user of the conversions is anonymised, and the copies of
+     * the converted texts are deleted (these conversions can then no longer be undone).
      *
      * @param \context $context
      */
@@ -204,6 +213,8 @@ class provider implements
         $courseid = self::courseid($context);
         if ($courseid !== null) {
             $DB->set_field('report_coursemanager_wrun', 'userid', 0, ['courseid' => $courseid]);
+            $DB->delete_records_select('report_coursemanager_wlog',
+                'runid IN (SELECT id FROM {report_coursemanager_wrun} WHERE courseid = :courseid)', ['courseid' => $courseid]);
         }
     }
 

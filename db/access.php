@@ -54,7 +54,8 @@ $capabilities = [
     ],
     // Convert the Wiris formulas of a course into LaTeX (wiris_files.php).
     'report/coursemanager:convertwiris' => [
-        'riskbitmask' => RISK_XSS,
+        // Rewrites texts of the course, including texts written by students, and keeps copies of them.
+        'riskbitmask' => RISK_XSS | RISK_DATALOSS | RISK_PERSONAL,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
