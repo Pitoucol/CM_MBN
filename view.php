@@ -163,6 +163,9 @@ $filters = [
     'no-content' => ['icon' => 'fa-battery-empty', 'class' => 'text-danger', 'label' => get_string('no_content', 'report_coursemanager')],
     'orphan-submissions' => ['icon' => 'fa-files-o', 'class' => 'text-danger', 'label' => get_string('orphan_submissions_button', 'report_coursemanager')],
     'ok' => ['icon' => 'fa-check-circle', 'class' => 'text-success', 'label' => get_string('ok', 'report_coursemanager')],
+    // Courses of the trash category : hidden by "All courses", only shown by this button (coursetable.js).
+    'course-trash' => ['icon' => 'fa-trash', 'class' => 'text-secondary',
+        'label' => get_string('course_state_trash', 'report_coursemanager')],
 ];
 
 foreach ($filters as $token => $def) {

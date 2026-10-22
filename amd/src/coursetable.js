@@ -79,7 +79,8 @@ define([
             return;
         }
 
-        // Active filter token — 'filterrow' means "show all".
+        // Active filter token — 'filterrow' means "show all", except the courses of the trash category
+        // (class course-trash), which are only shown by their own filter button.
         var activeFilter = 'filterrow';
 
         // Custom search plugin: filter rows by their CSS class.
@@ -87,12 +88,12 @@ define([
             if (settings.nTable.id !== tableId) {
                 return true;
             }
-            if (activeFilter === 'filterrow') {
-                return true;
-            }
             var tr = settings.aoData[rowIndex] && settings.aoData[rowIndex].nTr;
             if (!tr) {
                 return true;
+            }
+            if (activeFilter === 'filterrow') {
+                return !tr.classList.contains('course-trash');
             }
             return tr.classList.contains(activeFilter);
         });
