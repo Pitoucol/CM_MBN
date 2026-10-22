@@ -33,7 +33,7 @@ require_login();
 
 $courseid = required_param('courseid', PARAM_INT);
 
-$course = $DB->get_record('course', ['id' => $courseid]);
+$course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 
 $context = context_course::instance($course->id);
 $contextcheck = $context->path . '/%';
