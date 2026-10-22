@@ -1054,6 +1054,10 @@ function report_coursemanager_render_exports_tab($userid) {
     }, $courses));
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
+    // Backups launched by the user for these courses, read in one query instead of three per course.
+    $manager->preload_controllers(array_map(function($course) {
+        return $course->id;
+    }, $courses));
 
     // Columns : course name, aliases, Wiris, potential losses, last backup, download (size and link of each
     // archive), action, progress.

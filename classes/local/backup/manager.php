@@ -41,6 +41,10 @@ class manager {
     /** @var int User ID. */
     protected $userid;
 
+    /** @var array|null Backup controllers of the user (ready to run or more), by course id, most recent first,
+     * loaded once by preload_controllers() for the courses of the exports tab. */
+    protected $controllers = null;
+
     /**
      * Constructor.
      *
@@ -48,6 +52,50 @@ class manager {
      */
     public function __construct(int $userid) {
         $this->userid = $userid;
+    }
+
+    /**
+     * Loads in one query the backups launched by the user for several courses, for the exports tab :
+     * is_backup_failed(), get_pending_backups() and is_backup_pending() then read them instead of querying
+     * the database for each course. Courses not preloaded are still read from the database.
+     *
+     * @param int[] $courseids Course IDs.
+     */
+    public function preload_controllers(array $courseids): void {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
+        $this->controllers = array_fill_keys(array_map('intval', $courseids), []);
+        if (!$courseids) {
+            return;
+        }
+        [$insql, $params] = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED, 'course');
+        $params += [
+            'userid' => $this->userid,
+            'type' => backup::TYPE_1COURSE,
+            'operation' => backup::OPERATION_BACKUP,
+            'statusmin' => backup::STATUS_AWAITING,
+        ];
+        $records = $DB->get_recordset_select('backup_controllers', "userid = :userid AND itemid $insql
+            AND type = :type AND operation = :operation AND status >= :statusmin", $params,
+            'itemid, timecreated DESC, id DESC', 'id, itemid, backupid, status, progress, timecreated');
+        foreach ($records as $record) {
+            $this->controllers[(int)$record->itemid][] = $record;
+        }
+        $records->close();
+    }
+
+    /**
+     * Preloaded backup controllers of a course, most recent first.
+     *
+     * @param int $courseid Course ID.
+     * @return \stdClass[]|null Records, or null if the course has not been preloaded.
+     */
+    protected function get_preloaded_controllers(int $courseid): ?array {
+        if ($this->controllers === null || !array_key_exists($courseid, $this->controllers)) {
+            return null;
+        }
+        return $this->controllers[$courseid];
     }
 
     /**
@@ -90,20 +138,7 @@ class manager {
      * @return bool
      */
     public function is_backup_pending(int $courseid): bool {
-        global $CFG, $DB;
-        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
-
-        $select = 'userid = :userid AND itemid = :itemid AND type = :type AND operation = :operation
-            AND status > :statusmin AND status < :statusmax';
-        $params = [
-            'userid' => $this->userid,
-            'itemid' => $courseid,
-            'type' => backup::TYPE_1COURSE,
-            'operation' => backup::OPERATION_BACKUP,
-            'statusmin' => backup::STATUS_NEED_PRECHECK,
-            'statusmax' => backup::STATUS_FINISHED_ERR,
-        ];
-        return $DB->record_exists_select('backup_controllers', $select, $params);
+        return !empty($this->get_pending_backups($courseid));
     }
 
     /**
@@ -115,6 +150,14 @@ class manager {
     public function get_pending_backups(int $courseid): array {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
+        $preloaded = $this->get_preloaded_controllers($courseid);
+        if ($preloaded !== null) {
+            // Waiting or running, oldest first.
+            return array_values(array_reverse(array_filter($preloaded, function($record) {
+                return $record->status > backup::STATUS_NEED_PRECHECK && $record->status < backup::STATUS_FINISHED_ERR;
+            })));
+        }
 
         $select = 'userid = :userid AND itemid = :itemid AND type = :type AND operation = :operation
             AND status > :statusmin AND status < :statusmax';
@@ -155,8 +198,10 @@ class manager {
             'operation' => backup::OPERATION_BACKUP,
             'statusmin' => backup::STATUS_AWAITING,
         ];
-        $records = $DB->get_records_select('backup_controllers', $select, $params, 'timecreated DESC, id DESC',
-            'id, status, timecreated', 0, 50);
+        $preloaded = $this->get_preloaded_controllers($courseid);
+        $records = $preloaded !== null ? array_slice($preloaded, 0, 50)
+            : $DB->get_records_select('backup_controllers', $select, $params, 'timecreated DESC, id DESC',
+                'id, status, timecreated', 0, 50);
         if (empty($records)) {
             return false;
         }
