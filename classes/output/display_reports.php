@@ -114,35 +114,39 @@ class display_reports {
                 $info->no_teacher_time = get_config('report_coursemanager', 'last_access_teacher');
                 $info->no_student_time = get_config('report_coursemanager', 'last_access_student');
 
+                // Course weight, used by the "heavy course" message whatever the order of the reports.
+                $courseweight = 0;
+                foreach ($allreports as $report) {
+                    if ($report->report === 'course_weight') {
+                        $courseweight = (int)$report->detail;
+                    }
+                }
+
                 // If reports are shown in course with collapse menu under admin nav.
                 $output = '';
                 if (!empty($allreports)) {
                     if (get_config('report_coursemanager', 'show_report_in_course') == 1) {
                         // For each report, create <li> with text and links.
                         foreach ($allreports as $report) {
-                            if ($report->report === "course_weight") {
-                                $courseweight = $report->detail;
-                                //break; // On sort de la boucle dès qu'on trouve la valeur
-                            }
                             switch($report->report) {
-                                case $report->report = 'heavy':
+                                case 'heavy':
                                     $info->size = display_size($courseweight, 0, 'MB');
                                     $final .= "<li><i class='fa fa-thermometer-three-quarters text-danger fa-lg'></i>  ".
                                     get_string('course_alert_heavy_coursesize', 'report_coursemanager', $info)."</li>";
                                     break;
-                                case $report->report = 'no_visit_teacher':
+                                case 'no_visit_teacher':
                                     $final .= "<li><i class='fa fa-graduation-cap text-info fa-lg'></i>  ".
                                     get_string('course_alert_no_visit_teacher', 'report_coursemanager', $info)."</li>";
                                     break;
-                                case $report->report = 'no_visit_student':
+                                case 'no_visit_student':
                                     $final .= "<li><i class='fa fa-group text-info fa-lg'></i>  ".
                                     get_string('course_alert_no_visit_student', 'report_coursemanager', $info)."</li>";
                                     break;
-                                case $report->report = 'no_student':
+                                case 'no_student':
                                     $final .= "<li><i class='fa fa-user-o fa-lg text-warning'></i>  ".
                                     get_string('course_alert_no_student', 'report_coursemanager', $info)."</li>";
                                     break;
-                                case $report->report = 'empty':
+                                case 'empty':
                                     $final .= "<li><i class='fa fa-battery-empty fa-lg text-dark'></i>  ".
                                     get_string('course_alert_empty', 'report_coursemanager', $info)."</li>";
                                     break;
@@ -180,11 +184,8 @@ class display_reports {
                     } else if (get_config('report_coursemanager', 'show_report_in_course') == 2) {
                         // If reports are shown with popover icons next to course title.
                         foreach ($allreports as $report) {
-                            if ($report->report === "course_weight") {
-                                $courseweight = $report->detail;
-                            }
                             switch($report->report) {
-                                case $report->report = 'heavy':
+                                case 'heavy':
                                     $info->size = display_size($courseweight, 0, 'MB');
                                     $content = get_string('course_alert_heavy_coursesize', 'report_coursemanager', $info);
                                     $final .= '<li><button type=\"button\" '
@@ -194,7 +195,7 @@ class display_reports {
                                     .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-thermometer-three-quarters\"></i></button></li>';
                                     break;
-                                case $report->report = 'no_visit_teacher':
+                                case 'no_visit_teacher':
                                     $content = get_string('course_alert_no_visit_teacher', 'report_coursemanager', $info);
                                     $final .= '<li><button type=\"button\" '
                                     .'class=\"report_coursemanager-reportbutton bg-info no_visit_teacher\" '
@@ -203,7 +204,7 @@ class display_reports {
                                     .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-graduation-cap\"></i></button></li>';
                                     break;
-                                case $report->report = 'no_visit_student':
+                                case 'no_visit_student':
                                     $content = get_string('course_alert_no_visit_student', 'report_coursemanager', $info);
                                     $final .= '<li><button type=\"button\" '
                                     .'class=\"report_coursemanager-reportbutton bg-info no_visit_student\" '
@@ -212,7 +213,7 @@ class display_reports {
                                     .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-group\"></i></button></li>';
                                     break;
-                                case $report->report = 'no_student':
+                                case 'no_student':
                                     $content = get_string('course_alert_no_student', 'report_coursemanager', $info);
                                     $final .= '<li><button type=\"button\" '
                                     .'class=\"report_coursemanager-reportbutton bg-warning no_student\" '
@@ -221,7 +222,7 @@ class display_reports {
                                     .'data-bs-content=\"'.s($content)
                                     .'\"><i class=\"fa fa-user-o\"></i></button></li>';
                                     break;
-                                case $report->report = 'empty':
+                                case 'empty':
                                     $content = get_string('course_alert_empty', 'report_coursemanager', $info);
                                     $final .= '<li><button type=\"button\" '
                                     .'class=\"report_coursemanager-reportbutton bg-dark empty\" '
