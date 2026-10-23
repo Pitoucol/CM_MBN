@@ -1,5 +1,5 @@
 <?php
-// This file is part of mod_offlinequiz for Moodle - http://moodle.org/
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,10 +24,18 @@
 
 namespace report_coursemanager\task;
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Ad hoc task resetting a course with the options chosen by the teacher.
+ *
+ * @package     report_coursemanager
+ * @copyright   2022 Olivier VALENTIN
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class reset_course_task extends \core\task\adhoc_task {
 
+    /**
+     * Reset the course given in the custom data, with the options of the reset form.
+     */
     public function execute() {
         global $DB, $CFG;
 
