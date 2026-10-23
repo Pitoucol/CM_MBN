@@ -90,6 +90,11 @@ if ($options['list-runs']) {
 
 if ($options['undo']) {
     $result = $manager->undo((int)$options['undo']);
+    // The last check of the course is no longer valid : the exports tab shows "Check" again (no analysis here).
+    $courseid = (int)$DB->get_field('report_coursemanager_wrun', 'courseid', ['id' => (int)$options['undo']]);
+    if ($courseid) {
+        manager::clear_check($courseid);
+    }
     cli_writeln("Restored: {$result['restored']}  Modified since conversion (left untouched): {$result['conflicts']}");
     exit($result['conflicts'] ? 1 : 0);
 }
@@ -159,6 +164,10 @@ foreach ($jobs as [$courseid, $gettargets]) {
     if ($execute) {
         $run = $manager->convert($targets, $courseid, get_admin()->id, 'cli');
         cli_writeln("    -> written, run id {$run->id}");
+        // The last check of the course is no longer valid : the exports tab shows "Check" again.
+        if ($courseid) {
+            manager::clear_check($courseid);
+        }
     }
 }
 cli_writeln(sprintf('TOTAL: %d formulas in %d texts, %d failures (%d from LaTeX annotations)',
