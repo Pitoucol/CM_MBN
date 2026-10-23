@@ -38,6 +38,8 @@ $confirm = optional_param('confirm', 0, PARAM_INT);
 $instance  = optional_param('instance', 0, PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', 10, PARAM_INT);
+// At least 1 (no division by zero in the paging bar), at most 100.
+$perpage = max(1, min(100, $perpage));
 
 $site = get_site();
 
