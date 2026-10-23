@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>amd/src/datatables.js</location>
+    <name>DataTables</name>
+    <description>Table plug-in for jQuery (sort, search, pagination), wrapped in an AMD module of the plugin.</description>
+    <version>1.13.6</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+    <repository>https://github.com/DataTables/DataTables</repository>
+    <copyrights>
+      <copyright>SpryMedia Ltd</copyright>
+    </copyrights>
+  </library>
+  <library>
+    <location>amd/src/datatables-bs5.js</location>
+    <name>DataTables Bootstrap 5 integration</name>
+    <description>Bootstrap 5 styling of DataTables, wrapped in an AMD module of the plugin.</description>
+    <version>1.13.6</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+    <repository>https://github.com/DataTables/DataTables</repository>
+    <copyrights>
+      <copyright>SpryMedia Ltd</copyright>
+    </copyrights>
+  </library>
+</libraries>
