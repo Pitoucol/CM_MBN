@@ -50,7 +50,7 @@ $PAGE = new moodle_page();
 $PAGE->set_context($context);
 $PAGE->set_heading($site->fullname);
 
-$PAGE->set_url('/report/coursemanager/reset.php', ['id' => $id]);
+$PAGE->set_url('/report/coursemanager/restore_course.php', ['courseid' => $id]);
 $PAGE->set_pagelayout('mycourses');
 $PAGE->set_pagetype('report-coursemanager');
 

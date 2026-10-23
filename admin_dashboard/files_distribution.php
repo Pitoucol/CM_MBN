@@ -35,7 +35,7 @@ $site = get_site();
 $PAGE = new moodle_page();
 $PAGE->set_context(context_system::instance());
 $PAGE->set_heading(get_string('title', 'report_coursemanager'));
-$PAGE->set_url('/report/coursemanager/admin_dashboard/files_by_component.php');
+$PAGE->set_url('/report/coursemanager/admin_dashboard/files_distribution.php');
 $PAGE->set_pagelayout('mycourses');
 
 $PAGE->set_pagetype('report-coursemanager');
