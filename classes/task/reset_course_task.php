@@ -33,6 +33,11 @@ class reset_course_task extends \core\task\adhoc_task {
 
         $data = $this->get_custom_data();
         $courseid = $data->id;
+        // Course deleted since the reset was asked : nothing to do, the task ends normally.
+        if (!$DB->record_exists('course', ['id' => $courseid])) {
+            mtrace("Course {$courseid} no longer exists : reset skipped.");
+            return;
+        }
         $course = get_course($courseid);
         $context = \context_course::instance($courseid);
 

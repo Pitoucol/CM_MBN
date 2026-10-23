@@ -30,7 +30,7 @@ require_login();
 
 // $page, $perpage et search_courses.js deleted : DataTables now handles pagination and search.
 $courseid = optional_param('courseid', 0, PARAM_INT);
-$done     = optional_param('done', 0, PARAM_TEXT);
+$done     = optional_param('done', '', PARAM_ALPHAEXT);
 
 $site = get_site();
 
@@ -65,7 +65,9 @@ $now = time();
 echo $OUTPUT->header();
 
 // Message after action.
-if ($done != '0') {
+// Confirmation message after an action : only for the known values of the done parameter.
+$titledone = '';
+if ($done !== '') {
     switch ($done) {
         case 'cohort_deleted':
             $titledone = get_string('confirm_cohort_unenrolled_title', 'report_coursemanager');
@@ -82,6 +84,8 @@ if ($done != '0') {
         default:
             break;
     }
+}
+if ($titledone !== '') {
     // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set, and the close button
     // is an icon, as .close (Bootstrap 4) and .btn-close (Bootstrap 5) classes are not compatible.
     echo html_writer::div('
@@ -217,7 +221,9 @@ if (count($listusercourses) == 0) {
         $isteacher     = get_user_roles($coursecontext, $USER->id, false);
         $role          = key($isteacher);
 
-        if ($isteacher[$role]->roleid == get_config('report_coursemanager', 'teacher_role_dashboard')) {
+        // A user enrolled without any role in the course has no role to check.
+        if (!empty($isteacher)
+                && $isteacher[$role]->roleid == get_config('report_coursemanager', 'teacher_role_dashboard')) {
             $countcourses++;
             $allrowclasses = '';
 

@@ -33,6 +33,11 @@ class delete_cohorts_task extends \core\task\adhoc_task {
 
         $data = $this->get_custom_data();
         $courseid = $data->courseid;
+        // Course deleted since the unenrolment was asked : nothing to do, the task ends normally.
+        if (!$DB->record_exists('course', ['id' => $courseid])) {
+            mtrace("Course {$courseid} no longer exists : cohorts unenrolment skipped.");
+            return;
+        }
 
         // Retieve all cohorts enrolling methods instances.
         $instances = $DB->get_records('enrol', ['enrol' => 'cohort', 'courseid' => $courseid]);
