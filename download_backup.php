@@ -31,8 +31,12 @@ $fileid = required_param('fileid', PARAM_INT);
 require_login();
 require_sesskey();
 
+// A course backup area file, or a file of the private backup area of the current user (backups made with the
+// Moodle backup page). The file must also be one of the last backups of the course, checked below.
 $file = get_file_storage()->get_file_by_id($fileid);
-if (!$file || $file->is_directory() || $file->get_component() !== 'backup') {
+$inuserarea = $file && $file->get_component() === 'user' && $file->get_filearea() === 'backup'
+    && (int)$file->get_contextid() === (int)context_user::instance($USER->id)->id;
+if (!$file || $file->is_directory() || ($file->get_component() !== 'backup' && !$inuserarea)) {
     throw new moodle_exception('filenotfound', 'error');
 }
 
