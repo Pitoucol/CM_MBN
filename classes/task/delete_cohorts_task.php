@@ -24,10 +24,18 @@
 
 namespace report_coursemanager\task;
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Ad hoc task removing all the cohort enrolment methods of a course.
+ *
+ * @package     report_coursemanager
+ * @copyright   2022 Olivier VALENTIN
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class delete_cohorts_task extends \core\task\adhoc_task {
 
+    /**
+     * Delete the cohort enrolment instances of the course given in the custom data.
+     */
     public function execute() {
         global $DB;
 
