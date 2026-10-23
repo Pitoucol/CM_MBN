@@ -221,6 +221,18 @@ class manager {
     }
 
     /**
+     * Forgets the result of the last check of a course, which is no longer valid (conversion or undo done
+     * outside the Wiris page of the course, for example with the command line). The exports tab then shows the
+     * "Check" link again. Nothing is checked here.
+     *
+     * @param int $courseid
+     */
+    public static function clear_check(int $courseid): void {
+        global $DB;
+        $DB->delete_records('report_coursemanager_reports', ['course' => $courseid, 'report' => self::REPORT]);
+    }
+
+    /**
      * Results of the last checks of several courses.
      *
      * @param int[] $courseids
