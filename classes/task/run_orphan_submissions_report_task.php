@@ -51,8 +51,14 @@ class run_orphan_submissions_report_task extends \core\task\scheduled_task {
         if (get_config('report_coursemanager', 'enable_orphans_task') == 1) {
             global $CFG, $DB, $USER;
             $table = 'report_coursemanager_orphans';
-            $listassigns = $DB->get_records('assign', [], 'id ASC', 'id, course');
+            // Assignment module not installed (no table) : nothing to check, the task ends normally.
             $assignmoduleid = $DB->get_record('modules', ['name' => 'assign'], 'id');
+            if (!$assignmoduleid || !$DB->get_manager()->table_exists('assign')) {
+                mtrace("...... Assignment module not installed : no orphaned submissions to check.");
+                mtrace("... End coursemanager report for orphaned submissions.");
+                return;
+            }
+            $listassigns = $DB->get_records('assign', [], 'id ASC', 'id, course');
             foreach ($listassigns as $assign) {
                 $sqlcontextid = 'SELECT id
                 FROM {course_modules}

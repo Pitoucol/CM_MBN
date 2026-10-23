@@ -50,7 +50,7 @@ $PAGE = new moodle_page();
 $PAGE->set_context($context);
 $PAGE->set_heading($site->fullname);
 
-$PAGE->set_url('/report/coursemanager/reset.php', ['id' => $id]);
+$PAGE->set_url('/report/coursemanager/restore_course.php', ['courseid' => $id]);
 $PAGE->set_pagelayout('mycourses');
 $PAGE->set_pagetype('report-coursemanager');
 
@@ -61,8 +61,8 @@ $infocourse = $DB->get_record('course', ['id' => $id]);
 
 $a = new stdClass();
 $a->delete_period = get_config('report_coursemanager', 'delete_period');
-$nametrash = $DB->get_record('course_categories', ['id' => get_config('report_coursemanager', 'category_bin')]);
-$a->trash_category = $nametrash->name;
+$nametrash = $DB->get_record('course_categories', ['id' => (int)get_config('report_coursemanager', 'category_bin')]);
+$a->trash_category = $nametrash ? format_string($nametrash->name) : '';
 
 $post = new stdClass();
 $post->courseid = $id;
@@ -113,7 +113,10 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('title_restore_confirm', 'report_coursemanager')." "
     .format_string($infocourse->fullname, true, ['context' => $context]));
 
-if ($infocourse->category != $bin) {
+if (!$nametrash) {
+    // No trash category set (or deleted) : an administrator must set it in the settings of the plugin.
+    echo html_writer::tag('h5', get_string('trash_notset', 'report_coursemanager'), ['class' => 'alert alert-warning']);
+} else if ($infocourse->category != $bin) {
     echo html_writer::tag('h5', get_string('restore_already_moved', 'report_coursemanager'), ['class' => 'alert alert-warning']);
 } else if (!$canrestore) {
     echo html_writer::tag('h5', get_string('restore_norights', 'report_coursemanager'), ['class' => 'alert alert-warning']);

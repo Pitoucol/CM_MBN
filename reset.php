@@ -65,15 +65,7 @@ if ($mform->is_cancelled()) {
     // Création de la tâche ad-hoc
     $task = new \report_coursemanager\task\reset_course_task();
 
-    // On simplifie les données du formulaire
-    $customdata = [
-        'courseid' => $course->id,
-        'reset_assign' => !empty($data->reset_assign),
-        'reset_forum' => !empty($data->reset_forum),
-        'reset_quiz' => !empty($data->reset_quiz),
-        'reset_cohort' => !empty($data->reset_cohort)
-    ];
-
+    // The whole form is given to the task : reset_course_userdata() reads every reset option of the form.
     $task->set_custom_data($data);
     \core\task\manager::queue_adhoc_task($task);
     

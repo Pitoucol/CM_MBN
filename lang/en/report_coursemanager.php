@@ -210,6 +210,7 @@ $string['restore_confirm'] = '<p>This page will take a course out of bin categor
 <p class="alert alert-info"><i class="fa fa-info-circle"></i> NOTE : don\'t restore this course in  <b>"{$a->trash_category}"</b> : this category is reserved for courses to be deleted in <b>{$a->delete_period}</b>.</p>';
 $string['button_restore_confirm'] = 'Confirm course restore';
 $string['restore_already_moved'] = 'This course is not in bin category !.';
+$string['trash_notset'] = 'The trash category is not set. An administrator of the site must set it in the settings of the Course Manager plugin.';
 $string['trash_norights'] = 'You do not have the right to move this course to the trash category. Please contact a manager of the site.';
 $string['restore_norights'] = 'You do not have the right to move this course to another category. Please contact a manager of the site to restore it.';
 $string['error_category'] = 'Wrong category selected';

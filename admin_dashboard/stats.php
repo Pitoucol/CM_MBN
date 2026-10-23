@@ -87,11 +87,14 @@ $totalfilestrash = $DB->get_field_sql($sqlfilestrash, [$a->categorytrash]);
 $countheavycourses = $DB->count_records('report_coursemanager_reports', ['report' => 'heavy']);
 
 // Heaviest course.
-$sqlheaviestcourse = "SELECT course, detail AS weight
-    FROM {report_coursemanager_reports}
-    WHERE detail = (SELECT MAX(detail) FROM {report_coursemanager_reports})
-    ";
-$heaviestcourse = $DB->get_record_sql($sqlheaviestcourse);
+// Only the weight reports (size on disk), compared as numbers (detail is a text column), of existing courses.
+$sqlheaviestcourse = "SELECT r.course, r.detail AS weight
+    FROM {report_coursemanager_reports} r
+    JOIN {course} c ON c.id = r.course
+    WHERE r.report = :report AND r.detail IS NOT NULL
+    ORDER BY " . $DB->sql_cast_char2real('r.detail') . " DESC";
+$heaviestcourses = $DB->get_records_sql($sqlheaviestcourse, ['report' => 'weight'], 0, 1);
+$heaviestcourse = $heaviestcourses ? reset($heaviestcourses) : null;
 if (!empty($heaviestcourse)) {
     $infoheaviest = get_course($heaviestcourse->course);
 }

@@ -83,7 +83,7 @@ if (!$confirm) {
     echo $OUTPUT->heading(get_string('title_move_confirm', 'report_coursemanager')." "
         .format_string($infocourse->fullname, true, ['context' => $context]));
     if ($infocourse->category == get_config('report_coursemanager', 'category_bin')) {
-        echo html_writer::tag('h5', get_string('delete_already_moved'), ['class' => 'alert alert-warning']);
+        echo html_writer::tag('h5', get_string('delete_already_moved', 'report_coursemanager'), ['class' => 'alert alert-warning']);
         echo $OUTPUT->footer();
         exit();
     }
