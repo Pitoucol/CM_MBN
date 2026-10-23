@@ -443,7 +443,6 @@ $string['mailingddescreportheavy'] = 'Le poids des fichiers rattachés à ce cou
 $string['mailingddescreportorphansubmissions'] = 'Les activités Devoir de ces cours contiennent des dépôts effectués par des étudiants qui ne sont plus inscrits. Ces dépôts invisibles peuvent représenter un poids important !';
 
 // Privacy.
-$string['privacy:no_data_reason'] = 'Le plugin Course Manager n\'enregistre aucune donnée personnelle. Il établit des rapports à partir de données non personnelles résultant de l\'étude des contenus des cours (paramétrages, nombre d\'étudiants, nombre d\'activités...).';
 
 // Capabilities.
 $string['coursemanager:viewreport'] = 'Voir les rapports dans les cours si activé';
