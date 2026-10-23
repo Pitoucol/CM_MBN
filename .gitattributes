@@ -1,0 +1,7 @@
+# Development files left out of the archives (git archive, GitHub zip) : the plugin does not need them.
+/.github export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/Gruntfile.js export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore

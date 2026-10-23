@@ -15,21 +15,21 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template local_adminer/navbar_action
+    @template report_coursemanager/navbar_link
 
-    A template printing an icon on the navigation bar.
+    Icon of the navigation bar linking to the Course Manager dashboard.
 
     Context variables required for this template:
-    * url - String
+    * url - String, URL of the dashboard
 
     Example context (json):
     {
-        "url": "https://example.com/local/invitation/invite.php?courseid=2"
+        "url": "https://example.com/report/coursemanager/view.php"
     }
 }}
 
 <div class="report-coursemanager-nav-action">
-    <a id="report-coursemanager-action-{{uniqid}}" href="{{{url}}}" class="nav-link icon-no-margin" >
+    <a id="report-coursemanager-action" href="{{url}}" class="nav-link icon-no-margin">
         <i class="icon fa fa-list-alt  fa-fw navicon" title="{{#str}} pluginname, report_coursemanager {{/str}}"></i>
     </a>
 </div>
