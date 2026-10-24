@@ -155,6 +155,9 @@ if (!$confirm) {
     $subject = get_string('mail_subject_delete', 'report_coursemanager', $a);
 
     $from = new stdClass;
+    // Id of the main administrator of the site, only used by Moodle to record the event of a failed mail
+    // (see classes/task/mailing_task.php) ; the sender address does not change.
+    $from->id = get_admin()->id;
     $from->email = $CFG->supportname;
     $from->maildisplay = false;
 

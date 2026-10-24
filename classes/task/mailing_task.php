@@ -53,6 +53,10 @@ class mailing_task extends \core\task\scheduled_task {
 
             // Define $from for mailing.
             $from = new \stdClass;
+            // Id of the main administrator of the site (get_admin() : the first site administrator, usually the
+            // account created when Moodle was installed). Moodle only uses it when a mail cannot be sent, to record
+            // the user of the event \core\event\email_failed ; the sender address shown to teachers does not change.
+            $from->id = get_admin()->id;
             $from->firstname = '';
             $from->lastname = $CFG->supportname;
             $from->email = $CFG->supportname;
