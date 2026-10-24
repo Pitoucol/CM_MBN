@@ -28,7 +28,7 @@ global $DB, $USER;
 
 require_login();
 
-// $page, $perpage et search_courses.js deleted : DataTables now handles pagination and search.
+// $page, $perpage and search_courses.js deleted : DataTables now handles pagination and search.
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $done     = optional_param('done', '', PARAM_ALPHAEXT);
 
@@ -92,7 +92,9 @@ if ($titledone !== '') {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
         <h4 class="alert-heading">' . $titledone . '</h4>
         <p>' . $textdone . '</p>
-        <button type="button" class="btn btn-link p-0 float-right float-end ml-auto ms-auto" data-dismiss="alert" data-bs-dismiss="alert" aria-label="' . get_string('closebuttontitle') . '"><i class="fa fa-times" aria-hidden="true"></i></button>
+        <button type="button" class="btn btn-link p-0 float-right float-end ml-auto ms-auto"
+            data-dismiss="alert" data-bs-dismiss="alert" aria-label="' . get_string('closebuttontitle') . '"><i class="fa fa-times"
+            aria-hidden="true"></i></button>
         </div>
     ');
 }
@@ -135,12 +137,17 @@ echo html_writer::end_div();
 echo html_writer::start_div('coursemanager-toolbar mb-3 d-flex flex-wrap gap-2 align-items-center');
 $filters = [
     'filterrow' => ['icon' => 'fa-list', 'class' => '', 'label' => get_string('all_courses', 'report_coursemanager')],
-    'heavy-course' => ['icon' => 'fa-thermometer-three-quarters', 'class' => 'text-danger', 'label' => get_string('heavy_course', 'report_coursemanager')],
-    'no-visit-student' => ['icon' => 'fa-group', 'class' => 'text-info','label' => get_string('no_visit_student', 'report_coursemanager')],
-    'no-visit-teacher' => ['icon' => 'fa-graduation-cap', 'class' => '', 'label' => get_string('no_visit_teacher', 'report_coursemanager')],
+    'heavy-course' => ['icon' => 'fa-thermometer-three-quarters', 'class' => 'text-danger',
+        'label' => get_string('heavy_course', 'report_coursemanager')],
+    'no-visit-student' => ['icon' => 'fa-group', 'class' => 'text-info',
+        'label' => get_string('no_visit_student', 'report_coursemanager')],
+    'no-visit-teacher' => ['icon' => 'fa-graduation-cap', 'class' => '',
+        'label' => get_string('no_visit_teacher', 'report_coursemanager')],
     'no-student' => ['icon' => 'fa-user-o', 'class' => '', 'label' => get_string('no_student', 'report_coursemanager')],
-    'no-content' => ['icon' => 'fa-battery-empty', 'class' => 'text-danger', 'label' => get_string('no_content', 'report_coursemanager')],
-    'orphan-submissions' => ['icon' => 'fa-files-o', 'class' => 'text-danger', 'label' => get_string('orphan_submissions_button', 'report_coursemanager')],
+    'no-content' => ['icon' => 'fa-battery-empty', 'class' => 'text-danger',
+        'label' => get_string('no_content', 'report_coursemanager')],
+    'orphan-submissions' => ['icon' => 'fa-files-o', 'class' => 'text-danger',
+        'label' => get_string('orphan_submissions_button', 'report_coursemanager')],
     'ok' => ['icon' => 'fa-check-circle', 'class' => 'text-success', 'label' => get_string('ok', 'report_coursemanager')],
     // Courses of the trash category : hidden by "All courses", only shown by this button (coursetable.js).
     'course-trash' => ['icon' => 'fa-trash', 'class' => 'text-secondary',
@@ -437,16 +444,19 @@ if (count($listusercourses) == 0) {
                         case 'no_visit_teacher':
                             $info->limit_visit = floor(get_config('report_coursemanager', 'last_access_teacher') / 30);
                             if (count($allteachers + $otherteachers) > 1) {
-                                $sumup .= '<li>' . get_string('last_access_multiple_teacher_alert', 'report_coursemanager', $info) . '</li><br />';
+                                $sumup .= '<li>' . get_string('last_access_multiple_teacher_alert', 'report_coursemanager', $info)
+                                    . '</li><br />';
                             } else {
-                                $sumup .= '<li>' . get_string('last_access_unique_teacher_alert', 'report_coursemanager', $info) . '</li><br />';
+                                $sumup .= '<li>' . get_string('last_access_unique_teacher_alert', 'report_coursemanager', $info)
+                                    . '</li><br />';
                             }
                             $iconssumup    .= "<i class='fa fa-lg fa-graduation-cap'></i>&nbsp;";
                             $allrowclasses .= ' no-visit-teacher';
                             break;
                         case 'no_visit_student':
                             $info->limit_visit = floor(get_config('report_coursemanager', 'last_access_student') / 30);
-                            $sumup            .= '<li>' . get_string('last_access_student_alert', 'report_coursemanager', $info) . '.</li>';
+                            $sumup            .= '<li>' . get_string('last_access_student_alert', 'report_coursemanager', $info)
+                                . '.</li>';
                             $iconssumup       .= "<i class='fa fa-lg fa-group text-info'></i>&nbsp;";
                             $allrowclasses    .= ' no-visit-student';
                             break;
@@ -474,7 +484,8 @@ if (count($listusercourses) == 0) {
                         $info->filesize   += number_format(ceil($orphan->weight / 1048576), 0, ',', '');
                         $info->filescount += $orphan->files;
                     }
-                    $sumup         .= '<li>' . get_string('orphan_submissions_alert', 'report_coursemanager', $info) . '</li><br />';
+                    $sumup         .= '<li>' . get_string('orphan_submissions_alert', 'report_coursemanager', $info)
+                        . '</li><br />';
                     $iconssumup    .= "<i class='fa fa-lg fa-files-o text-danger'></i>&nbsp;";
                     $allrowclasses .= ' orphan-submissions';
                 }
@@ -506,7 +517,10 @@ if (count($listusercourses) == 0) {
                         <h5 class="modal-title" id="exampleModalLabel">' .
                             get_string('advices_for_course', 'report_coursemanager')
                             . format_string($course->fullname, true, ['context' => $coursecontext]) . '</h5>
-                        <button type="button" class="btn btn-link p-0 float-right float-end ml-auto ms-auto" data-dismiss="modal" data-bs-dismiss="modal" aria-label="' . get_string('closebuttontitle') . '"><i class="fa fa-times" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-link p-0 float-right float-end ml-auto ms-auto"
+                            data-dismiss="modal" data-bs-dismiss="modal"
+                            aria-label="' . get_string('closebuttontitle') . '">'
+                            . '<i class="fa fa-times" aria-hidden="true"></i></button>
                       </div>
                       <div class="modal-body">
                           <ul>' . $sumup . '</ul>

@@ -277,7 +277,7 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
 //                 $allreports = $DB->get_records('report_coursemanager_reports', ['course' => $PAGE->course->id]);
 //                 // Create object to stock reports.
 //                 $final = '';
-                
+
 //                 // Create an object for messages variables.
 //                 $info = new stdClass();
 //                 $info->courseid = $PAGE->course->id;
@@ -301,7 +301,7 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
 //                         foreach ($allreports as $report) {
 //                             if ($report->report === "weight") {
 //                                 $courseweight = $report->detail;
-//                                 //break; // On sort de la boucle dès qu'on trouve la valeur
+//                                 //break; // Leave the loop as soon as the value is found.
 //                             }
 //                             switch($report->report) {
 //                                 case $report->report = 'heavy':
@@ -366,7 +366,7 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
 //                         foreach ($allreports as $report) {
 //                             if ($report->report === "weight") {
 //                                 $courseweight = $report->detail;
-//                                 //break; // On sort de la boucle dès qu'on trouve la valeur
+//                                 //break; // Leave the loop as soon as the value is found.
 //                             }
 //                             switch($report->report) {
 //                                 case $report->report = 'heavy':
@@ -383,7 +383,8 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
 //                                     .'class=\"report_coursemanager-reportbutton bg-info no_visit_teacher\" '
 //                                     .'data-html=\"true\" data-toggle=\"popover\" data-placement=\"bottom\" '
 //                                     .'title=\"'.get_string('no_visit_teacher', 'report_coursemanager')
-//                                     .'\" data-content=\"'.get_string('course_alert_no_visit_teacher', 'report_coursemanager', $info)
+//                                     .'\" data-content=\"'
+//                                     .get_string('course_alert_no_visit_teacher', 'report_coursemanager', $info)
 //                                     .'\"><i class=\"fa fa-graduation-cap\"></i></button></li>';
 //                                     break;
 //                                 case $report->report = 'no_visit_student':
@@ -391,7 +392,8 @@ function report_coursemanager_get_files_comment($component, $courseid, $filearea
 //                                     .'class=\"report_coursemanager-reportbutton bg-info no_visit_student\" '
 //                                     .'data-html=\"true\" data-toggle=\"popover\" data-placement=\"bottom\" '
 //                                     .'title=\"'.get_string('no_visit_student', 'report_coursemanager')
-//                                     .'\" data-content=\"'.get_string('course_alert_no_visit_student', 'report_coursemanager', $info)
+//                                     .'\" data-content=\"'
+//                                     .get_string('course_alert_no_visit_student', 'report_coursemanager', $info)
 //                                     .'\"><i class=\"fa fa-group\"></i></button></li>';
 //                                     break;
 //                                 case $report->report = 'no_student':
@@ -481,7 +483,7 @@ function report_coursemanager_render_navbar_output() {
         $content = new \stdClass();
         // Plain URL, escaped by the template.
         $content->url = $dashboardlink->out(false);
-    
+
         return $OUTPUT->render_from_template('report_coursemanager/navbar_link', $content);
     }
 }

@@ -1,17 +1,4 @@
-// This file is part of Moodle - https://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
+/*! DataTables 1.13.6 ©2008-2023 SpryMedia Ltd - datatables.net/license */
 
 /**
  * AMD wrapper for DataTables core (local vendor copy — no CDN dependency).
@@ -21,9 +8,12 @@
  * function directly with Moodle's own jQuery instance and re-export the
  * result under the plugin namespace.
  *
+ * Third party library, declared in thirdpartylibs.xml : the code is not
+ * covered by the GNU GPL of Moodle but by the MIT licence of DataTables.
+ *
  * @module      report_coursemanager/datatables
- * @copyright   2022 Olivier VALENTIN
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright   2008-2023 SpryMedia Ltd
+ * @license     https://opensource.org/licenses/MIT MIT
  */
 define(['jquery'], function($) {
     'use strict';

@@ -62,14 +62,14 @@ if ($mform->is_cancelled()) {
     echo $OUTPUT->header();
     echo $OUTPUT->heading($strresetcourse);
 
-    // Création de la tâche ad-hoc
+    // Create the ad hoc task.
     $task = new \report_coursemanager\task\reset_course_task();
 
     // The whole form is given to the task : reset_course_userdata() reads every reset option of the form.
     $task->set_custom_data($data);
     \core\task\manager::queue_adhoc_task($task);
-    
-// Message de confirmation
+
+    // Confirmation message.
     redirect(new moodle_url('/report/coursemanager/view.php'),
         get_string('resetcoursescheduled', 'report_coursemanager'), null, \core\output\notification::NOTIFY_SUCCESS);
 
