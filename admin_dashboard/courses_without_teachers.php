@@ -91,9 +91,11 @@ if (!empty($delete)) {
 
         echo $OUTPUT->header();
         echo $OUTPUT->heading(get_string('title_admin_no_teacher_courses', 'report_coursemanager'));
+        // The confirm button is a POST form, the session key is added by the button.
         echo $OUTPUT->confirm(get_string('deletecoursewithoutteachersconfirm', 'report_coursemanager'),
-                "courses_without_teachers.php?delete=1&confirm=1&instance=".$instance,
-                $CFG->wwwroot . '/report/coursemanager/admin_dashboard/courses_without_teachers.php');
+                new moodle_url('/report/coursemanager/admin_dashboard/courses_without_teachers.php',
+                    ['delete' => 1, 'confirm' => 1, 'instance' => $instance]),
+                new moodle_url('/report/coursemanager/admin_dashboard/courses_without_teachers.php'));
     }
     echo $OUTPUT->footer();
     exit();
