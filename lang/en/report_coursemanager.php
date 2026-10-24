@@ -490,7 +490,7 @@ $string['manual_backup'] = 'Switch to manual backup';
 
 // Backup split and backup popup.
 $string['backupsplitthreshold'] = 'Maximum size of a backup archive (MB)';
-$string['backupsplitthreshold_strict_desc'] = 'In the "Downloads and exports" tab, when the estimated size of a course backup without user data reaches this size, the backup is split by sections in several archives (part1_, part2_...), each one strictly under this size. The whole question bank is in part 1. 0: no split.';
+$string['backupsplitthreshold_margin_desc'] = 'In the "Downloads and exports" tab, the backup of a course without user data is split by sections in several archives (part1_, part2_...) so that each archive weighs less than 98 % of this size: the 2 % margin covers the XML files of the backup, which the estimation does not count (245 MB for 250 MB). The whole question bank is in part 1. 0: no split.';
 $string['backup_part_prefix'] = 'part{$a}_';
 $string['download_part'] = 'Part {$a}';
 $string['backup_popup_title'] = 'Backup of "{$a}"';

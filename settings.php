@@ -216,10 +216,10 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext($name, $title, $description, 60, PARAM_INT, '5'));
     $settings->hide_if('report_coursemanager/backup_error_delay', 'report_coursemanager/enable_tab_exports');
 
-    // Size threshold of a backup archive : from it, the backup is split in several archives strictly under it.
+    // Size threshold of a backup archive : archives stay strictly under 98 % of it (see manager::get_archive_limit()).
     $name = 'report_coursemanager/backup_split_threshold';
     $title = get_string('backupsplitthreshold', 'report_coursemanager');
-    $description = get_string('backupsplitthreshold_strict_desc', 'report_coursemanager');
+    $description = get_string('backupsplitthreshold_margin_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configtext($name, $title, $description, 250, PARAM_INT, '5'));
     $settings->hide_if('report_coursemanager/backup_split_threshold', 'report_coursemanager/enable_tab_exports');
 
