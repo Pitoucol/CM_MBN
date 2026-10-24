@@ -164,7 +164,7 @@ foreach ($selectedassigns as $assign) {
     ";
     $paramslastsubmission = [$cm->instance];
     $dbresultlastsubmission = $DB->get_record_sql($sqllastsubmission,
-    $paramslastsubmission); 
+    $paramslastsubmission);
 
     // If coursemodule ($cm) is found, assign still exists, let's add row.
     // If not, entry will be deleted by cleaning task.

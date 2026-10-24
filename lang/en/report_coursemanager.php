@@ -140,14 +140,14 @@ $string['head_median_help'] = "This column compares each course size with calcul
 <ul>
 <li><i class='fa fa-arrow-circle-down text-success'></i> indicates this course size is higher than median ;</li>
 <li><i class='fa fa-arrow-circle-up text-danger'></i> indicates this course size is lower than median ;</li>
-<li><i class='fa fa-question-circle text-info'></i> indicates this course size is null or not calculated yet.</li> 
+<li><i class='fa fa-question-circle text-info'></i> indicates this course size is null or not calculated yet.</li>
 </ul>";
 $string['head_average'] = 'Comparison with average course size';
 $string['head_average_help'] = "This column compares each course size with calculated average course size :
 <ul>
 <li><i class='fa fa-arrow-circle-down text-success'></i> indicates this course size is higher than average ;</li>
 <li><i class='fa fa-arrow-circle-up text-danger'></i> indicates this course size is lower than average ;</li>
-<li><i class='fa fa-question-circle text-info'></i> indicates this course size is null or not calculated yet.</li> 
+<li><i class='fa fa-question-circle text-info'></i> indicates this course size is null or not calculated yet.</li>
 </ul>";
 
 // Actions.

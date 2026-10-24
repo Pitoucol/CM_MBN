@@ -1,7 +1,8 @@
 name: Moodle Plugin CI
 
-# Checks of the plugin in a fresh Moodle, on GitHub machines, at each push and pull request.
-on: [push, pull_request]
+# Checks of the plugin in a fresh Moodle, on GitHub machines.
+# Started by hand only (Actions tab, "Run workflow" button, branch to choose), not at each push.
+on: workflow_dispatch
 
 jobs:
   test:
