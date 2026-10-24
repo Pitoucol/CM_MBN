@@ -131,6 +131,10 @@ class scanner {
      * @return \stdClass the same record, completed
      */
     public static function classify(\stdClass $row, array $coursecontexts): \stdClass {
+        global $CFG;
+        // file_mimetype_in_typegroup() and file_extension_in_typegroup() are in filelib.php, which a web page loads
+        // but not the command line scripts.
+        require_once($CFG->libdir . '/filelib.php');
         $row->source = null;
         $row->sourceexists = null;
         $row->isimage = \file_mimetype_in_typegroup((string)$row->mimetype, 'image')
