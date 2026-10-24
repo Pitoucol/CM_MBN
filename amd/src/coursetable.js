@@ -185,11 +185,13 @@ define([
             });
         });
 
-        // Text search (replaces legacy search_courses.js).
+        // Text search (replaces legacy search_courses.js), on the course name only (first column), as the label
+        // of the field says : the typed text must appear as it is in the name (no regular expression, no "smart"
+        // search splitting it in words). The input event also catches a paste with the mouse and the autocompletion.
         var searchInput = document.getElementById('coursemanager-search');
         if (searchInput) {
-            searchInput.addEventListener('keyup', function() {
-                dt.search(searchInput.value).draw();
+            searchInput.addEventListener('input', function() {
+                dt.column(0).search(searchInput.value, false, false).draw();
                 updateFilterMessage(document.querySelector('.coursemanager-filter-btn.active'));
             });
         }
