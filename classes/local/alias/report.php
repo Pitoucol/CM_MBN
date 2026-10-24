@@ -80,7 +80,8 @@ class report {
     protected function describe_context(int $contextid): array {
         $context = \context::instance_by_id($contextid, IGNORE_MISSING);
         if (!$context) {
-            return ['label' => get_string('alias_where_unknown', 'report_coursemanager'), 'url' => null, 'sortkey' => [3, 0, 0, $contextid]];
+            return ['label' => get_string('alias_where_unknown', 'report_coursemanager'), 'url' => null,
+                'sortkey' => [3, 0, 0, $contextid]];
         }
         if ($context->contextlevel == CONTEXT_COURSE) {
             return ['label' => get_string('alias_where_course', 'report_coursemanager'), 'url' => null,
@@ -114,7 +115,8 @@ class report {
                 return [get_string('alias_where_question', 'report_coursemanager', $this->short($question->name)),
                     new \moodle_url('/question/bank/previewquestion/preview.php', ['id' => $question->id])];
             }
-            return [get_string('alias_where_questionother', 'report_coursemanager', s($alias->component . '/' . $alias->filearea)), null];
+            return [get_string('alias_where_questionother', 'report_coursemanager',
+                s($alias->component . '/' . $alias->filearea)), null];
         }
         if ($alias->component === 'course' && $alias->filearea === 'section' && isset($this->sections[$alias->itemid])) {
             $section = $this->sections[$alias->itemid];
@@ -140,12 +142,14 @@ class report {
             case scanner::KIND_OUTSIDE:
                 $src = $alias->source;
                 $context = \context::instance_by_id($src['contextid'], IGNORE_MISSING);
-                $where = $context ? $context->get_context_name(true, false) : s(get_string('alias_contextdeleted', 'report_coursemanager'));
+                $where = $context ? $context->get_context_name(true, false)
+                    : s(get_string('alias_contextdeleted', 'report_coursemanager'));
                 $repo = get_string_manager()->string_exists('alias_repo_' . $alias->repotype, 'report_coursemanager')
                     ? get_string('alias_repo_' . $alias->repotype, 'report_coursemanager') : s($alias->repotype);
                 $text = $repo . ' — ' . $where . ' — ' . s($src['filepath'] . $src['filename']);
                 if ($alias->sourceexists === false) {
-                    $text .= ' ' . \html_writer::span(get_string('alias_sourcemissing', 'report_coursemanager'), 'badge badge-warning bg-warning text-dark');
+                    $text .= ' ' . \html_writer::span(get_string('alias_sourcemissing', 'report_coursemanager'),
+                        'badge badge-warning bg-warning text-dark');
                 }
                 return $text;
             case scanner::KIND_PRIVATE:
