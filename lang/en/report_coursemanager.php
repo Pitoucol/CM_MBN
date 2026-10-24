@@ -348,6 +348,8 @@ $string['confirm_course_restored_message'] = 'Course has been moved out of bin c
 // Events.
 $string['course_dashboard_viewed'] = 'Teacher dashboard visited';
 $string['course_trash_moved'] = 'Course moved in bin category';
+$string['event_wiris_converted'] = 'Wiris formulas converted into LaTeX';
+$string['event_wiris_reverted'] = 'Wiris formulas conversion undone';
 $string['course_files_viewed'] = 'Files report page visited';
 $string['course_global_reset'] = 'Course reseted with Course Manager function';
 $string['course_cohort_unenrolled'] = 'Cohorts unenrolled';
