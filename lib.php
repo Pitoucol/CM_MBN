@@ -787,7 +787,9 @@ function report_coursemanager_render_exports_tab($userid) {
 
     $showlastbackup = report_coursemanager_is_enabled('enable_column_lastbackup');
     // Size of each backup archive, compared with the split threshold (MB, 0 = no split : no colour).
-    $splitthreshold = (int)get_config('report_coursemanager', 'backup_split_threshold') * 1024 * 1024;
+    // Archives must stay strictly under 98 % of the threshold (margin for the XML of the backup, same rule as
+    // \report_coursemanager\local\backup\manager::get_archive_limit()) : an archive reaching this limit is shown in red.
+    $splitthreshold = (int)floor((int)get_config('report_coursemanager', 'backup_split_threshold') * 1024 * 1024 * 0.98);
     $showprogress = report_coursemanager_is_enabled('enable_column_progress');
     $pendingbackups = [];
     $manager = new \report_coursemanager\local\backup\manager($userid);
