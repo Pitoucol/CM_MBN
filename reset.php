@@ -59,8 +59,7 @@ $mform = new report_coursemanager_reset_form(null, ['courseid' => $id]);
 if ($mform->is_cancelled()) {
     redirect($CFG->wwwroot.'/report/coursemanager/view.php');
 } else if ($data = $mform->get_data()) {
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading($strresetcourse);
+    // No output before redirect() : the user goes back to the dashboard at once, with the confirmation message.
 
     // Create the ad hoc task.
     $task = new \report_coursemanager\task\reset_course_task();
