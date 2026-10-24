@@ -215,6 +215,14 @@ $string['button_restore_confirm'] = 'Confirmer la restauration';
 $string['restore_already_moved'] = 'Ce cours n\'est pas dans la catégorie Corbeille !.';
 $string['trash_notset'] = 'La catégorie corbeille n\'est pas réglée. Un administrateur de la plateforme doit la définir dans les réglages du plugin Course Manager.';
 $string['trash_norights'] = 'Vous n\'avez pas le droit de déplacer ce cours dans la catégorie corbeille. Contactez un gestionnaire de la plateforme.';
+$string['trash_rights_info'] = 'Droits nécessaires pour la corbeille';
+$string['trash_rights_info_desc'] = '<p>Mettre un cours à la corbeille et le restaurer sont des changements de catégorie : Course Manager utilise les droits natifs de Moodle. Avec les rôles par défaut, un enseignant n\'a aucun de ces droits, et les actions « Mettre à la corbeille » et « Restaurer le cours » ne sont pas affichées dans le tableau de bord.</p>
+<p>Pour permettre aux enseignants d\'utiliser la corbeille :</p>
+<ul>
+<li>donner la capacité <b>moodle/course:changecategory</b> au rôle enseignant (Administration du site > Utilisateurs > Permissions > Définition des rôles), pour que les enseignants puissent changer la catégorie de leurs cours ;</li>
+<li>donner la capacité <b>moodle/course:create</b> dans la catégorie corbeille, par exemple en attribuant le rôle « Créateur de cours » aux enseignants dans cette catégorie, ou en modifiant les permissions du rôle enseignant dans cette catégorie ;</li>
+<li>pour restaurer un cours, l\'enseignant a aussi besoin de <b>moodle/course:create</b> dans la catégorie de destination.</li>
+</ul>';
 $string['restore_norights'] = 'Vous n\'avez pas le droit de déplacer ce cours dans une autre catégorie. Contactez un gestionnaire de la plateforme pour le restaurer.';
 $string['error_category'] = 'Mauvaise catégorie sélectionnée';
 $string['orphans_invalidassign'] = 'Ce devoir ne fait pas partie de la liste des devoirs avec des remises orphelines.';

@@ -211,6 +211,14 @@ $string['button_restore_confirm'] = 'Confirm course restore';
 $string['restore_already_moved'] = 'This course is not in bin category !.';
 $string['trash_notset'] = 'The trash category is not set. An administrator of the site must set it in the settings of the Course Manager plugin.';
 $string['trash_norights'] = 'You do not have the right to move this course to the trash category. Please contact a manager of the site.';
+$string['trash_rights_info'] = 'Rights needed for the trash';
+$string['trash_rights_info_desc'] = '<p>Moving a course to the trash and restoring it are changes of category: Course Manager uses the native rights of Moodle. With the default roles, a teacher has none of them, and the actions "Delete course" and "Restore course" are not shown in the dashboard.</p>
+<p>To allow teachers to use the trash:</p>
+<ul>
+<li>give the capability <b>moodle/course:changecategory</b> to the teacher role (Site administration > Users > Permissions > Define roles), so that teachers can change the category of their courses;</li>
+<li>give the capability <b>moodle/course:create</b> in the trash category, for example by assigning the role "Course creator" to the teachers in this category, or by overriding the permissions of the teacher role in this category;</li>
+<li>to restore a course, the teacher also needs <b>moodle/course:create</b> in the destination category.</li>
+</ul>';
 $string['restore_norights'] = 'You do not have the right to move this course to another category. Please contact a manager of the site to restore it.';
 $string['error_category'] = 'Wrong category selected';
 $string['orphans_invalidassign'] = 'This assignment is not in the list of assignments with orphaned submissions.';

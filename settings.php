@@ -182,6 +182,11 @@ if ($ADMIN->fulltree) {
     $description = get_string('category_bin_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configselect($name, $title, $description, null, $displaylist));
 
+    // Roles needed to move a course to the trash and to restore it (native rights of Moodle).
+    $settings->add(new admin_setting_description('report_coursemanager/trash_rights_info',
+        get_string('trash_rights_info', 'report_coursemanager'),
+        get_string('trash_rights_info_desc', 'report_coursemanager')));
+
     // Information text when courses in trash category will be deleted.
     $name = 'report_coursemanager/delete_period';
     $title = get_string('delete_period', 'report_coursemanager');
