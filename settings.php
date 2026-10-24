@@ -69,25 +69,25 @@ if ($ADMIN->fulltree) {
     $name = 'report_coursemanager/total_filesize_threshold';
     $title = get_string('total_filesize_threshold', 'report_coursemanager');
     $description = get_string('coursesize_threshold_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configtext($name, $title, $description, null, PARAM_INT, '5'));
+    $settings->add(new admin_setting_configtext($name, $title, $description, '500', PARAM_INT, '5'));
 
     // Limit for single file size  before warning.
     $name = 'report_coursemanager/unique_filesize_threshold';
     $title = get_string('unique_filesize_threshold', 'report_coursemanager');
     $description = get_string('unique_filesize_threshold_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configtext($name, $title, $description, null, PARAM_INT, '5'));
+    $settings->add(new admin_setting_configtext($name, $title, $description, '100', PARAM_INT, '5'));
 
     // Number of days without teacher visit before warn.
     $name = 'report_coursemanager/last_access_teacher';
     $title = get_string('last_access_teacher', 'report_coursemanager');
     $description = get_string('last_access_teacher_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configtext($name, $title, $description, null, PARAM_INT, '5'));
+    $settings->add(new admin_setting_configtext($name, $title, $description, '365', PARAM_INT, '5'));
 
     // Number of days without student visit before warn.
     $name = 'report_coursemanager/last_access_student';
     $title = get_string('last_access_student', 'report_coursemanager');
     $description = get_string('last_access_student_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configtext($name, $title, $description, null, PARAM_INT, '5'));
+    $settings->add(new admin_setting_configtext($name, $title, $description, '365', PARAM_INT, '5'));
 
     // Settings for teachers dashboard.
     $settings->add(new admin_setting_heading('dashboardsettingsheading',
@@ -267,6 +267,11 @@ if ($ADMIN->fulltree) {
     $title = get_string('category_bin', 'report_coursemanager');
     $description = get_string('category_bin_desc', 'report_coursemanager');
     $settings->add(new admin_setting_configselect($name, $title, $description, null, $displaylist));
+
+    // Roles needed to move a course to the trash and to restore it (native rights of Moodle).
+    $settings->add(new admin_setting_description('report_coursemanager/trash_rights_info',
+        get_string('trash_rights_info', 'report_coursemanager'),
+        get_string('trash_rights_info_desc', 'report_coursemanager')));
 
     // Information text when courses in trash category will be deleted.
     $name = 'report_coursemanager/delete_period';

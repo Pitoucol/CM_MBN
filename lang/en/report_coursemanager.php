@@ -31,12 +31,12 @@ $string['title'] = 'Course Manager for teachers';
 $string['configtitle'] = 'Course Manager settings';
 $string['category_bin'] = 'Category for bin';
 $string['teacherroledashboard'] = 'Teacher role in courses';
-$string['teacherroledashboard_desc'] = 'Defines teacher role that can display course list in Course Manager dashabord. Default role is Moodle teacher.';
+$string['teacherroledashboard_desc'] = 'Defines teacher role that can display course list in Course Manager dashboard. Default role is Moodle teacher.';
 $string['otherteacherroledashboard'] = 'Other teaching roles';
 $string['otherteacherroledashboard_desc'] = 'Defines other teacher roles to be considered in the dashboard teacher account and teacher visits to a course, such as non-editing teachers.';
 $string['studentrolereport'] = 'Student role in courses';
 $string['studentrolereport_desc'] = 'Defines student role for reports calculation. Default role is Moodle student.';
-$string['category_bin_desc'] = 'If teacher deletes a course through dashboard, it is moved in this category before real deletion by admin.';
+$string['category_bin_desc'] = 'If teacher deletes a course through dashboard, it is moved to this category before real deletion by admin.';
 $string['total_filesize_threshold'] = 'Max course size (MB)';
 $string['total_filesize_threshold_desc'] = 'If total files size exceeds this limit, a report will be calculated for concerned courses.';
 $string['coursesize_threshold_desc'] = 'If the course size (files of the course without the course backups) exceeds this limit, a report will be calculated for concerned courses.';
@@ -66,7 +66,7 @@ $string['enableteacherstask_desc'] = 'If checked, activates automated task to de
 $string['enablestudentstask'] = 'Activate reports concerning students visits and enrolments';
 $string['enablestudentstask_desc'] = 'If checked, activates automated task to detect courses without students or without recent students visits.';
 $string['enableorphanstask'] = 'Activate orphaned submissions report';
-$string['enableorphanstask_desc'] = 'If checked, activates automated task to detect assigns with orphaned files.';
+$string['enableorphanstask_desc'] = 'If checked, activates automated task to detect assignments with orphaned files.';
 $string['mailingtitle_setting'] = 'Subject of the email';
 $string['mailingtitle_setting_desc'] = 'Subject line for the mailing sent to teachers.';
 $string['mailingintro_setting'] = 'Email content';
@@ -170,9 +170,9 @@ $string['empty_course_alert'] = '<b>Empty course.</b>This course only contains n
 $string['last_access_multiple_teacher_alert'] = '<b>No teacher visit since {$a->limit_visit} months.</b><br />No teacher has visited this course for a long time. If no teacher uses it, think about deleting it !';
 $string['last_access_unique_teacher_alert'] = '<b>You didn\' visit this course since {$a->limit_visit} months.</b><br />You are the only teacher in this course. If you don\'t use it anymore, think about deleting it.';
 $string['last_access_student_alert'] = '<b>No student visit since {$a->limit_visit} months.</b><br />No students have visited this course since a long time. If necessary, delete it.';
-$string['empty_student_alert'] = '<b>No student enrolled</b><br />There are no users enrolled as student in this course. If it isn\'t used anymore, think about delete it !';
-$string['orphan_submissions_alert'] = '<b>Orphan submissions</b><br />This course contains {$a->assigns} Assigns containing {$a->filescount} files submitted by now unenrolled students. Those files represent {$a->filesize} Mo. Please remind to reset or delete these activities.';
-$string['no_advices'] = '<b>No sepecific reports.</b><br />Congratulations, this course seems ok !';
+$string['empty_student_alert'] = '<b>No student enrolled</b><br />There are no users enrolled as student in this course. If it isn\'t used anymore, consider deleting it!';
+$string['orphan_submissions_alert'] = '<b>Orphan submissions</b><br />This course contains {$a->assigns} assignments containing {$a->filescount} files submitted by now unenrolled students. Those files represent {$a->filesize} Mo. Please remind to reset or delete these activities.';
+$string['no_advices'] = '<b>No specific reports.</b><br />Congratulations, this course seems ok !';
 $string['no_course_to_show'] = '<h2>No courses</h2>You are not enrolled in courses with a teacher role.';
 $string['closereportmodal'] = 'Close window';
 
@@ -180,7 +180,7 @@ $string['closereportmodal'] = 'Close window';
 $string['title_move_confirm'] = 'Course deletion';
 $string['move_confirm'] = '
 <div class="alert alert-danger"><h5>read carefully before deleting</h5></div>
-<p><b>This page allows you to put in trash a course you don\'t use anymore.</b><br/>If confirmed, this course will be moved in a specific category and hidden to students. It will be then deleted by Moodle admin <b>{$a->delete_period}</b>.</p>
+<p><b>This page allows you to put in trash a course you don\'t use anymore.</b><br/>If confirmed, this course will be moved to a specific category and hidden to students. It will be then deleted by Moodle admin <b>{$a->delete_period}</b>.</p>
 <p> Before deletion, you still can access this course, or restore it if needed. Use course restore action in Course Manager dashboard.</p>
 <p> Before deletion, consider making a backup of important files or questions bank. Those data can\'t be retrieved after complete deletion.';
 $string['delete_several_teachers'] = '<h4><i class="fa fa-exclamation-triangle"></i> WARNING : THERE ARE MULTIPLE TEACHERS IN THIS COURSE !</h4>
@@ -192,26 +192,34 @@ $string['button_save_questionbank'] = 'Backup questions bank';
 $string['button_save_course'] = 'Backup course';
 $string['mail_subject_delete'] = 'Course deleted - {$a->course}';
 $string['mail_message_delete_oneteacher'] = 'Hello,<br />
-Course {$a->course} has been moved in trash category before complete deletion in {$a->delete_period}. Before this,
-you still can access this course if you wish to retrieve datas.<br />
+Course {$a->course} has been moved to the trash category before complete deletion in {$a->delete_period}. Before this,
+you still can access this course if you wish to retrieve data.<br />
 If you want to restore this course, move it out of bin category in Course Manager dashboard.';
 $string['mail_message_delete_main_teacher'] = 'hello,<br />
-Course {$a->course} has been moved in trash category before complete deletion in {$a->delete_period}. Before this, you still can access this course if you wish to retrieve datas.<br />
+Course {$a->course} has been moved to the trash category before complete deletion in {$a->delete_period}. Before this, you still can access this course if you wish to retrieve data.<br />
 If you want to restore this course, move it out of bin category in Course Manager dashboard.
-NOTE : {$a->count_teacher} other teachers was enrolled. A mail was sent to warn them you have deleted this course. As they are teachers too, they can restore it or recover datas if needed.';
+NOTE : {$a->count_teacher} other teachers were enrolled. A mail was sent to warn them you have deleted this course. As they are teachers too, they can restore it or recover data if needed.';
 $string['mail_message_delete_other_teacher'] = 'Hello,<br />
-Course {$a->course}, has been moved in trash category by {$a->deleter}, before complete deletion in {$a->delete_period}. Before this, you still can access this course if you wish to retrieve datas.<br />
+Course {$a->course}, has been moved to the trash category by {$a->deleter}, before complete deletion in {$a->delete_period}. Before this, you still can access this course if you wish to retrieve data.<br />
 If you want to restore this course, move it out of bin category in Course Manager dashboard.<br />';
-$string['delete_already_moved'] = 'This course is already in bin category.';
+$string['delete_already_moved'] = 'This course is already in the bin category.';
 
 // Page - Course restore.
 $string['title_restore_confirm'] = 'Restore course';
-$string['restore_confirm'] = '<p>This page will take a course out of bin category and restore it in an other category.</p>
+$string['restore_confirm'] = '<p>This page will take a course out of bin category and restore it in another category.</p>
 <p class="alert alert-info"><i class="fa fa-info-circle"></i> NOTE : don\'t restore this course in  <b>"{$a->trash_category}"</b> : this category is reserved for courses to be deleted in <b>{$a->delete_period}</b>.</p>';
 $string['button_restore_confirm'] = 'Confirm course restore';
-$string['restore_already_moved'] = 'This course is not in bin category !.';
+$string['restore_already_moved'] = 'This course is not in the bin category!';
 $string['trash_notset'] = 'The trash category is not set. An administrator of the site must set it in the settings of the Course Manager plugin.';
 $string['trash_norights'] = 'You do not have the right to move this course to the trash category. Please contact a manager of the site.';
+$string['trash_rights_info'] = 'Rights needed for the trash';
+$string['trash_rights_info_desc'] = '<p>Moving a course to the trash and restoring it are changes of category: Course Manager uses the native rights of Moodle. With the default roles, a teacher has none of them, and the actions "Delete course" and "Restore course" are not shown in the dashboard.</p>
+<p>To allow teachers to use the trash:</p>
+<ul>
+<li>give the capability <b>moodle/course:changecategory</b> to the teacher role (Site administration > Users > Permissions > Define roles), so that teachers can change the category of their courses;</li>
+<li>give the capability <b>moodle/course:create</b> in the trash category, for example by assigning the role "Course creator" to the teachers in this category, or by overriding the permissions of the teacher role in this category;</li>
+<li>to restore a course, the teacher also needs <b>moodle/course:create</b> in the destination category.</li>
+</ul>';
 $string['restore_norights'] = 'You do not have the right to move this course to another category. Please contact a manager of the site to restore it.';
 $string['error_category'] = 'Wrong category selected';
 $string['orphans_invalidassign'] = 'This assignment is not in the list of assignments with orphaned submissions.';
@@ -229,8 +237,8 @@ $string['plugin'] = 'Activity type';
 $string['size'] = 'Size in MB';
 $string['comment'] = 'Recommandations';
 $string['number_of_files'] = 'Number of files';
-$string['warn_heavy_assign'] = 'Theses assigns represent a heavy files size :';
-$string['warn_heavy_assign_help'] = '<b>Watch out these assigns</b> and consider resetting or deleting them when there won\'t be used anymore.';
+$string['warn_heavy_assign'] = 'These assignments represent a heavy files size :';
+$string['warn_heavy_assign_help'] = '<b>Watch out for these assignments</b> and consider resetting or deleting them when they won\'t be used anymore.';
 $string['empty_files_course'] = 'This course seems to contain no files yet.';
 $string['warn_big_files'] = 'These files have an <b>important weight</b> :';
 $string['warn_big_files_help'] = 'If a file size is important, consider :
@@ -242,44 +250,44 @@ $string['warn_big_files_help'] = 'If a file size is important, consider :
 </ul>';
 $string['warn_videos'] = 'Those files are <b>videos</b>, consider move it :';
 $string['warn_videos_help'] = 'Videos can be very heavy. If you can, please upload them on a specific service for videos (WebTV, YouTube...).';
-$string['warn_orphans'] = 'These assigns contain <b>orphan submissions</b> :';
+$string['warn_orphans'] = 'These assignments contain <b>orphan submissions</b> :';
 $string['warn_orphans_help'] = '<p>Files submitted bu unenrolled students are still here.</p>
 <p>Please consider : <ul>
-<li>deleting assigns with orphan submissions ;</li>
+<li>deleting assignments with orphan submissions ;</li>
 <li>resetting activities or the whole course.</li></ul></p>';
 $string['global_chart'] = 'Distribution of file weights by activities';
 $string['warn_recyclebin'] = '<p class="alert alert-info"><i class="fa fa-info-circle"></i> <b>Notice that</b> recycle bin is activated on Moodle. Deleted files
  will be included in this chart as long as teacher doesn\'t empty trash.</p>';
 
 // Page for global reset.
-$string['reset_info'] = '<p class="alert alert-success"><i class="fa fa-info-circle"></i> Reset function can delete students personal datas in your course.
+$string['reset_info'] = '<p class="alert alert-success"><i class="fa fa-info-circle"></i> Reset function can delete students personal data in your course.
  <b>It does not delete your files or activities</b></p>
 <p>using this course reset will delete :<ul>
-<li><b>completion datas</b> ;</li>
+<li><b>completion data</b> ;</li>
 <li><b>grades in gradebook</b> ;</li>
 <li><b>groups and groupings</b> ;</li>
 <li><b>submissions in Assign activities</b> ;</li>
 <li><b>forum messages</b> ;</li>
 <li><b>quiz attempts</b> ;</li>
 <li><b>enrolled cohorts</b> (<span class="text-danger"><b>WARNING</b> : this function can take a long time if there are many students !).</span></li></ul></p>
-<p>No other datas will be deleted.</p>
+<p>No other data will be deleted.</p>
 <p>If you wish to reset other activities, please use <a href="/course/view.php?id="><b>reset function in your course</b></a>.<br /></p>
 <h5 class="alert alert-primary"><i class="fa fa-question-circle-o"></i> <b>What do you want to do ?</b></h5>
 ';
-$string['reset_result'] = '<p><b>Course has been reseted.</b></p>
+$string['reset_result'] = '<p><b>Course has been reset.</b></p>
 <p><b>Reminder</b> : no files or activities have been deleted. If you want to reset all or other activities, please use reset function in course.</p>';
-$string['resetcoursescheduled'] = 'Your demand for resetting has been registered for this course and will be automatically executed soon.';
+$string['resetcoursescheduled'] = 'Your reset request has been registered for this course and will be executed automatically soon.';
 
 // Page of bulk unenroll cohorts.
 $string['title_delete_cohort_confirm'] = 'Unenroll cohorts';
 $string['delete_cohort_confirm'] = 'This function will unenroll all cohorts in your course.<br />
-Please note that unenrolling cohorts will make disappear datas as forum messages, </b> but not quiz attemps or assigns submissions</b>.
- Please consider using reset function to delete personal datas.
+Please note that unenrolling cohorts will make data such as forum messages disappear, <b>but not quiz attempts or assignment submissions</b>.
+ Please consider using reset function to delete personal data.
 <p class="alert alert-primary"><i class="fa fa-question-circle-o"></i> <b>WARNING :</b> depending on number of cohorts to be unenrolled, this process may take time.</p>
 ';
 $string['button_delete_cohort_confirm'] = 'Unenroll cohorts';
 $string['no_cohort'] = '<p class="alert alert-info">No cohort enrolled in this course !</p>';
-$string['deletecohortsscheduled'] = 'Your demand for cohorts unenrolled has been registered for this course and will be automatically executed soon.';
+$string['deletecohortsscheduled'] = 'Your request to unenrol the cohorts has been registered for this course and will be executed automatically soon.';
 
 // Admin dashboard page.
 $string['admin_course_managerinfo'] = '<p>This page gives access to tool for Moodle Admin. For Course Manager settings, please go to Plugins > Reports > Course Manager.</p>';
@@ -292,7 +300,7 @@ $string['table_assign_name'] = 'Assign name';
 $string['table_files_count'] = 'Number of hidden files';
 $string['table_last_submission'] = 'Last assignment submission date';
 $string['admin_orphan_submissions_info'] = '<p>Orphan submissions are files submitted by students which are no longer enrolled in course.
- <b>Those files are unvisible for teachers, and can be seen only by re-enrolling students.</b> If assigns are used every year without being reseted, those hidden files
+ <b>Those files are invisible to teachers, and can be seen only by re-enrolling students.</b> If assignments are used every year without being reset, those hidden files
  can represent an important weight in Moodle.<br />
  This tool can delete these hidden files <b>without deleting files submitted by students which are still enrolled in course.<b></p>';
 $string['deleteorphansubmissionsconfirm'] = 'Do you want to delete orphan submissions in this assign ? This action is irreversible.';
@@ -309,9 +317,9 @@ $string['filesdistributiontotalfiles'] = 'Number of files';
 
 // Admin page for courses without teachers.
 $string['title_admin_no_teacher_courses'] = '<b>Manage courses without teachers</b>';
-$string['admin_no_teacher_courses_info'] = '<p>This tool lists all courses where no user is enrolled as teacher, and possibly move them in bin category if needed.</p>';
-$string['adminnoteachercoursesnote'] = '<ul><li>Informations concerning course weight and number of activities are not calculated in real time.</li>
-<li>Informations concerning last teacher log are based on edulevel filed in logstore database. Modified permissions can distort this result.</li></ul>';
+$string['admin_no_teacher_courses_info'] = '<p>This tool lists all courses where no user is enrolled as teacher, and possibly move them to the bin category if needed.</p>';
+$string['adminnoteachercoursesnote'] = '<ul><li>Information concerning course weight and number of activities are not calculated in real time.</li>
+<li>Information concerning last teacher log are based on the edulevel field in the logstore database. Modified permissions can distort this result.</li></ul>';
 $string['adminnoteachercoursesweight'] = '<ul class="alert alert-warning">The task for weight calculation is activated. Courses for which  weight has not been calculated yet will not appear in this list. If necessary, launch task manually or wait for next cron run.';
 $string['tablecountenrolledstudents'] = 'Students';
 $string['tablelastaccess'] = 'Last access in course';
@@ -320,7 +328,7 @@ $string['tablecourseweight'] = 'Course weight';
 $string['tablecountmodules'] = 'Numlber of activities';
 $string['tablelastteacherlog'] = 'Last teacher log';
 $string['tablelastteacher'] = 'Last active teacher';
-$string['deletecoursewithoutteachersconfirm'] = 'Do you want to move this course in bin category ?';
+$string['deletecoursewithoutteachersconfirm'] = 'Do you want to move this course to the bin category ?';
 $string['emptytablenoteacherincourses'] = 'No result : all courses have a teacher';
 
 // Admin page for statistics.
@@ -358,15 +366,16 @@ $string['stats_count_courses_without_visit_students_desc'] = 'Number of courses 
 $string['confirm_cohort_unenrolled_title'] = 'Cohorts deleted';
 $string['confirm_cohort_unenrolled_message'] = 'All cohorts have been unenrolled from course.';
 $string['confirm_course_deleted_title'] = 'Course deleted';
-$string['confirm_course_deleted_message'] = 'Course has been moved in trash category and will be later deleted by admin ';
+$string['confirm_course_deleted_message'] = 'Course has been moved to the trash category and will be later deleted by admin ';
 $string['confirm_course_restored_title'] = 'Course restored';
 $string['confirm_course_restored_message'] = 'Course has been moved out of bin category. Note that a restored course in still hidden for students, consider changing settings if needed.';
 
 // Events.
 $string['course_dashboard_viewed'] = 'Teacher dashboard visited';
-$string['course_trash_moved'] = 'Course moved in bin category';
+$string['event_orphan_submissions_deleted'] = 'Orphan submissions deleted';
+$string['course_trash_moved'] = 'Course moved to the bin category';
 $string['course_files_viewed'] = 'Files report page visited';
-$string['course_global_reset'] = 'Course reseted with Course Manager function';
+$string['course_global_reset'] = 'Course reset with the Course Manager function';
 $string['course_cohort_unenrolled'] = 'Cohorts unenrolled';
 $string['course_restored'] = 'Course restored out of bin category';
 
@@ -400,8 +409,8 @@ $string['course_alert_heavy_coursesize'] = 'The size of this course (without its
 $string['course_alert_no_visit_teacher'] = 'No teacher has visited this course since more than {$a->no_teacher_time} days</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link}</b>';
 $string['course_alert_no_visit_student'] = 'No student has visited this course since more than {$a->no_teacher_time} days</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link} | {$a->reset_link}</b>';
 $string['course_alert_no_student'] = '<b>No student enrolled in this course</b>. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link}</b>';
-$string['course_alert_empty'] = 'This course has not contents, eventually except native forum. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link}</b>';
-$string['course_alert_orphan_submissions'] = 'This course contains assigns with invisible submissions, uploaded by unenrolled students. Please consider reseting this course if you can.';
+$string['course_alert_empty'] = 'This course has no content, except possibly the native forum. Please consider deleting this course if it is not used anymore.<br /><b>{$a->delete_link}</b>';
+$string['course_alert_orphan_submissions'] = 'This course contains assignments with invisible submissions, uploaded by unenrolled students. Please consider resetting this course if you can.';
 $string['more_information'] = 'More information';
 $string['text_link_delete'] = 'Delete course';
 $string['text_link_reset'] = 'Reset course';
@@ -414,14 +423,14 @@ $string['mailingtitle'] = 'Course Manager - Reports for your courses';
 $string['mailingintro'] = '<p>Hello %userfirstname%,</p>
 <p>Course Manager is a tool report for helping teacher to manage their courses using calculated reports. This mail summarizes these reports, and indicates which courses are concerned by problems.</p>
 <p><b>These reports are only intended to attract your attention on certain aspects of managing your courses, and to give keys to good practice in using Moodle</b></p>
-<p>For more information, visit your personnal <a href="%coursemanagerlink%">Course Manager dashboard</a>';
+<p>For more information, visit your personal <a href="%coursemanagerlink%">Course Manager dashboard</a>';
 $string['mailingoutro'] = '<p>For more information about these reports, please contact Moodle admin or Support service.';
-$string['mailingddescreportempty'] = 'Theses courses have no contents, eventually except native Moodle forum.';
-$string['mailingddescreportnovisitstudent'] = 'Students have not visited theses courses for a long time.</b> ';
-$string['mailingddescreportnostudent'] = 'There are no students enrolled in this courses.';
-$string['mailingddescreportnovisitteacher'] = 'Teachers including you have not visited theses courses for a long time';
+$string['mailingddescreportempty'] = 'These courses have no content, except possibly the native Moodle forum.';
+$string['mailingddescreportnovisitstudent'] = 'Students have not visited these courses for a long time.';
+$string['mailingddescreportnostudent'] = 'There are no students enrolled in these courses.';
+$string['mailingddescreportnovisitteacher'] = 'Teachers including you have not visited these courses for a long time';
 $string['mailingddescreportheavy'] = 'Total files size in this course seems to be heavy. Click on a course name to see files report.';
-$string['mailingddescreportorphansubmissions'] = 'Somme assigns in these courses have hidden submissions, uploaded by unenrolled students. These files can represent a heavy weight.';
+$string['mailingddescreportorphansubmissions'] = 'Some assignments in these courses have hidden submissions, uploaded by unenrolled students. These files can represent a heavy weight.';
 
 // Privacy.
 

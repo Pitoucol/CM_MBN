@@ -246,6 +246,15 @@ if (count($listusercourses) == 0) {
     $table->head[] = get_string('table_recommendation', 'report_coursemanager');
     $table->head[] = get_string('table_actions', 'report_coursemanager');
 
+    // Native rights of the trash actions, as in delete_course.php and restore_course.php : the menu only offers
+    // an action that the user can really do. Moving to the trash needs moodle/course:create in the trash category,
+    // restoring needs moodle/course:create in at least one category ; both need moodle/course:changecategory
+    // in the course, checked for each course below.
+    $bin = (int)get_config('report_coursemanager', 'category_bin');
+    $bincontext = $bin ? context_coursecat::instance($bin, IGNORE_MISSING) : false;
+    $cancreateinbin = $bincontext && has_capability('moodle/course:create', $bincontext);
+    $cancreatesomewhere = !empty(core_course_category::make_categories_list('moodle/course:create'));
+
     // Iteration for all courses - no more array_slice.
     foreach ($listusercourses as $course) {
         $coursecontext = context_course::instance($course->id);
@@ -325,20 +334,26 @@ if (count($listusercourses) == 0) {
                 }
                 $row[] = html_writer::label('', null);
 
-                // Actions menu : Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
-                $menu  = '
-                    <div class="dropdown">
-                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
-                        data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="icon fa fa-ellipsis-v fa-fw"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
-                            <a class="dropdown-item" href="restore_course.php?courseid=' . $course->id . '">' .
-                            get_string('menurestorecourse', 'report_coursemanager') . '</a>
+                // Actions menu, only if the user can restore the course (native rights, see above).
+                // Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
+                if ($cancreatesomewhere && has_capability('moodle/course:changecategory', $coursecontext)) {
+                    $restorelink = new moodle_url('/report/coursemanager/restore_course.php', ['courseid' => $course->id]);
+                    $menu  = '
+                        <div class="dropdown">
+                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
+                            data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="icon fa fa-ellipsis-v fa-fw"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
+                                <a class="dropdown-item" href="' . $restorelink . '">' .
+                                get_string('menurestorecourse', 'report_coursemanager') . '</a>
+                            </div>
                         </div>
-                    </div>
-                ';
-                $row[] = html_writer::div($menu, null);
+                    ';
+                    $row[] = html_writer::div($menu, null);
+                } else {
+                    $row[] = html_writer::div('', null);
+                }
 
             } else {
                 // Normal course.
@@ -566,8 +581,12 @@ if (count($listusercourses) == 0) {
                 $deletecohortlink = new moodle_url('/report/coursemanager/delete_cohort.php', ['id' => $course->id]);
                 $courseeditlink   = new moodle_url('/course/edit.php', ['id' => $course->id]);
 
-                $listactions = '<a class="dropdown-item" href="' . $deletelink . '">' .
-                    get_string('menudeletecourse', 'report_coursemanager') . '</a>';
+                // Move to the trash : only if the user has the native rights (see above).
+                $listactions = '';
+                if ($cancreateinbin && has_capability('moodle/course:changecategory', $coursecontext)) {
+                    $listactions .= '<a class="dropdown-item" href="' . $deletelink . '">' .
+                        get_string('menudeletecourse', 'report_coursemanager') . '</a>';
+                }
 
                 if (get_config('report_coursemanager', 'enable_action_coursefiles')) {
                     $listactions .= '<a class="dropdown-item" href="' . $fileslink . '">' .
@@ -586,19 +605,24 @@ if (count($listusercourses) == 0) {
                         get_string('menucourseparameters', 'report_coursemanager') . '</a>';
                 }
 
-                // Actions menu : Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
-                $menu  = '
-                    <div class="dropdown">
-                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
-                        data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="icon fa fa-ellipsis-v fa-fw"></i>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
-                            ' . $listactions . '
+                // No menu when no action is available for this course.
+                if ($listactions === '') {
+                    $row[] = html_writer::div('', null);
+                } else {
+                    // Actions menu : Bootstrap 4 (Moodle 4.5) and 5 (Moodle 5.x) attributes are both set.
+                    $menu  = '
+                        <div class="dropdown">
+                            <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
+                            data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="icon fa fa-ellipsis-v fa-fw"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right dropdown-menu-end">
+                                ' . $listactions . '
+                            </div>
                         </div>
-                    </div>
-                ';
-                $row[] = html_writer::div($menu, null);
+                    ';
+                    $row[] = html_writer::div($menu, null);
+                }
             }
 
             // Row classes are used for JS filtering (coursetable.js reads classList of <tr>).

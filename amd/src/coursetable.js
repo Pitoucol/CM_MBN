@@ -106,6 +106,29 @@ define([
         var headers = $(tableEl).find('thead th');
         var defaultOrder = Math.max(0, headers.index(headers.filter('.coursemanager-defaultorder')));
 
+        // Natural order of the course names : "Course 2" before "Course 10", case and accents ignored.
+        // The name column is recognised by its link to the course, so no column index is needed.
+        if (!$.fn.dataTable.ext.type.order['coursename-asc']) {
+            var collator = new Intl.Collator(document.documentElement.lang || undefined, {numeric: true, sensitivity: 'base'});
+            var names = {};
+            var nameText = function(data) {
+                if (names[data] === undefined) {
+                    // DOMParser does not run scripts nor load images of the parsed HTML.
+                    names[data] = new DOMParser().parseFromString(data, 'text/html').body.textContent.trim();
+                }
+                return names[data];
+            };
+            $.fn.dataTable.ext.type.detect.unshift(function(data) {
+                return (typeof data === 'string' && data.indexOf('/course/view.php') !== -1) ? 'coursename' : null;
+            });
+            $.fn.dataTable.ext.type.order['coursename-asc'] = function(a, b) {
+                return collator.compare(nameText(a), nameText(b));
+            };
+            $.fn.dataTable.ext.type.order['coursename-desc'] = function(a, b) {
+                return collator.compare(nameText(b), nameText(a));
+            };
+        }
+
         // Initialise DataTables.
         var dt = $(tableEl).DataTable({
             // Size and comparison columns are sorted on the size in bytes (data-order attribute).
@@ -197,11 +220,13 @@ define([
             });
         });
 
-        // Text search (replaces legacy search_courses.js).
+        // Text search (replaces legacy search_courses.js), on the course name only (first column), as the label
+        // of the field says : the typed text must appear as it is in the name (no regular expression, no "smart"
+        // search splitting it in words). The input event also catches a paste with the mouse and the autocompletion.
         var searchInput = document.getElementById('coursemanager-search');
         if (searchInput) {
-            searchInput.addEventListener('keyup', function() {
-                dt.search(searchInput.value).draw();
+            searchInput.addEventListener('input', function() {
+                dt.column(0).search(searchInput.value, false, false).draw();
                 updateFilterMessage(document.querySelector('.coursemanager-filter-btn.active'));
             });
         }

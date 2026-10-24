@@ -69,21 +69,25 @@ if (!empty($delete)) {
         // If confirmed : course is moved in trash category.
         move_courses([$instance], get_config('report_coursemanager', 'category_bin'));
 
+        // Same event as a move to the trash from the teachers dashboard (delete_course.php).
+        $event = \report_coursemanager\event\course_trash_moved::create([
+            'context' => context_course::instance($instance),
+            'courseid' => $instance,
+        ]);
+        $event->trigger();
+
         // Course parameters updated : course is hidden.
         $datahide = new stdClass;
         $datahide->id = $instance;
         $datahide->visible = 0;
         $hide = $DB->update_record('course', $datahide);
 
-        $purgereports = $DB->get_record('report_coursemanager_reports', ['course' => $instance]);
-        if (!empty($purgereports)) {
-            $res = $DB->delete_records('report_coursemanager_reports', ['course' => $instance]);
-        }
+        // Reports of the course are deleted : a course has several reports, delete_records() removes them all
+        // and does nothing when there is none.
+        $DB->delete_records('report_coursemanager_reports', ['course' => $instance]);
 
         redirect(new moodle_url('/report/coursemanager/admin_dashboard/courses_without_teachers.php'));
         exit();
-
-        // TO DO : add event when course is deleted by admin.
     } else {
         // Shows form to confirm before delete.
         $PAGE->navbar->add(get_string('title_admin_no_teacher_courses', 'report_coursemanager'));

@@ -66,6 +66,25 @@ foreach ($instances as $instance) {
     }
 }
 
+// Unenrolment confirmed : the ad hoc task is queued and the user goes back to the dashboard, before any output
+// (redirect() after the page header shows an intermediate page instead of going back at once).
+if ($count > 0 && $confirm) {
+    // Before delete, check sesskey and that the request is a POST.
+    require_sesskey();
+    if (!data_submitted()) {
+        throw new moodle_exception('invalidrequest');
+    }
+
+    // Create ad hoc task.
+    $task = new \report_coursemanager\task\delete_cohorts_task();
+    $task->set_custom_data(['courseid' => $courseid]);
+    \core\task\manager::queue_adhoc_task($task);
+
+    // Redirect and add confirmation message.
+    redirect(new moodle_url('/report/coursemanager/view.php'),
+        get_string('deletecohortsscheduled', 'report_coursemanager'), null, \core\output\notification::NOTIFY_SUCCESS);
+}
+
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('title_delete_cohort_confirm', 'report_coursemanager'));
 
@@ -76,9 +95,8 @@ if ($count == 0) {
     <div class="btn btn-outline-info"><a href="view.php">
     <i class="fa fa-arrow-left"></i>  '.get_string('back').'</a></span></div><br /><br />
     ');
-} else if (!$confirm) {
-    // If cohort detected, check if unenrollment is confirmed.
-    // If not confirmed : add explanations.
+} else {
+    // Cohorts detected, unenrolment not confirmed yet : explanations and confirm button.
     print html_writer::div('
     <div class="btn btn-outline-info"><a href="view.php">
     <i class="fa fa-arrow-left"></i>  '.get_string('back').'</a></div><br /><br />
@@ -94,20 +112,5 @@ if ($count == 0) {
     echo $OUTPUT->render($confirmbutton) . " ";
 
     echo $OUTPUT->box_end();
-    echo $OUTPUT->footer();
-} else if ($confirm) {
-    // Before delete, check sesskey and that the request is a POST.
-    require_sesskey();
-    if (!data_submitted()) {
-        throw new moodle_exception('invalidrequest');
-    }
-
-    // CReate ad hoc task.
-    $task = new \report_coursemanager\task\delete_cohorts_task();
-    $task->set_custom_data(['courseid' => $courseid]);
-    \core\task\manager::queue_adhoc_task($task);
-
-    // Redirect and add confirmation message.
-    redirect(new moodle_url('/report/coursemanager/view.php'),
-        get_string('deletecohortsscheduled', 'report_coursemanager'), null, \core\output\notification::NOTIFY_SUCCESS);
 }
+echo $OUTPUT->footer();
