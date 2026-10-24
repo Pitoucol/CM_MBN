@@ -102,8 +102,8 @@ class manager {
      * Strategy used to back up a course, according to its estimated backup size.
      *
      * Sizes are estimated when the user launches the backup (see size_estimator) :
-     * - under the size threshold (or no threshold) : one archive (standard strategy) ;
-     * - over the size threshold : several archives under the threshold (split strategy).
+     * - strictly under the size threshold (or no threshold) : one archive (standard strategy) ;
+     * - equal to or over the size threshold : several archives strictly under the threshold (split strategy).
      * Other strategies (deferred backup for heavy courses...) can be chosen here later.
      *
      * @param int $courseid Course ID.
@@ -112,7 +112,7 @@ class manager {
     public function get_strategy(int $courseid): strategy {
         $sizes = size_estimator::get_sizes($courseid);
         $threshold = self::get_split_threshold();
-        if ($threshold > 0 && $sizes->total > $threshold) {
+        if ($threshold > 0 && $sizes->total >= $threshold) {
             return new split_strategy($sizes, $threshold);
         }
         return new standard_strategy($sizes, $threshold);
