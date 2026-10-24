@@ -77,6 +77,15 @@ class manager {
             'failures' => $run->failures]);
         $transaction->allow_commit();
         $run->failed = $failed;
+
+        // Event, from the web page and from the command line alike.
+        \report_coursemanager\event\aliases_converted::create([
+            'context' => \context_course::instance($courseid),
+            'courseid' => $courseid,
+            'userid' => $userid,
+            'other' => ['runid' => (int)$run->id, 'aliases' => $run->aliases, 'failures' => $run->failures,
+                'origin' => $origin],
+        ])->trigger();
         return $run;
     }
 
@@ -185,7 +194,7 @@ class manager {
     public function undo(int $runid): array {
         global $DB;
         \core_php_time_limit::raise();
-        $DB->get_record('report_coursemanager_arun', ['id' => $runid], 'id', MUST_EXIST);
+        $runrecord = $DB->get_record('report_coursemanager_arun', ['id' => $runid], 'id, courseid', MUST_EXIST);
         $restored = 0;
         $conflicts = 0;
         $transaction = $DB->start_delegated_transaction();
@@ -216,6 +225,12 @@ class manager {
             $DB->set_field('report_coursemanager_arun', 'timereverted', time(), ['id' => $runid]);
         }
         $transaction->allow_commit();
+
+        \report_coursemanager\event\aliases_reverted::create([
+            'context' => \context_course::instance($runrecord->courseid),
+            'courseid' => $runrecord->courseid,
+            'other' => ['runid' => $runid, 'restored' => $restored, 'conflicts' => $conflicts],
+        ])->trigger();
         return ['restored' => $restored, 'conflicts' => $conflicts];
     }
 }
