@@ -20,16 +20,16 @@ use backup;
 use moodle_url;
 
 /**
- * Course backup split in several archives under the size threshold, by sections.
+ * Course backup split in several archives strictly under the size threshold, by sections.
  *
- * Used when the estimated size of the course backup is over the size threshold :
+ * Used when the estimated size of the course backup reaches the size threshold :
  * - part 1 : common content, question bank (and, in Moodle 5.x, the sections of the question
- *   bank activities), then following sections, in course order, up to the threshold ;
- * - parts 2, 3... : common content and following sections up to the threshold, without question bank.
+ *   bank activities), then following sections, in course order, while the part stays under the threshold ;
+ * - parts 2, 3... : common content and following sections under the threshold, without question bank.
  * Each part is a native Moodle course backup with only its sections, named "part1_<Moodle file name>"...
  * Restore : part 1 in a new course, then other parts in this course with "Merge the backup into this course".
  *
- * If the question bank or a section alone exceeds the threshold, no backup is created :
+ * If the question bank or a section, with the common content, reaches the threshold, no backup is created :
  * the user is invited to make a manual backup of the whole course.
  *
  * @package    report_coursemanager
@@ -37,9 +37,6 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class split_strategy extends base_strategy {
-    /** @var float Parts are filled up to this ratio of the threshold, as the estimation only counts files. */
-    const MARGIN = 0.9;
-
     /**
      * Short name of the strategy, used in logs.
      *
@@ -57,7 +54,7 @@ class split_strategy extends base_strategy {
      * @return array|null Parts : list of objects (number, size, questionbank, sections), or null on error.
      */
     protected function plan_parts(launch_result $result, int $courseid): ?array {
-        $target = (int)($this->threshold * self::MARGIN);
+        // Every archive must be strictly under the threshold : a part reaching it is refused.
         $common = $this->sizes->common;
         $manuallink = (new moodle_url('/backup/backup.php', ['id' => $courseid]))->out();
 
@@ -68,9 +65,9 @@ class split_strategy extends base_strategy {
                 $part1size += $section->size;
             }
         }
-        if ($part1size > $target) {
+        if ($part1size >= $this->threshold) {
             $result->add_step(get_string('backup_title_error', 'report_coursemanager'),
-                \html_writer::tag('p', get_string('backup_error_questionbank', 'report_coursemanager', (object) [
+                \html_writer::tag('p', get_string('backup_error_questionbank_limit', 'report_coursemanager', (object) [
                 'size' => display_size($part1size),
                 'threshold' => display_size($this->threshold),
                 'link' => $manuallink,
@@ -80,11 +77,12 @@ class split_strategy extends base_strategy {
 
         // Each section, with common content, must fit in a part.
         foreach ($this->sizes->sections as $section) {
-            if ($common + $section->size > $target) {
+            if ($common + $section->size >= $this->threshold) {
                 $result->add_step(get_string('backup_title_error', 'report_coursemanager'),
-                    \html_writer::tag('p', get_string('backup_error_section', 'report_coursemanager', (object) [
+                    \html_writer::tag('p', get_string('backup_error_section_limit', 'report_coursemanager', (object) [
                     'name' => s($section->name),
-                    'size' => display_size($section->size),
+                    // Size compared to the threshold : the section with the content common to all parts.
+                    'size' => display_size($common + $section->size),
                     'threshold' => display_size($this->threshold),
                     'link' => $manuallink,
                 ]), ['class' => 'text-danger']));
@@ -104,7 +102,7 @@ class split_strategy extends base_strategy {
             if ($section->hasqbank) {
                 continue;
             }
-            if ($current->size + $section->size > $target) {
+            if ($current->size + $section->size >= $this->threshold) {
                 $parts[] = $current;
                 $current = (object) ['number' => count($parts) + 1, 'size' => $common, 'questionbank' => false,
                     'sections' => []];

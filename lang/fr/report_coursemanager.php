@@ -479,7 +479,7 @@ $string['manual_backup'] = 'Passer en sauvegarde manuelle';
 
 // Backup split and backup popup.
 $string['backupsplitthreshold'] = 'Poids maximal d\'une archive de sauvegarde (Mo)';
-$string['backupsplitthreshold_desc'] = 'Dans l\'onglet « Téléchargements et exports », quand le poids estimé de la sauvegarde d\'un cours sans données utilisateurs dépasse ce poids, la sauvegarde est découpée par sections en plusieurs archives (partie1_, partie2_…) sous ce poids. Toute la banque de questions est dans la partie 1. 0 : pas de découpage.';
+$string['backupsplitthreshold_strict_desc'] = 'Dans l\'onglet « Téléchargements et exports », quand le poids estimé de la sauvegarde d\'un cours sans données utilisateurs atteint ce poids, la sauvegarde est découpée par sections en plusieurs archives (part1_, part2_…), chacune strictement sous ce poids. Toute la banque de questions est dans la partie 1. 0 : pas de découpage.';
 $string['backup_part_prefix'] = 'partie{$a}_';
 $string['download_part'] = 'Partie {$a}';
 $string['backup_popup_title'] = 'Sauvegarde de « {$a} »';
@@ -493,9 +493,9 @@ $string['backup_step_file'] = 'Fichier : {$a}';
 $string['backup_step_background'] = 'La sauvegarde s\'effectue en arrière-plan avec les réglages de sauvegarde par défaut du site. Le lien de téléchargement apparaîtra dans le tableau une fois terminée.';
 $string['backup_step_done'] = 'La sauvegarde est terminée. Vous pouvez la télécharger dans le tableau.';
 $string['backup_step_restore'] = 'Pour restaurer le cours : restaurez la partie 1 dans un nouveau cours, puis les autres parties dans ce cours avec « Fusionner la sauvegarde avec ce cours ».';
-$string['backup_error_questionbank'] = 'La banque de questions seule (avec le contenu commun à toutes les parties) pèse {$a->size}, au-delà du poids maximal d\'une archive ({$a->threshold}). Aucune sauvegarde n\'a été créée. Utilisez la <a href="{$a->link}">sauvegarde manuelle de tout le cours</a>.';
+$string['backup_error_questionbank_limit'] = 'La banque de questions avec le contenu commun à toutes les parties pèse {$a->size} : une archive doit peser moins de {$a->threshold}. Aucune sauvegarde n\'a été créée. Utilisez la <a href="{$a->link}">sauvegarde manuelle de tout le cours</a>.';
 $string['backup_error_part'] = 'La sauvegarde de la partie {$a->number} n\'a pas pu être lancée ({$a->message}). La sauvegarde est incomplète : les parties déjà lancées sont marquées en échec. Relancez la sauvegarde, ou utilisez la sauvegarde manuelle.';
-$string['backup_error_section'] = 'La section « {$a->name} » pèse à elle seule {$a->size}, au-delà du poids maximal d\'une archive ({$a->threshold}). Aucune sauvegarde n\'a été créée. Utilisez la <a href="{$a->link}">sauvegarde manuelle de tout le cours</a>.';
+$string['backup_error_section_limit'] = 'La section « {$a->name} » avec le contenu commun à toutes les parties pèse {$a->size} : une archive doit peser moins de {$a->threshold}. Aucune sauvegarde n\'a été créée. Utilisez la <a href="{$a->link}">sauvegarde manuelle de tout le cours</a>.';
 $string['table_backup_progress'] = 'Progression';
 $string['backup_title_estimate'] = 'Estimation';
 $string['backup_title_archive'] = 'Archive';

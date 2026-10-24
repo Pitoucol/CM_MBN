@@ -460,7 +460,7 @@ $string['manual_backup'] = 'Switch to manual backup';
 
 // Backup split and backup popup.
 $string['backupsplitthreshold'] = 'Maximum size of a backup archive (MB)';
-$string['backupsplitthreshold_desc'] = 'In the "Downloads and exports" tab, when the estimated size of a course backup without user data exceeds this size, the backup is split by sections in several archives (part1_, part2_...) under this size. The whole question bank is in part 1. 0: no split.';
+$string['backupsplitthreshold_strict_desc'] = 'In the "Downloads and exports" tab, when the estimated size of a course backup without user data reaches this size, the backup is split by sections in several archives (part1_, part2_...), each one strictly under this size. The whole question bank is in part 1. 0: no split.';
 $string['backup_part_prefix'] = 'part{$a}_';
 $string['download_part'] = 'Part {$a}';
 $string['backup_popup_title'] = 'Backup of "{$a}"';
@@ -474,9 +474,9 @@ $string['backup_step_file'] = 'File: {$a}';
 $string['backup_step_background'] = 'The backup runs in background with the site default backup settings. The download link will appear in the table once it is done.';
 $string['backup_step_done'] = 'The backup is done. You can download it from the table.';
 $string['backup_step_restore'] = 'To restore the course: restore part 1 in a new course, then restore the other parts in this course with "Merge the backup into this course".';
-$string['backup_error_questionbank'] = 'The question bank alone (with the content common to all parts) is {$a->size}, over the maximum size of an archive ({$a->threshold}). No backup was created. Please use the <a href="{$a->link}">manual backup of the whole course</a>.';
+$string['backup_error_questionbank_limit'] = 'The question bank with the content common to all parts weighs {$a->size}: an archive must weigh less than {$a->threshold}. No backup was created. Please use the <a href="{$a->link}">manual backup of the whole course</a>.';
 $string['backup_error_part'] = 'The backup of part {$a->number} could not be launched ({$a->message}). The backup is incomplete: the parts already launched are marked as failed. Please relaunch the backup, or use the manual backup.';
-$string['backup_error_section'] = 'The section "{$a->name}" alone is {$a->size}, over the maximum size of an archive ({$a->threshold}). No backup was created. Please use the <a href="{$a->link}">manual backup of the whole course</a>.';
+$string['backup_error_section_limit'] = 'The section "{$a->name}" with the content common to all parts weighs {$a->size}: an archive must weigh less than {$a->threshold}. No backup was created. Please use the <a href="{$a->link}">manual backup of the whole course</a>.';
 $string['table_backup_progress'] = 'Progress';
 $string['backup_title_estimate'] = 'Estimation';
 $string['backup_title_archive'] = 'Archive';
