@@ -81,7 +81,8 @@ class provider implements
             ['level' => CONTEXT_COURSE, 'userid' => $userid]);
         $contextlist->add_from_sql("SELECT ctx.id FROM {context} ctx
                                      WHERE ctx.contextlevel = :level AND EXISTS (
-                                           SELECT 1 FROM {report_coursemanager_wrun} r WHERE r.courseid = 0 AND r.userid = :userid)",
+                                           SELECT 1 FROM {report_coursemanager_wrun} r
+                                            WHERE r.courseid = 0 AND r.userid = :userid)",
             ['level' => CONTEXT_SYSTEM, 'userid' => $userid]);
         return $contextlist;
     }

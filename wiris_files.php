@@ -141,13 +141,15 @@ if (!$items) {
             $formula = $row['formula'];
             if ($formula['ok']) {
                 $after = $formula['latex'] === '' ? '' : format_text(
-                    \report_coursemanager\local\wiris\text_converter::wrap($formula['latex']), FORMAT_HTML, ['context' => $context]);
+                    \report_coursemanager\local\wiris\text_converter::wrap($formula['latex']), FORMAT_HTML,
+                    ['context' => $context]);
                 $code = html_writer::tag('code', s($formula['latex']), ['style' => 'word-break: break-all;']);
                 if ($formula['fromannotation']) {
                     $code .= html_writer::div(get_string('wiris_fromannotation', 'report_coursemanager'), 'small text-muted');
                 }
             } else {
-                $after = html_writer::span(get_string('wiris_toretype', 'report_coursemanager'), 'badge badge-danger bg-danger text-white');
+                $after = html_writer::span(get_string('wiris_toretype', 'report_coursemanager'),
+                    'badge badge-danger bg-danger text-white');
                 $code = html_writer::tag('code', s($formula['error']), ['class' => 'text-danger',
                     'style' => 'word-break: break-all;']);
             }
@@ -173,7 +175,8 @@ if (!$items) {
             ['class' => 'border rounded p-2 mb-2'] + ($open ? ['open' => 'open'] : []));
     };
     $badge = function(int $n, string $key = 'n_formulas'): string {
-        return ' ' . html_writer::span(get_string('wiris_' . $key, 'report_coursemanager', $n), 'badge badge-secondary bg-secondary text-white');
+        return ' ' . html_writer::span(get_string('wiris_' . $key, 'report_coursemanager', $n),
+            'badge badge-secondary bg-secondary text-white');
     };
     $link = function(string $label, ?moodle_url $link): string {
         return $link ? html_writer::link($link, s($label)) : s($label);
