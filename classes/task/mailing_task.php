@@ -87,17 +87,20 @@ class mailing_task extends \core\task\scheduled_task {
                 // following teachers : it is logged, and the task goes on.
                 try {
                     // We have list of teacher. Now retrieve all courses for each one.
-
+                    // Courses of the trash category are left out, as in the teachers dashboard : they are waiting
+                    // for deletion, and the nightly tasks only keep the orphan submissions report for them.
                     $sqllistcoursesforteacher = 'SELECT DISTINCT c.id AS courseid, c.fullname AS coursename
                     FROM {course} c
                     JOIN {context} ctx ON ctx.instanceid = c.id AND ctx.contextlevel = :courselevel
                     JOIN {role_assignments} ra ON ra.contextid = ctx.id
                     WHERE ra.roleid = :roleid
-                    AND ra.userid = :userid';
+                    AND ra.userid = :userid
+                    AND c.category <> :bin';
                     $paramsdblistcoursesforteacher = [
                         'courselevel' => CONTEXT_COURSE,
                         'roleid' => $teacherrole,
                         'userid' => $teacher->idteacher,
+                        'bin' => (int)get_config('report_coursemanager', 'category_bin'),
                     ];
                     $dbresultlistcoursesforteacher = $DB->get_records_sql($sqllistcoursesforteacher,
                         $paramsdblistcoursesforteacher);
