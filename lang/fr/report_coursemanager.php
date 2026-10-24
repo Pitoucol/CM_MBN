@@ -479,7 +479,7 @@ $string['manual_backup'] = 'Passer en sauvegarde manuelle';
 
 // Backup split and backup popup.
 $string['backupsplitthreshold'] = 'Poids maximal d\'une archive de sauvegarde (Mo)';
-$string['backupsplitthreshold_strict_desc'] = 'Dans l\'onglet « Téléchargements et exports », quand le poids estimé de la sauvegarde d\'un cours sans données utilisateurs atteint ce poids, la sauvegarde est découpée par sections en plusieurs archives (part1_, part2_…), chacune strictement sous ce poids. Toute la banque de questions est dans la partie 1. 0 : pas de découpage.';
+$string['backupsplitthreshold_margin_desc'] = 'Dans l\'onglet « Téléchargements et exports », la sauvegarde d\'un cours sans données utilisateurs est découpée par sections en plusieurs archives (part1_, part2_…) pour que chaque archive pèse moins de 98 % de ce poids : la marge de 2 % couvre les fichiers XML de la sauvegarde, que l\'estimation ne compte pas (245 Mo pour 250 Mo). Toute la banque de questions est dans la partie 1. 0 : pas de découpage.';
 $string['backup_part_prefix'] = 'partie{$a}_';
 $string['download_part'] = 'Partie {$a}';
 $string['backup_popup_title'] = 'Sauvegarde de « {$a} »';

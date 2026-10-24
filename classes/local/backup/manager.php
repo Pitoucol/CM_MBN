@@ -35,6 +35,9 @@ use stored_file;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manager {
+    /** @var float Archives stay strictly under this ratio of the threshold (2 % margin for the XML of the backup). */
+    const ARCHIVE_MARGIN = 0.98;
+
     /** @var stored_file[] Backup files of the user private backup area, loaded once. */
     protected $userbackupfiles = null;
 
@@ -101,9 +104,10 @@ class manager {
     /**
      * Strategy used to back up a course, according to its estimated backup size.
      *
-     * Sizes are estimated when the user launches the backup (see size_estimator) :
-     * - strictly under the size threshold (or no threshold) : one archive (standard strategy) ;
-     * - equal to or over the size threshold : several archives strictly under the threshold (split strategy).
+     * Sizes are estimated when the user launches the backup (see size_estimator), and compared to the archive
+     * limit (see get_archive_limit()) :
+     * - strictly under the limit (or no threshold) : one archive (standard strategy) ;
+     * - equal to or over the limit : several archives strictly under the limit (split strategy).
      * Other strategies (deferred backup for heavy courses...) can be chosen here later.
      *
      * @param int $courseid Course ID.
@@ -111,11 +115,24 @@ class manager {
      */
     public function get_strategy(int $courseid): strategy {
         $sizes = size_estimator::get_sizes($courseid);
-        $threshold = self::get_split_threshold();
-        if ($threshold > 0 && $sizes->total >= $threshold) {
-            return new split_strategy($sizes, $threshold);
+        $limit = self::get_archive_limit();
+        if ($limit > 0 && $sizes->total >= $limit) {
+            return new split_strategy($sizes, $limit);
         }
-        return new standard_strategy($sizes, $threshold);
+        return new standard_strategy($sizes, $limit);
+    }
+
+    /**
+     * Size that an archive must stay strictly under : the threshold of the settings, less a margin of 2 %.
+     *
+     * The estimation only counts files : the real archive also contains the XML files of the backup, which weigh
+     * about 0.05 to 0.1 MB for a part of 250 MB (measured on a test server). The margin keeps the real archives
+     * under the threshold chosen by the administrator. 0 : no threshold.
+     *
+     * @return int Size in bytes.
+     */
+    public static function get_archive_limit(): int {
+        return (int)floor(self::get_split_threshold() * self::ARCHIVE_MARGIN);
     }
 
     /**

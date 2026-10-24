@@ -54,7 +54,8 @@ class split_strategy extends base_strategy {
      * @return array|null Parts : list of objects (number, size, questionbank, sections), or null on error.
      */
     protected function plan_parts(launch_result $result, int $courseid): ?array {
-        // Every archive must be strictly under the threshold : a part reaching it is refused.
+        // Every archive must be strictly under the limit given by the manager (threshold less 2 %) : a part reaching
+        // it is refused. $this->threshold holds this limit.
         $common = $this->sizes->common;
         $manuallink = (new moodle_url('/backup/backup.php', ['id' => $courseid]))->out();
 
