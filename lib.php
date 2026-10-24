@@ -871,7 +871,7 @@ function report_coursemanager_render_exports_tab($userid) {
             $parts = [];
             foreach ($files as $index => $partfile) {
                 $size = $partfile->get_filesize();
-                $sizeclass = !$splitthreshold ? '' : (($size > $splitthreshold) ? 'text-danger' : 'text-success');
+                $sizeclass = !$splitthreshold ? '' : (($size >= $splitthreshold) ? 'text-danger' : 'text-success');
                 $part = html_writer::span(display_size($size),
                     'small font-weight-bold fw-bold text-nowrap mr-2 me-2 ' . $sizeclass);
                 if ($candownload) {
