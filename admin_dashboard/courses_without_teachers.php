@@ -75,10 +75,9 @@ if (!empty($delete)) {
         $datahide->visible = 0;
         $hide = $DB->update_record('course', $datahide);
 
-        $purgereports = $DB->get_record('report_coursemanager_reports', ['course' => $instance]);
-        if (!empty($purgereports)) {
-            $res = $DB->delete_records('report_coursemanager_reports', ['course' => $instance]);
-        }
+        // Reports of the course are deleted : a course has several reports, delete_records() removes them all
+        // and does nothing when there is none.
+        $DB->delete_records('report_coursemanager_reports', ['course' => $instance]);
 
         redirect(new moodle_url('/report/coursemanager/admin_dashboard/courses_without_teachers.php'));
         exit();
