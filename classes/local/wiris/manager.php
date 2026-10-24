@@ -317,6 +317,15 @@ class manager {
         }
         $transaction->allow_commit();
         self::purge_caches($courseid, array_keys($questionids));
+
+        // Event, from the web page and from the command line alike. Course 0 : question banks outside courses.
+        \report_coursemanager\event\wiris_converted::create([
+            'context' => $courseid ? \context_course::instance($courseid) : \context_system::instance(),
+            'courseid' => $courseid,
+            'userid' => $userid,
+            'other' => ['runid' => (int)$run->id, 'fields' => (int)$run->fields, 'formulas' => (int)$run->formulas,
+                'failures' => (int)$run->failures, 'origin' => $origin],
+        ])->trigger();
         return $run;
     }
 
@@ -388,6 +397,12 @@ class manager {
         }
         $transaction->allow_commit();
         self::purge_caches((int)$run->courseid, array_keys($questionids));
+
+        \report_coursemanager\event\wiris_reverted::create([
+            'context' => $run->courseid ? \context_course::instance($run->courseid) : \context_system::instance(),
+            'courseid' => (int)$run->courseid,
+            'other' => ['runid' => $runid, 'restored' => $restored, 'conflicts' => $conflicts],
+        ])->trigger();
         return ['restored' => $restored, 'conflicts' => $conflicts];
     }
 
