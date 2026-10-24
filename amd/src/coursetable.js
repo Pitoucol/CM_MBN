@@ -98,6 +98,29 @@ define([
             return tr.classList.contains(activeFilter);
         });
 
+        // Natural order of the course names : "Course 2" before "Course 10", case and accents ignored.
+        // The name column is recognised by its link to the course, so no column index is needed.
+        if (!$.fn.dataTable.ext.type.order['coursename-asc']) {
+            var collator = new Intl.Collator(document.documentElement.lang || undefined, {numeric: true, sensitivity: 'base'});
+            var names = {};
+            var nameText = function(data) {
+                if (names[data] === undefined) {
+                    // DOMParser does not run scripts nor load images of the parsed HTML.
+                    names[data] = new DOMParser().parseFromString(data, 'text/html').body.textContent.trim();
+                }
+                return names[data];
+            };
+            $.fn.dataTable.ext.type.detect.unshift(function(data) {
+                return (typeof data === 'string' && data.indexOf('/course/view.php') !== -1) ? 'coursename' : null;
+            });
+            $.fn.dataTable.ext.type.order['coursename-asc'] = function(a, b) {
+                return collator.compare(nameText(a), nameText(b));
+            };
+            $.fn.dataTable.ext.type.order['coursename-desc'] = function(a, b) {
+                return collator.compare(nameText(b), nameText(a));
+            };
+        }
+
         // Initialise DataTables.
         var dt = $(tableEl).DataTable({
             // All columns can be sorted, except recommendations and actions (last two).
