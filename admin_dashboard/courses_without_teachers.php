@@ -69,6 +69,13 @@ if (!empty($delete)) {
         // If confirmed : course is moved in trash category.
         move_courses([$instance], get_config('report_coursemanager', 'category_bin'));
 
+        // Same event as a move to the trash from the teachers dashboard (delete_course.php).
+        $event = \report_coursemanager\event\course_trash_moved::create([
+            'context' => context_course::instance($instance),
+            'courseid' => $instance,
+        ]);
+        $event->trigger();
+
         // Course parameters updated : course is hidden.
         $datahide = new stdClass;
         $datahide->id = $instance;
@@ -81,8 +88,6 @@ if (!empty($delete)) {
 
         redirect(new moodle_url('/report/coursemanager/admin_dashboard/courses_without_teachers.php'));
         exit();
-
-        // TO DO : add event when course is deleted by admin.
     } else {
         // Shows form to confirm before delete.
         $PAGE->navbar->add(get_string('title_admin_no_teacher_courses', 'report_coursemanager'));

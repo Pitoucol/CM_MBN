@@ -105,12 +105,18 @@ if (!empty($delete)) {
         foreach ($dbresultlistusersorphansubmissions as $userorphan) {
             $delete = $targetassign->remove_submission($userorphan->id);
         }
+
+        // Event : orphan submissions of the assignment deleted, with the number of students concerned.
+        $event = \report_coursemanager\event\orphan_submissions_deleted::create([
+            'context' => $context,
+            'courseid' => $course,
+            'other' => ['count' => count($dbresultlistusersorphansubmissions)],
+        ]);
+        $event->trigger();
         // Now that files are deleted, delete report entry.
         $purgereport = $DB->delete_records('report_coursemanager_orphans', ['cmid' => $instance, 'course' => $course]);
         redirect(new moodle_url('/report/coursemanager/admin_dashboard/orphaned_submissions.php'));
         exit();
-
-        // TO DO : add event when orphan submissions are deleted.
     } else {
         // Shows form to confirm before delete.
         $PAGE->navbar->add(get_string('title_admin_orphan_submissions', 'report_coursemanager'));

@@ -391,6 +391,7 @@ $string['confirm_course_restored_message'] = 'Le cours a été déplacé hors de
 // Events.
 $string['course_dashboard_viewed'] = 'Tableau de bord Enseignants consulté';
 $string['course_trash_moved'] = 'Cours déplacé dans la catégorie Corbeille';
+$string['event_orphan_submissions_deleted'] = 'Remises orphelines supprimées';
 $string['course_files_viewed'] = 'Page des fichiers de cours consultée';
 $string['course_global_reset'] = 'Cours réinitialisé';
 $string['course_cohort_unenrolled'] = 'Cohortes désinscrites';
