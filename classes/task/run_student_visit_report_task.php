@@ -53,21 +53,18 @@ class run_student_visit_report_task extends \core\task\scheduled_task {
             $table = 'report_coursemanager_reports';
 
             // Check if params are set. If not, stop reports calculation.
-            if (!get_config('report_coursemanager', 'student_role_report') || get_config('report_coursemanager', 'student_role_report') == '')
-            {
+            if (!get_config('report_coursemanager', 'student_role_report')) {
                 mtrace("... ERROR - Role for students is not set in params.");
                 return;
             }
-            if (!get_config('report_coursemanager', 'category_bin') || get_config('report_coursemanager', 'category_bin') == '')
-                {
-                    mtrace("... ERROR - Category for deleted courses is not set in params.");
-                    return;
-                }
-            if (!get_config('report_coursemanager', 'last_access_student') || get_config('report_coursemanager', 'last_access_student') == '')
-                {
-                    mtrace("... ERROR - Number of days for last student access is not set in params.");
-                    return;
-                }
+            if (!get_config('report_coursemanager', 'category_bin')) {
+                mtrace("... ERROR - Category for deleted courses is not set in params.");
+                return;
+            }
+            if (!get_config('report_coursemanager', 'last_access_student')) {
+                mtrace("... ERROR - Number of days for last student access is not set in params.");
+                return;
+            }
 
             require_once($CFG->dirroot . '/report/coursemanager/lib.php');
             $now = time();

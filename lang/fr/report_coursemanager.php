@@ -139,14 +139,14 @@ $string['head_median_help'] = "Cette colonne compare la taille de chaque cours a
 <ul>
 <li><i class='fa fa-arrow-circle-down text-success'></i> indique que la taille du cours est supérieure à la médiane ;</li>
 <li><i class='fa fa-arrow-circle-up text-danger'></i> indique que la taille du cours est inférieure à la médiane ;</li>
-<li><i class='fa fa-question-circle text-info'></i> indique que la taille du cours est nulle ou non calculée encore.</li> 
+<li><i class='fa fa-question-circle text-info'></i> indique que la taille du cours est nulle ou non calculée encore.</li>
 </ul>";
 $string['head_average'] = 'Comparaison avec la taille moyenne du cours';
 $string['head_average_help'] = "Cette colonne compare la taille de chaque cours avec la taille moyenne calculée :
 <ul>
 <li><i class='fa fa-arrow-circle-down text-success'></i> indique que la taille du cours est supérieure à la moyenne ;</li>
 <li><i class='fa fa-arrow-circle-up text-danger'></i> indique que la taille du cours est inférieure à la moyenne ;</li>
-<li><i class='fa fa-question-circle text-info'></i> indique que la taille du cours est nulle ou non calculée encore.</li> 
+<li><i class='fa fa-question-circle text-info'></i> indique que la taille du cours est nulle ou non calculée encore.</li>
 </ul>";
 
 // Actions.
@@ -290,11 +290,11 @@ représenter une place importante dans votre cours. Pensez à également réinit
 ';
 $string['button_delete_cohort_confirm'] = 'Désinscrire les cohortes';
 $string['no_cohort'] = '<p class="alert alert-info">Aucune cohorte n\'est actuellement inscrite dans ce cours !</p>';
-$string['deletecohortsscheduled'] = 'Votre demande de désinscription des cohortes a été enregistrée pour ce cours et sera exécutée automatiquement 
+$string['deletecohortsscheduled'] = 'Votre demande de désinscription des cohortes a été enregistrée pour ce cours et sera exécutée automatiquement
 dans quelques instants.';
 
 // Admin dashboard page.
-$string['admin_course_managerinfo'] = '<p>Cette page donne accès aux différents outils du plugin Course Manager réservés aux administrateurs Moodle. 
+$string['admin_course_managerinfo'] = '<p>Cette page donne accès aux différents outils du plugin Course Manager réservés aux administrateurs Moodle.
 Pour accéder aux paramètres du plugin, rendez-vous dans Plugins > Rapports > Course Manager.</p>';
 $string['table_tool_name'] = '<p>Outil</p>';
 $string['table_tool_description'] = '<p>Description</p>';

@@ -98,7 +98,7 @@ class display_reports {
                 $allreports = $DB->get_records('report_coursemanager_reports', ['course' => $PAGE->course->id]);
                 // Create object to stock reports.
                 $final = '';
-                
+
                 // Create an object for messages variables.
                 $info = new \stdClass();
                 $info->courseid = $PAGE->course->id;
