@@ -28,7 +28,7 @@ global $DB, $USER;
 
 require_login();
 
-// $page, $perpage et search_courses.js deleted : DataTables now handles pagination and search.
+// $page, $perpage and search_courses.js deleted : DataTables now handles pagination and search.
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $done     = optional_param('done', '', PARAM_ALPHAEXT);
 
