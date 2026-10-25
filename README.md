@@ -13,7 +13,7 @@ Le dépôt contient trois branches principales.
 
 - La branche main est une copie exacte du plugin d'Olivier Valentin, dans sa version de juin 2026. Nous n'y avons rien modifié. Elle sert de point de comparaison : tout ce qui diffère de main est notre travail.
 - La branche stabilisation reprend main et y ajoute uniquement des corrections et des améliorations de performance. Elle ne change pas le fonctionnement du plugin pour les enseignants, à l'exception de nouvelles colonnes qui affichent mieux le poids des cours. C'est la version à choisir pour avoir le plugin d'origine, corrigé et plus rapide.
-- La branche ameliorations reprend stabilisation et y ajoute les nouvelles fonctionnalités, regroupées dans un nouvel onglet du tableau de bord des enseignants, « Téléchargements et exports ». C'est la version à choisir pour avoir toutes nos fonctionnalités. Elle est encore en phase de test.
+- La branche ameliorations reprend stabilisation et y ajoute les nouvelles fonctionnalités, regroupées dans un nouvel onglet du tableau de bord des enseignants, « Téléchargements et exports ». C'est la version à choisir pour avoir toutes nos fonctionnalités.
 
 Chaque modification a d'abord été faite dans une branche qui lui est propre, puis versée dans stabilisation ou dans ameliorations. Ces branches individuelles sont conservées.
 
