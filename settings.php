@@ -219,25 +219,25 @@ if ($ADMIN->fulltree) {
     $name = 'report_coursemanager/enable_course_content_task';
     $title = get_string('enablecoursecontenttask', 'report_coursemanager');
     $description = get_string('enablecoursecontenttask_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
     // Checkbox for enabling teachers task (courses without teachers or without teachers visits).
     $name = 'report_coursemanager/enable_teachers_task';
     $title = get_string('enableteacherstask', 'report_coursemanager');
     $description = get_string('enableteacherstask_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
     // Checkbox for enabling students task (courses without students or without students visits).
     $name = 'report_coursemanager/enable_students_task';
     $title = get_string('enablestudentstask', 'report_coursemanager');
     $description = get_string('enablestudentstask_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
     // Checkbox for enabling orphan submissions task.
     $name = 'report_coursemanager/enable_orphans_task';
     $title = get_string('enableorphanstask', 'report_coursemanager');
     $description = get_string('enableorphanstask_desc', 'report_coursemanager');
-    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 0));
+    $settings->add(new admin_setting_configcheckbox($name, $title, $description, 1));
 
     // Settings for teachers mailing.
     $settings->add(new admin_setting_heading('mailingheading',
