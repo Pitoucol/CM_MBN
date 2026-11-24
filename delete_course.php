@@ -88,7 +88,7 @@ if (!$confirm) {
         exit();
     }
     if (!$canmove) {
-        echo html_writer::tag('h5', get_string('trash_norights', 'report_coursemanager'), ['class' => 'alert alert-warning']);
+        echo html_writer::tag('h5', get_string('trash_notset', 'report_coursemanager'), ['class' => 'alert alert-warning']);
         echo $OUTPUT->footer();
         exit();
     }
@@ -134,7 +134,7 @@ if (!$confirm) {
         throw new moodle_exception('invalidrequest');
     }
     if (!$canmove) {
-        throw new moodle_exception('trash_norights', 'report_coursemanager');
+        throw new moodle_exception('trash_notset', 'report_coursemanager');
     }
     if ($infocourse->category == $bin) {
         throw new moodle_exception('delete_already_moved', 'report_coursemanager');
