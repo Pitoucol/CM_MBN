@@ -246,13 +246,12 @@ if (count($listusercourses) == 0) {
     $table->head[] = get_string('table_recommendation', 'report_coursemanager');
     $table->head[] = get_string('table_actions', 'report_coursemanager');
 
-    // Native rights of the trash actions, as in delete_course.php and restore_course.php : the menu only offers
-    // an action that the user can really do. Moving to the trash needs moodle/course:create in the trash category,
-    // restoring needs moodle/course:create in at least one category ; both need moodle/course:changecategory
-    // in the course, checked for each course below.
+    // Rights of the trash actions, as in delete_course.php and restore_course.php : the menu only offers
+    // an action that the user can really do. Moving to the trash only needs moodle/course:update in the course,
+    // as in the original plugin, and a trash category set. Restoring needs moodle/course:create in at least one
+    // category and moodle/course:changecategory in the course, checked for each course below.
     $bin = (int)get_config('report_coursemanager', 'category_bin');
     $bincontext = $bin ? context_coursecat::instance($bin, IGNORE_MISSING) : false;
-    $cancreateinbin = $bincontext && has_capability('moodle/course:create', $bincontext);
     $cancreatesomewhere = !empty(core_course_category::make_categories_list('moodle/course:create'));
 
     // Iteration for all courses - no more array_slice.
@@ -581,9 +580,9 @@ if (count($listusercourses) == 0) {
                 $deletecohortlink = new moodle_url('/report/coursemanager/delete_cohort.php', ['id' => $course->id]);
                 $courseeditlink   = new moodle_url('/course/edit.php', ['id' => $course->id]);
 
-                // Move to the trash : only if the user has the native rights (see above).
+                // Move to the trash : moodle/course:update in the course and a trash category set (see above).
                 $listactions = '';
-                if ($cancreateinbin && has_capability('moodle/course:changecategory', $coursecontext)) {
+                if ($bincontext && has_capability('moodle/course:update', $coursecontext)) {
                     $listactions .= '<a class="dropdown-item" href="' . $deletelink . '">' .
                         get_string('menudeletecourse', 'report_coursemanager') . '</a>';
                 }
