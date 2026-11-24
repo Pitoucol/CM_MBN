@@ -35,12 +35,12 @@ $context = context_course::instance($courseid, MUST_EXIST);
 
 require_capability('moodle/course:update', $context);
 
-// Native Moodle rights, as for any change of category : moodle/course:changecategory in the course, and
-// moodle/course:create in the trash category, which must be set.
+// As in the original plugin, moodle/course:update in the course is enough to move it to the trash category :
+// teachers must be able to put their courses in the trash without rights in the trash category.
+// The trash category must be set.
 $bin = (int)get_config('report_coursemanager', 'category_bin');
 $bincontext = $bin ? context_coursecat::instance($bin, IGNORE_MISSING) : false;
-$canmove = $bincontext && has_capability('moodle/course:changecategory', $context)
-    && has_capability('moodle/course:create', $bincontext);
+$canmove = ($bincontext !== false);
 
 // Get site infos.
 $site = get_site();
